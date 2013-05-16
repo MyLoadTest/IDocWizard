@@ -5,7 +5,6 @@
 #include "lrun.h" // LoadRunner functions (lr_)
 #include "pugixml.hpp"  // http://code.google.com/p/pugixml/
 
-////#include <stdarg.h> // varargs. http://en.wikipedia.org/wiki/Stdarg.h
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
@@ -100,6 +99,7 @@ namespace
     }
 }
 
+// TODO (will do this last, as it is non-essential functionality.
 IDOCREPLAYDLL_API BOOL idoc_set_license(const LPCSTR licenseXml)
 {
     g_licenseValid = false;
@@ -200,9 +200,11 @@ IDOCREPLAYDLL_API LPCSTR idoc_eval_string(const LPCSTR parameterizedString)
         return parameterizedString;
     }
 
+    // TODO: move this check so that it only throws an error when parameterizedString contains something that looks like an IDoc parameter (i.e. {IDoc:xxx:yyy}
+    // We don't want an error to be raised when idoc_create() is called with standard LoadRunner parameters.
     if (g_idocParamInputFilePath.empty())
     {
-        lr_error_message("[%s] ERROR: Input file is not selected. (Call idoc_select_input_file first.)", __FUNCTION__);
+    //    lr_error_message("[%s] ERROR: Input file is not selected. (Call idoc_select_input_file first.)", __FUNCTION__);
         return parameterizedString;
     }
 

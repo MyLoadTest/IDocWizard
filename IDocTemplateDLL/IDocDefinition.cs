@@ -10,7 +10,7 @@
     using System.Xml;
     using System.Xml.XPath;
     using System.Xml.Schema;
-using System.Diagnostics;
+    using System.Diagnostics;
     using System.Reflection;
 
     /// <summary>
@@ -1369,7 +1369,7 @@ using System.Diagnostics;
             // TODO: The license should be added from a file or from a registry key, so that it is not hard-coded for all users.
             string license = 
                 "    // The license key must be set before idoc_create() can be called.\n" +
-                "    idoc_load_license(\n" +
+                "    idoc_set_license(\n" +
                 "        \"<license>\"\n" +
                 "        \"    <name>Joe User</name>\"\n" +
                 "        \"    <company>BigCo</company>\"\n" +

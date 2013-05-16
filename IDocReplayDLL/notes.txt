@@ -1,0 +1,163 @@
+﻿Choice of XML parser: http://stackoverflow.com/questions/9387610/what-xml-parser-should-i-use-in-c
+
+
+line width = 120 chars
+123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+========================================================================================================================
+Everything You Never Wanted To Know About DLLs
+http://blog.omega-prime.co.uk/?p=115
+
+
+-----
+{scriptname}.prm
+[parameter:MyDllParam]
+HPLibraryName=""
+net_dir=""
+ParamName="MyDllParam"
+AXLibraryName=""
+GenerateNewVal="EachOccurrence"
+Type="UserDefinedFunction"
+OriginalValue=""
+FunctionName="MyFunctionName"
+NTLibraryName="MyDll.dll"
+SOLibraryName=""
+
+-----
+http://xerces.apache.org/xerces-c/
+
+Xerces Licensing: Apache license (non-viral)
+
+-----
+User Defined Function parameters
+
+ 26. How do you write user defined functions in LR?
+
+Before we create the User Defined functions we need to create the external library (DLL) with the function. We add this
+library to VuGen bin directory. Once the library is added then we assign user defined function as a parameter. The 
+function should have the following format: __declspec (dllexport) char* (char*, char*) 
+
+
+-----
+Knowledge document information 
+Title: How to use an external C function in LoadRunner's VuGen 
+Document ID: KM186339 
+Product: LoadRunner 
+Version: 
+OS: Unspecified 
+Updated: 2000-Nov-17 
+Solution 
+
+Creates a DLL and loads it using lr_load_dll function
+Compile your transform code into a .dll, and loads the DLL by using the lr_load_dll() function. This will as well hide the function code from the tester. 
+
+Example:
+ 1. Unzip the attached sample to your machine. 
+2. To use the code in LoadRunner's VuGen, load the dll and call the function. For example:
+     Action()
+     {
+         lr_load_dll("C:\\dll_folder>\\cdll.dll");
+         vid();
+         return 0;
+     }
+
+Note: 
+To edit the code, you will need to open the attached project in Microsoft Visual C++ 6.0. Apart from that, the atttached sample includes "d:\mercury\lr65\include\lrun.h", and "d:\mercury\lr65\lib\lrun50.lib" to link the DLL. If you need to use LR API's (lr_message(), etc.), you need to modify the paths to lrun.h and lrun50.lib files in order to get the DLL compiled and linked properly, otherwise, simply remove lrun.h and lrun50.lib from the project. 
+
+There is more information on the books online for "Creating Virtual User Scripts" User's Guide, under the Appendixes section for 'Calling External Functions'
+ 
+-----
+From the manual
+
+User-Defined Function Parameters
+Data that is generated using a function from an external DLL. A user-defined function replaces the
+parameter with a value returned from a function located in an external DLL.
+Before you assign a user-defined function as a parameter, you create the external library (DLL) with
+the function. The function should have the following format:
+__declspec(dllexport) char *<functionName>(char *, char *)
+The arguments sent to this function are both NULL.
+When you create the library, we recommend that you use the default dynamic library path. That
+way, you do not have to enter a full path name for the library, but rather, just the library name.
+VuGen's bin folder is the default dynamic library path. You can add your library to this folder.
+The following are examples of user-defined functions:
+__declspec(dllexport) char *UF_GetVersion(char *x1, char *x2) {return
+"Ver2.0";}
+__declspec(dllexport) char *UF_GetCurrentTime(char *x1, char *x2) {
+time_t x = tunefully); static char t[35]; strcpy(t, ctime( =;x)); t
+[24] = '\0'; return t;}
+
+-----
+
+you need to add lib50.lib if you are going to use some loadrunner
+function inside your dll, you don't need it otherwise
+
+-----
+http://www.performancecompetence.com/wordpress/?p=280
+
+LoadRunner: Creating dll files and using it in LR scripts
+
+#include "stdafx.h"
+#include "C:\Program Files\HP\LoadRunner\include\lrun.h"
+ 
+extern "C" __declspec( dllexport ) int lr_searchReplace(char* inputStr, char* outputStr, char lookupChar, char repChar);
+ 
+int lr_searchReplace(char* inputStr, char* outputStr, char lookupChar, char repChar)
+    {
+ 
+        char *ptr =inputStr;
+        char xchar;
+        int len=0;
+        int i=0;
+ 
+        lr_output_message("%s",inputStr);
+        xchar = *ptr;//Copy initial
+        len=strlen(inputStr);
+        while (len>0)
+        {
+ 
+            len--;
+            xchar = *ptr;
+            if(xchar==' ')
+            {
+                inputStr[i]= repChar;
+ 
+            }
+ 
+            ptr++;
+            i++;
+ 
+        }
+ 
+      lr_save_string(inputStr,outputStr);
+      lr_output_message("%s",inputStr);
+ 
+      return 0;
+    }
+ 
+1
+ 
+Before attempting to build this dll project in VC++, ensure that you have included lrun50.lib in the aditional linker file settings which is in Project Options, else the project won't successfully build/compile. lrun.lib should be present inside <LR Installation Directory>\lib folder. Also make sure you include the lrun.h header file as shown in the above code snippet.
+ 
+After the project is built, dig into the debug folder to find the dll file and then copy it inside the LoadRunner script folder and use it as shown below:
+1
+Action()
+{
+   lr_load_dll("SearchNReplace.dll");
+   lr_save_string("this is a dummy text", "cProjectName");
+   r_searchReplace(lr_eval_string("{cProjectName}"), "convProjName", ' ', '+');
+   lr_output_message("%s",lr_eval_string("{convProjName}"));
+   return 0;
+}
+
+
+-----
+// can write hook code in managed code.
+http://easyhook.codeplex.com/
+
+-----
+// Wikipedia article and links are very good:
+http://en.wikipedia.org/wiki/Hooking
+
+-----
+// Hooking methods
+http://www.codeproject.com/Articles/2082/API-hooking-revealed
+

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ZISUPOD_ZBAPIPUBLISH02>
+    <IDOC BEGIN="1">
+        <EDI_DC40_U SEGMENT="1">
+            <TABNAM length="10">EDI_DC40_U</TABNAM>
+            <MANDT length="3">100</MANDT>
+            <DOCNUM length="16">0000000062041994</DOCNUM>
+            <DOCREL length="4">701</DOCREL>
+            <STATUS length="2">30</STATUS>
+            <DIRECT length="1">1</DIRECT>
+            <OUTMOD length="1">2</OUTMOD>
+            <EXPRSS length="1"></EXPRSS>
+            <TEST length="1"></TEST>
+            <IDOCTYP length="30">ZISUPOD_ZBAPIPUBLISH02</IDOCTYP>
+            <CIMTYP length="30"></CIMTYP>
+            <MESTYP length="30">ZISUPOD_ZISYNCPUBLISH</MESTYP>
+            <MESCOD length="3"></MESCOD>
+            <MESFCT length="3"></MESFCT>
+            <STD length="1"></STD>
+            <STDVRS length="6"></STDVRS>
+            <STDMES length="6"></STDMES>
+            <SNDPOR length="10">SAPAUP</SNDPOR>
+            <SNDPRT length="2">LS</SNDPRT>
+            <SNDPFC length="2"></SNDPFC>
+            <SNDPRN length="10">AUP100</SNDPRN>
+            <SNDSAD length="21"></SNDSAD>
+            <SNDLAD length="70"></SNDLAD>
+            <RCVPOR length="10">IDOC2FILE</RCVPOR>
+            <RCVPRT length="2">LS</RCVPRT>
+            <RCVPFC length="2"></RCVPFC>
+            <RCVPRN length="10">ALEEWAY</RCVPRN>
+            <RCVSAD length="21"></RCVSAD>
+            <RCVLAD length="70"></RCVLAD>
+            <CREDAT length="8">20120831</CREDAT>
+            <CRETIM length="6">095534</CRETIM>
+            <REFINT length="14"></REFINT>
+            <REFGRP length="14"></REFGRP>
+            <REFMES length="14"></REFMES>
+            <ARCKEY length="70"></ARCKEY>
+            <SERIAL length="20">20120831095533</SERIAL>
+        </EDI_DC40_U>
+        <Z2BP_HEADER000 SEGMENT="1">
+            <SEGNAM length="30">Z2BP_HEADER000</SEGNAM>
+            <MANDT length="3">100</MANDT>
+            <DOCNUM length="16">0000000062041994</DOCNUM>
+            <SEGNUM length="6">000001</SEGNUM>
+            <PSGNUM length="6">000000</PSGNUM>
+            <HLEVEL length="2">01</HLEVEL>
+            <FROM length="10">ffffffffff</FROM>
+            <TO length="10">tttttttttt</TO>
+            <MESSAGE_ID length="36">mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm</MESSAGE_ID>
+            <MESSAGE_DATE length="28">dddddddddddddddddddddddddddd</MESSAGE_DATE>
+            <TRANSACTION_GROUP length="4">tttt</TRANSACTION_GROUP>
+            <PRIORITY length="10">pppppppppp</PRIORITY>
+            <SECURITY_CONTEXT length="15">sssssssssssssss</SECURITY_CONTEXT>
+            <MARKET length="15">mmmmmmmmmmmmmmm</MARKET>
+            <SUBJECT length="30">ssssssssssssssssssssssssssssss</SUBJECT>
+        </Z2BP_HEADER000>
+    </IDOC>
+</ZISUPOD_ZBAPIPUBLISH02>

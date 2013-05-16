@@ -1,0 +1,84 @@
+﻿http://www.codeproject.com/Articles/11278/EDIFACT-to-XML-to-Anything-You-Want
+-----
+
+idoc_build("",
+    "<foo segment=\"true\">"
+    "  <FieldName length=\"3\">" // <-- this way the building function can figure out how to construct the IDoc without ever having to see the output format XSD.
+
+IDoc Parameters should have a format of {SEGMENT:FIELD}. This way the code can see what should be an IDoc parameter compared to a LoadRunner parameter
+
+LoadRunner parameters must begin with a letter, and only contain alphanumeric characters and _
+
+Innovation Voucher program = $10k from government
+Also, there is a $25k grant.
+
+when I allocate memory for the output IDoc, I should know exactly how big the buffer should be, as each field will have a length.
+
+-----
+CREATING PROJECT IN VISUAL STUDIO
+
+This project was created in Visual Studio 2010 by selecting Visual C++ > Win32 > Win32 Console Application. In the 
+Wizard, I picked the "DLL" radio button, and did not select any checkboxes.
+I have had problems with a DLL that I created when I used "Win32 Project" instead of "Win32 Console Application".
+
+-----
+CODE STYLE
+
+* 120 columns.
+
+-----
+CALLING DLLs IN LOADRUNNER
+
+DLLs store a value for their object lifetime. If you call lr_load_dll, it does not freshly load the DLL.
+e.g. if you call lr_load_dll(), set a value, then call lr_load_dll() again, the value will still be set.
+
+Not sure if it has to be a multi-threaded DLL.
+
+-----
+CALLING LR FUNCTIONS FROM DLLs
+
+Do I have to make the DLL multi-threaded? (as suggested in LR manual for manually created vusers)
+
+
+-----
+
+
+
+-----
+FUNCTIONS
+
+* Set license idoc_generator_set_license()
+ - static variable.
+* Logging
+* 
+
+
+* Generate code in VuGen
+ - attach DLL to script
+ - lr_load_dll()
+ - idoc_generator_set_license()
+ - idoc_generator_build()
+
+-----
+RAPIDXML CLASSES & FUNCTIONS
+
+Note that I will only by using this library to read XML (never to create or modify).
+
+file:///C:/Documents%20and%20Settings/Administrator/Desktop/rapidxml-1.13/manual.html#namespacerapidxml_1reference
+
+xml_document (also inherits from xml_node)
+ - parse()
+ - first_node()
+ - allocate_attribute()
+ - append_node()
+
+xml_node
+ - value()
+ - first_attribute()
+
+xml_attribute
+ - name()
+ - value()
+ - next_attribute()
+
+

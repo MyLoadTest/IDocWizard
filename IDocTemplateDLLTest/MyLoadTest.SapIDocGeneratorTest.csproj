@@ -8,10 +8,11 @@
     <ProjectGuid>{CF498082-303F-4D82-AB69-4BAC5A85B33E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyLoadTest.IDoc</RootNamespace>
-    <AssemblyName>test</AssemblyName>
+    <RootNamespace>MyLoadTest.SapIDocGeneratorTest</RootNamespace>
+    <AssemblyName>MyLoadTest.SapIDocGeneratorTest</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -54,6 +55,15 @@
     <Content Include="testdata\idoc1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyLoadTest.SapIDocGenerator\MyLoadTest.SapIDocGenerator.csproj">
+      <Project>{3FC9243A-EE34-4C2D-ADB5-28D98B3B6FB9}</Project>
+      <Name>MyLoadTest.SapIDocGenerator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

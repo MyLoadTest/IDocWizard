@@ -1,35 +1,36 @@
 ﻿/// copyright Stuart Moncrieff
 /// Blah blah blah
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using MyLoadTest.SapIDocGenerator;
+using NDesk.Options;
+
 namespace MyLoadTest.IDoc
 {
-    using NDesk.Options;
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Xml.Linq;
-
     /// <summary>
     /// This program converts a flat-text IDoc file (and it's C-Header definition) into an XML-formatted IDoc and a VuGen Action.c file.
-    /// 
+    ///
     /// To run the program:
     ///     test --idoc=".\testdata\idoc1.txt" --header=".\testdata\idoc1.h"
-    /// 
+    ///
     /// </summary>
-    class Program
+    internal class Program
     {
         #region private fields
+
         private static string idocFile; // Flat-text IDoc file (input)
         private static string headerFile = null; // Exported C-Header definition of the IDoc (input)
         private static string sourceFile = "Action.c"; // Action.c file (output)
         private static string xmlFile = null; // IDoc in XML format (output)
         private static bool showHelp = false;
+
         #endregion
 
         #region main entrypoint
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             var p = new OptionSet() {
                	{ "idoc=", "the flat-text IDoc file", v => idocFile = v }, // Mandatory
@@ -39,10 +40,12 @@ namespace MyLoadTest.IDoc
 
             // Process the command-line arguments
             List<string> options;
-            try {
+            try
+            {
                 options = p.Parse(args);
             }
-            catch (OptionException e) {
+            catch (OptionException e)
+            {
                 System.Console.Write("test: ");
                 System.Console.WriteLine(e.Message);
                 System.Console.WriteLine("Try `test --help' for more information.");
@@ -50,38 +53,42 @@ namespace MyLoadTest.IDoc
             }
 
             // Command line option "--help"
-            if (showHelp == true) {
+            if (showHelp == true)
+            {
                 ShowHelp(p);
                 return;
             }
 
             // Check that the mandatory input arguments were specified.
-            if ( (String.IsNullOrEmpty(idocFile) == true) ||
-                 (String.IsNullOrEmpty(headerFile) == true)) {
+            if ((String.IsNullOrEmpty(idocFile) == true) ||
+                 (String.IsNullOrEmpty(headerFile) == true))
+            {
                 Console.WriteLine("You did not specify all the arguments. Try `test --help' for more information.");
                 return;
             }
 
             // Check that both of the input files exist.
             if ((File.Exists(idocFile) == false) ||
-                (File.Exists(headerFile) == false)) {
+                (File.Exists(headerFile) == false))
+            {
                 Console.WriteLine("One of the input files does not exist. Please double check the file name and path.");
                 return;
             }
 
             // Read the IDoc and IDoc Definition
             Console.WriteLine("Reading IDoc Definition from C-header file: {0}", headerFile);
-            IDocDefinition def = IDocDefinition.LoadHeader(headerFile);
+            SapIDocDefinition def = SapIDocDefinition.LoadHeader(headerFile);
             Console.WriteLine("Reading IDoc data text file: {0}", idocFile);
-            String idocContents = File.ReadAllText(idocFile); ;
-            IDoc idoc = new IDoc(def, idocContents);
+            String idocContents = File.ReadAllText(idocFile);
+            ;
+            SapIDoc idoc = new SapIDoc(def, idocContents);
 
             // ==========================================
             // Example for spec:
 
             //// Import IDoc Definition from C header file (*.h)
             //string headerFileName = "example.h";
-            //IDocDefinition def = IDocDefinition.LoadHeader(headerFileName);
+            //SapIDocDefinition def = SapIDocDefinition.LoadHeader(headerFileName);
             //Console.WriteLine("IDoc type: {0}", def.Name);
 
             //// Import IDoc file
@@ -97,7 +104,7 @@ namespace MyLoadTest.IDoc
 
             //// Import IDoc Definition from C header file (*.h)
             //string headerFileName = "example.h";
-            //IDocDefinition def = IDocDefinition.LoadHeader(headerFileName);
+            //SapIDocDefinition def = SapIDocDefinition.LoadHeader(headerFileName);
 
             //// Bulk Import IDoc files and save them as XML
             //foreach (string file in files) {
@@ -127,14 +134,17 @@ namespace MyLoadTest.IDoc
             Console.Write("finished. Press any key to continue . . . ");
             Console.ReadKey(true);
         }
+
         #endregion
 
         #region private methods
+
         /// <summary>
         /// Print usage instructions for the Test program
         /// </summary>
         /// <param name="p">The OptionSet that is used by the command-line program.</param>
-        private static void ShowHelp(OptionSet p) {
+        private static void ShowHelp(OptionSet p)
+        {
             DateTime dateInOneMonth = DateTime.Now.AddMonths(1);
 
             Console.WriteLine();
@@ -146,6 +156,7 @@ namespace MyLoadTest.IDoc
             Console.WriteLine();
             Console.WriteLine("Please report any bugs to stuart@myloadtest.com");
         }
+
         #endregion
     }
 }

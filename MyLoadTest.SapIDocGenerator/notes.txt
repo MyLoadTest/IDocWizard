@@ -1,0 +1,2 @@
+﻿How to validate XML against XSD in C#
+http://codeissue.com/issues/i24decc2d2d406a/how-to-validate-xml-using-schema-xsd-in-c-net

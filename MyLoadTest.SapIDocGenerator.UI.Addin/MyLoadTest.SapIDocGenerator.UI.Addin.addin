@@ -1,0 +1,29 @@
+﻿<AddIn name="MyLoadTest.SapIDocGenerator.UI.Addin"
+       author="MyLoadTest"
+       url="http://www.myloadtest.com/"
+       description="SAP IDoc Generator Add-in">
+  <Runtime>
+    <Import assembly="MyLoadTest.SapIDocGenerator.UI.Addin.dll" />
+  </Runtime>
+
+  <Manifest>
+    <Identity name="MyLoadTest.SapIDocGenerator.UI.Addin"
+              version="@MyLoadTest.SapIDocGenerator.UI.Addin.dll"/>
+    <Dependency addin="SharpDevelop"
+                version="4.1"/>
+  </Manifest>
+
+  <Path name="/Workspace/Autostart">
+    <Class id="MyLoadTest.SapIDocGenerator.UI.Addin.Startup"
+           class="MyLoadTest.SapIDocGenerator.UI.Addin.Commands.StartupCommand" />
+  </Path>
+
+  <Path name = "/SharpDevelop/Workbench/Pads">
+    <Pad id="MyLoadTest.SapIDocGenerator.UI.Addin.Pads.WizardPad"
+         icon="PadIcons.TaskList"
+         category="Main"
+         title="SAP IDoc Generator Wizard"
+         defaultPosition="Bottom"
+         class="MyLoadTest.SapIDocGenerator.UI.Addin.Pads.WizardPad"/>
+  </Path>
+</AddIn>

@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IDocReplayDLL", "IDocReplay
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IDocReplayDLLTest", "IDocReplayDLLTest\IDocReplayDLLTest.vcxproj", "{9C3458C2-90FE-4EB1-94E0-8973E8FBAB83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGeneratorTest", "IDocTemplateDLLTest\MyLoadTest.SapIDocGeneratorTest.csproj", "{CF498082-303F-4D82-AB69-4BAC5A85B33E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGeneratorTest", "MyLoadTest.SapIDocGeneratorTest\MyLoadTest.SapIDocGeneratorTest.csproj", "{CF498082-303F-4D82-AB69-4BAC5A85B33E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGenerator.UI.Common", "MyLoadTest.SapIDocGenerator.UI.Common\MyLoadTest.SapIDocGenerator.UI.Common.csproj", "{4E5491A0-2555-42A9-B3A7-9629F25A109E}"
 EndProject

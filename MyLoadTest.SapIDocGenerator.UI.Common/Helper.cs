@@ -321,6 +321,21 @@ namespace MyLoadTest.SapIDocGenerator.UI
             return descriptionAttributes.Length == 1 ? descriptionAttributes[0].Description : stringValue;
         }
 
+        public static DependencyProperty RegisterDependencyProperty<TObject, TProperty>(
+            Expression<Func<TObject, TProperty>> propertyGetterExpression,
+            PropertyMetadata typeMetadata = null,
+            ValidateValueCallback validateValueCallback = null)
+        {
+            var propertyInfo = GetPropertyInfo(propertyGetterExpression);
+
+            return DependencyProperty.Register(
+                propertyInfo.Name,
+                propertyInfo.PropertyType,
+                propertyInfo.DeclaringType.EnsureNotNull(),
+                typeMetadata,
+                validateValueCallback);
+        }
+
         #endregion
 
         #region Private Methods

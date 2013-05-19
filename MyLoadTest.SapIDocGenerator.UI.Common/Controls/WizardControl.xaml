@@ -3,9 +3,38 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
         xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignHeight="300"
-        d:DesignWidth="300">
+        d:DesignWidth="300" MinWidth="200">
     <UserControl.DataContext>
         <controls:WizardControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="0" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Margin="5" Text="{x:Static props:Resources.WizardInstructions12}"
+                    TextWrapping="Wrap" />
+            <controls:FileSelectionControl Grid.Row="1" FilePath="{Binding DefinitionFilePath,Mode=TwoWay}"
+                    FileDialogFilter="C header files|*.h" FileDialogTitle="Open IDoc Definition File" />
+            <TextBlock Grid.Row="2" Margin="5" Text="{x:Static props:Resources.WizardInstructions3}"
+                    TextWrapping="Wrap" />
+            <controls:FileSelectionControl Grid.Row="3" FilePath="{Binding ExampleFilePath,Mode=TwoWay}"
+                    FileDialogFilter="IDoc text files|*.txt|All files|*.*" FileDialogTitle="Open Example IDoc file" />
+            <TextBlock Grid.Row="4" Margin="5" Text="{x:Static props:Resources.WizardInstructions4}"
+                    TextWrapping="Wrap" />
+            <StackPanel Grid.Row="5" Orientation="Horizontal">
+                <Button Content="Create" Margin="5,5,10,5" MinWidth="100" Click="CreateButton_Click"
+                        IsEnabled="{Binding IsInputValid}" />
+                <Button Content="Cancel" Margin="5,5,10,5" MinWidth="100" Click="CancelButton_Click" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -127,8 +127,10 @@ if /i "%25ADDIN_TARGET_PATH%25" equ "" (
 
 if exist "%25ADDIN_TARGET_PATH%25" ( rd /s /q "%25ADDIN_TARGET_PATH%25" || exit 1 )
 
-
 xcopy /f /g /h /r /y "$(TargetDir)\MyLoadTest.SapIDocGenerator*.*" "%25ADDIN_TARGET_PATH%25\" || exit 2
-</PostBuildEvent>
+
+xcopy /f /g /h /r /y "$(TargetDir)\log4net.*" "%25ADDIN_TARGET_PATH%25\" || exit 3
+
+xcopy /f /g /h /r /y "$(ProjectDir)\..\_References_\src2srcml\*.*" "%25ADDIN_TARGET_PATH%25\src2srcml\" || exit 4</PostBuildEvent>
   </PropertyGroup>
 </Project>

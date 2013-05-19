@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public sealed class WizardControlViewModel : INotifyPropertyChanged
+    public sealed class WizardControlViewModel : ViewModelBase
     {
+        #region Constants and Fields
+
+        private string _definitionFilePath;
+        private string _exampleFilePath;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -16,14 +22,73 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         /// </summary>
         public WizardControlViewModel()
         {
-            // Nothing to do
+            Reset();
         }
 
         #endregion
 
-        #region INotifyPropertyChanged Members
+        #region Public Properties
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public string DefinitionFilePath
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return _definitionFilePath;
+            }
+
+            set
+            {
+                if (value == _definitionFilePath)
+                {
+                    return;
+                }
+
+                _definitionFilePath = value;
+                RaisePropertyChanged(obj => obj.DefinitionFilePath);
+                RaisePropertyChanged(obj => obj.IsInputValid);
+            }
+        }
+
+        public string ExampleFilePath
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return _exampleFilePath;
+            }
+
+            set
+            {
+                if (value == _exampleFilePath)
+                {
+                    return;
+                }
+
+                _exampleFilePath = value;
+                RaisePropertyChanged(obj => obj.ExampleFilePath);
+                RaisePropertyChanged(obj => obj.IsInputValid);
+            }
+        }
+
+        public bool IsInputValid
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(this.DefinitionFilePath)
+                    && !string.IsNullOrWhiteSpace(this.ExampleFilePath);
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void Reset()
+        {
+            this.DefinitionFilePath = string.Empty;
+            this.ExampleFilePath = string.Empty;
+        }
 
         #endregion
 
@@ -32,22 +97,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private void RaisePropertyChanged<T>(
             Expression<Func<WizardControlViewModel, T>> propertyGetterExpression)
         {
-            #region Argument Check
-
-            if (propertyGetterExpression == null)
-            {
-                throw new ArgumentNullException("propertyGetterExpression");
-            }
-
-            #endregion
-
-            if (this.PropertyChanged == null)
-            {
-                return;
-            }
-
-            var propertyName = Helper.GetPropertyName(propertyGetterExpression);
-            this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            RaisePropertyChanged<WizardControlViewModel, T>(propertyGetterExpression);
         }
 
         #endregion

@@ -47,18 +47,43 @@
   <ItemGroup>
     <Compile Include="ControlItem.cs" />
     <Compile Include="ControlItem.Helper.cs" />
+    <Compile Include="Controls\FileSelectionControl.xaml.cs">
+      <DependentUpon>FileSelectionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ViewModelBase.cs" />
     <Compile Include="Controls\WizardControl.xaml.cs">
       <DependentUpon>WizardControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\WizardControlViewModel.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\FileSelectionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\WizardControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyLoadTest.SapIDocGenerator\MyLoadTest.SapIDocGenerator.csproj">
+      <Project>{3FC9243A-EE34-4C2D-ADB5-28D98B3B6FB9}</Project>
+      <Name>MyLoadTest.SapIDocGenerator</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

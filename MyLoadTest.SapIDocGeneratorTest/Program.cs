@@ -98,7 +98,7 @@ namespace MyLoadTest.IDoc
             //Console.WriteLine("IDoc Number: {0}", idoc.Number);
 
             //// Output Action.c file
-            //Console.WriteLine("Action.c: {0}", idoc.VuGenXml());
+            //Console.WriteLine("Action.c: {0}", idoc.GetVuGenActionContents());
 
             // ==========================================
 
@@ -117,7 +117,7 @@ namespace MyLoadTest.IDoc
             //    }
             //}
             // Output Action.c file
-            Console.WriteLine("Action.c: {0}", idoc.VuGenXml());
+            Console.WriteLine("Action.c: {0}", idoc.GetVuGenActionContents());
 
             // Save IDoc for input parameter
             Console.WriteLine("IDoc XML to save for Parameter input: {0}", idoc.Xml());
@@ -127,9 +127,9 @@ namespace MyLoadTest.IDoc
             Console.WriteLine("Creating XML IDoc output file: {0}", xmlFile);
             File.WriteAllText(xmlFile, idoc.Xml().ToString());
             Console.WriteLine("Creating VuGen output file: {0}", sourceFile);
-            File.WriteAllText(sourceFile, idoc.VuGenXml());
+            File.WriteAllText(sourceFile, idoc.GetVuGenActionContents());
             //Console.WriteLine(idoc.Xml().ToString());
-            //Console.WriteLine(idoc.VuGenXml());
+            //Console.WriteLine(idoc.GetVuGenActionContents());
 
             Console.Write("finished. Press any key to continue . . . ");
             Console.ReadKey(true);

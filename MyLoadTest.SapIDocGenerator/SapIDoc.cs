@@ -200,7 +200,7 @@ namespace MyLoadTest.SapIDocGenerator
         ///
         /// </summary>
         /// <returns>Text that is ready to be used by a function in VuGen.</returns>
-        public string VuGenXml()
+        public string GetVuGenActionContents()
         {
             DebugLog.Write("Building VuGen output...");
 

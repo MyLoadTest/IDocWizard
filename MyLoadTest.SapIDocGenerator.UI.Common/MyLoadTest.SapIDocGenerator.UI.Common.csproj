@@ -32,6 +32,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HP.LR.VuGen.ProjectSystem">
+      <HintPath>..\_References_\VuGen\HP.LR.VuGen.ProjectSystem.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HP.LR.VuGen.ServiceCore">
+      <HintPath>..\_References_\VuGen\HP.LR.VuGen.ServiceCore.dll</HintPath>
+    </Reference>
+    <Reference Include="HP.Utt.ProjectSystem">
+      <HintPath>..\_References_\VuGen\HP.Utt.ProjectSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.Core">
+      <HintPath>..\_References_\SharpDevelop\ICSharpCode.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpDevelop">
+      <HintPath>..\_References_\SharpDevelop\ICSharpCode.SharpDevelop.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />

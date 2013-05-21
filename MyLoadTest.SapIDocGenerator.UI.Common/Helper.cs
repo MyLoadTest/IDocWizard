@@ -278,6 +278,22 @@ namespace MyLoadTest.SapIDocGenerator.UI
             return ShowMessageBox(window, message, button, icon);
         }
 
+        public static MessageBoxResult ShowErrorBox(this Control control, string message)
+        {
+            return ShowMessageBox(control, message, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        public static void ShowErrorBox(this Control control, Exception exception, string baseMessage)
+        {
+            var message = string.Format(
+                "{0}: [{1}] {2}",
+                baseMessage,
+                exception.GetType().Name,
+                exception.Message);
+
+            ShowErrorBox(control, message);
+        }
+
         public static bool DefaultEquals<T>(T left, T right)
         {
             return EqualityComparer<T>.Default.Equals(left, right);

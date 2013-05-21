@@ -23,6 +23,8 @@ namespace MyLoadTest.SapIDocGenerator
         /// </summary>
         static DebugLog()
         {
+            //// TODO [VM] Probably one should use manual (hard-coded) configuration as VuGen also uses log4net
+
             XmlConfigurator.Configure();
         }
 

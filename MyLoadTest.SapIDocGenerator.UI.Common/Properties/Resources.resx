@@ -128,4 +128,31 @@
   <data name="WizardInstructions4" xml:space="preserve">
     <value>4. Generate the VuGen script</value>
   </data>
+    <data name="DefinitionFilePathSelectionControlFilter" xml:space="preserve">
+    <value>C header files|*.h</value>
+  </data>
+    <data name="DefinitionFilePathSelectionControlTitle" xml:space="preserve">
+    <value>Open IDoc Definition File</value>
+  </data>
+    <data name="ExampleFilePathSelectionControlFilter" xml:space="preserve">
+    <value>IDoc text files|*.txt|All files|*.*</value>
+  </data>
+    <data name="ExampleFilePathSelectionControlTitle" xml:space="preserve">
+    <value>Open Example IDoc file</value>
+  </data>
+    <data name="CreateButtonTitle" xml:space="preserve">
+    <value>Create</value>
+  </data>
+    <data name="CancelButtonTitle" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+    <data name="WizardTabHeader" xml:space="preserve">
+    <value>Wizard</value>
+  </data>
+    <data name="ImportTabHeader" xml:space="preserve">
+    <value>Import</value>
+  </data>
+    <data name="ParametersTabHeader" xml:space="preserve">
+    <value>Parameters</value>
+  </data>
 </root>

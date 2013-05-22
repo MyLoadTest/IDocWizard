@@ -61,6 +61,78 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string CancelButtonTitle {
+            get {
+                return ResourceManager.GetString("CancelButtonTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create.
+        /// </summary>
+        public static string CreateButtonTitle {
+            get {
+                return ResourceManager.GetString("CreateButtonTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C header files|*.h.
+        /// </summary>
+        public static string DefinitionFilePathSelectionControlFilter {
+            get {
+                return ResourceManager.GetString("DefinitionFilePathSelectionControlFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open IDoc Definition File.
+        /// </summary>
+        public static string DefinitionFilePathSelectionControlTitle {
+            get {
+                return ResourceManager.GetString("DefinitionFilePathSelectionControlTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IDoc text files|*.txt|All files|*.*.
+        /// </summary>
+        public static string ExampleFilePathSelectionControlFilter {
+            get {
+                return ResourceManager.GetString("ExampleFilePathSelectionControlFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Example IDoc file.
+        /// </summary>
+        public static string ExampleFilePathSelectionControlTitle {
+            get {
+                return ResourceManager.GetString("ExampleFilePathSelectionControlTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string ImportTabHeader {
+            get {
+                return ResourceManager.GetString("ImportTabHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameters.
+        /// </summary>
+        public static string ParametersTabHeader {
+            get {
+                return ResourceManager.GetString("ParametersTabHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to INSTRUCTIONS
         ///1. Export the IDoc definition as a C header file and save it to your computer
         ///2. Import the IDoc definition file.
@@ -86,6 +158,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         public static string WizardInstructions4 {
             get {
                 return ResourceManager.GetString("WizardInstructions4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wizard.
+        /// </summary>
+        public static string WizardTabHeader {
+            get {
+                return ResourceManager.GetString("WizardTabHeader", resourceCulture);
             }
         }
     }

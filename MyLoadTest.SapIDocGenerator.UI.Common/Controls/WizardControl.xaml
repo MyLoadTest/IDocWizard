@@ -9,32 +9,64 @@
     <UserControl.DataContext>
         <controls:WizardControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="0" />
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Margin="5" Text="{x:Static props:Resources.WizardInstructions12}"
-                    TextWrapping="Wrap" />
-            <controls:FileSelectionControl Grid.Row="1" FilePath="{Binding DefinitionFilePath,Mode=TwoWay}"
-                    FileDialogFilter="C header files|*.h" FileDialogTitle="Open IDoc Definition File" />
-            <TextBlock Grid.Row="2" Margin="5" Text="{x:Static props:Resources.WizardInstructions3}"
-                    TextWrapping="Wrap" />
-            <controls:FileSelectionControl Grid.Row="3" FilePath="{Binding ExampleFilePath,Mode=TwoWay}"
-                    FileDialogFilter="IDoc text files|*.txt|All files|*.*" FileDialogTitle="Open Example IDoc file" />
-            <TextBlock Grid.Row="4" Margin="5" Text="{x:Static props:Resources.WizardInstructions4}"
-                    TextWrapping="Wrap" />
-            <StackPanel Grid.Row="5" Orientation="Horizontal">
-                <Button Content="Create" Margin="5,5,10,5" MinWidth="100" Click="CreateButton_Click"
-                        IsEnabled="{Binding IsInputValid}" />
-                <Button Content="Cancel" Margin="5,5,10,5" MinWidth="100" Click="CancelButton_Click" />
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+    <Grid>
+        <TabControl TabStripPlacement="Bottom">
+            <TabItem Header="{x:Static props:Resources.WizardTabHeader}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="0" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Margin="5" Text="{x:Static props:Resources.WizardInstructions12}"
+                                TextWrapping="Wrap" />
+                        <controls:PathSelectionControl Grid.Row="1" Mode="FileSelection"
+                                SelectedPath="{Binding DefinitionFilePath,Mode=TwoWay}"
+                                FileDialogFilter="{x:Static props:Resources.DefinitionFilePathSelectionControlFilter}"
+                                DialogTitle="{x:Static props:Resources.DefinitionFilePathSelectionControlTitle}" />
+                        <TextBlock Grid.Row="2" Margin="5" Text="{x:Static props:Resources.WizardInstructions3}"
+                                TextWrapping="Wrap" />
+                        <controls:PathSelectionControl Grid.Row="3" Mode="FileSelection"
+                                SelectedPath="{Binding ExampleFilePath,Mode=TwoWay}"
+                                FileDialogFilter="{x:Static props:Resources.ExampleFilePathSelectionControlFilter}"
+                                DialogTitle="{x:Static props:Resources.ExampleFilePathSelectionControlTitle}" />
+                        <TextBlock Grid.Row="4" Margin="5" Text="{x:Static props:Resources.WizardInstructions4}"
+                                TextWrapping="Wrap" />
+                        <StackPanel Grid.Row="5" Orientation="Horizontal">
+                            <Button Content="{x:Static props:Resources.CreateButtonTitle}" Margin="5,5,10,5"
+                                    MinWidth="100" Click="CreateButton_Click" IsEnabled="{Binding IsCreateEnabled}" />
+                            <Button Content="{x:Static props:Resources.CancelButtonTitle}" Margin="5,5,10,5"
+                                    MinWidth="100" Click="CancelButton_Click" />
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="{x:Static props:Resources.ImportTabHeader}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <controls:PathSelectionControl Grid.Row="0" Mode="DirectorySelection"
+                                SelectedPath="{Binding RepositoryPath,Mode=TwoWay}" />
+                        <ListView Grid.Row="1" MinHeight="150">
+                        </ListView>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                            <Button Content="New Type" Margin="5,5,10,5" />
+                            <Button Content="Import" Margin="5,5,10,5" />
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="{x:Static props:Resources.ParametersTabHeader}">
+            </TabItem>
+        </TabControl>
+    </Grid>
 </UserControl>

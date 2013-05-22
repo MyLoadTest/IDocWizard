@@ -7,7 +7,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Interop;
+using Application = System.Windows.Application;
+using Control = System.Windows.Controls.Control;
+using IWin32Window = System.Windows.Forms.IWin32Window;
+using MessageBox = System.Windows.MessageBox;
 
 namespace MyLoadTest.SapIDocGenerator.UI
 {
@@ -236,6 +240,20 @@ namespace MyLoadTest.SapIDocGenerator.UI
             return GetSoleAttributeStrict<TAttribute>(attributeProvider, DefaultInheritAttributeParameter);
         }
 
+        public static bool IsDefined(this Enum value)
+        {
+            #region Argument Check
+
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+
+            #endregion
+
+            return Enum.IsDefined(value.GetType(), value);
+        }
+
         public static Window GetControlWindow(this Control control)
         {
             Window result = null;
@@ -247,6 +265,22 @@ namespace MyLoadTest.SapIDocGenerator.UI
             }
 
             return result ?? Application.Current.MainWindow;
+        }
+
+        public static IWin32Window GetWin32Window(this Window window)
+        {
+            if (window == null)
+            {
+                return WpfWin32Window.None;
+            }
+
+            var hwndSource = PresentationSource.FromVisual(window) as HwndSource;
+            if (hwndSource == null || hwndSource.IsDisposed)
+            {
+                return WpfWin32Window.None;
+            }
+
+            return new WpfWin32Window(hwndSource);
         }
 
         public static MessageBoxResult ShowMessageBox(
@@ -372,6 +406,43 @@ namespace MyLoadTest.SapIDocGenerator.UI
 
             var attributes = attributeProvider.GetCustomAttributes(typeof(TAttribute), inherit).OfType<TAttribute>();
             return getter(attributes);
+        }
+
+        #endregion
+
+        #region WpfWin32Window Class
+
+        private sealed class WpfWin32Window : IWin32Window
+        {
+            #region Constants and Fields
+
+            public static readonly WpfWin32Window None = new WpfWin32Window(null);
+
+            private readonly HwndSource _hwndSource;
+
+            #endregion
+
+            #region Constructors
+
+            public WpfWin32Window(HwndSource hwndSource)
+            {
+                _hwndSource = hwndSource;
+            }
+
+            #endregion
+
+            #region IWin32Window Members
+
+            public IntPtr Handle
+            {
+                [DebuggerNonUserCode]
+                get
+                {
+                    return _hwndSource == null ? IntPtr.Zero : _hwndSource.Handle;
+                }
+            }
+
+            #endregion
         }
 
         #endregion

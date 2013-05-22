@@ -39,6 +39,9 @@
     <Reference Include="HP.LR.VuGen.ServiceCore">
       <HintPath>..\_References_\VuGen\HP.LR.VuGen.ServiceCore.dll</HintPath>
     </Reference>
+    <Reference Include="HP.Utt.Core">
+      <HintPath>..\_References_\VuGen\HP.Utt.Core.dll</HintPath>
+    </Reference>
     <Reference Include="HP.Utt.ProjectSystem">
       <HintPath>..\_References_\VuGen\HP.Utt.ProjectSystem.dll</HintPath>
     </Reference>
@@ -52,6 +55,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -63,9 +67,10 @@
   <ItemGroup>
     <Compile Include="ControlItem.cs" />
     <Compile Include="ControlItem.Helper.cs" />
-    <Compile Include="Controls\FileSelectionControl.xaml.cs">
-      <DependentUpon>FileSelectionControl.xaml</DependentUpon>
+    <Compile Include="Controls\PathSelectionControl.xaml.cs">
+      <DependentUpon>PathSelectionControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PathSelectionControlMode.cs" />
     <Compile Include="Controls\ViewModelBase.cs" />
     <Compile Include="Controls\WizardControl.xaml.cs">
       <DependentUpon>WizardControl.xaml</DependentUpon>
@@ -80,7 +85,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Controls\FileSelectionControl.xaml">
+    <Page Include="Controls\PathSelectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

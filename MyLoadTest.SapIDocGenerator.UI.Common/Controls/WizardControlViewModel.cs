@@ -12,6 +12,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private string _definitionFilePath;
         private string _exampleFilePath;
+        private string _repositoryPath;
 
         #endregion
 
@@ -46,7 +47,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
                 _definitionFilePath = value;
                 RaisePropertyChanged(obj => obj.DefinitionFilePath);
-                RaisePropertyChanged(obj => obj.IsInputValid);
+                RaisePropertyChanged(obj => obj.IsCreateEnabled);
             }
         }
 
@@ -67,16 +68,36 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
                 _exampleFilePath = value;
                 RaisePropertyChanged(obj => obj.ExampleFilePath);
-                RaisePropertyChanged(obj => obj.IsInputValid);
+                RaisePropertyChanged(obj => obj.IsCreateEnabled);
             }
         }
 
-        public bool IsInputValid
+        public bool IsCreateEnabled
         {
             get
             {
                 return !string.IsNullOrWhiteSpace(this.DefinitionFilePath)
                     && !string.IsNullOrWhiteSpace(this.ExampleFilePath);
+            }
+        }
+
+        public string RepositoryPath
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return _repositoryPath;
+            }
+
+            set
+            {
+                if (value == _repositoryPath)
+                {
+                    return;
+                }
+
+                _repositoryPath = value;
+                RaisePropertyChanged(obj => obj.RepositoryPath);
             }
         }
 

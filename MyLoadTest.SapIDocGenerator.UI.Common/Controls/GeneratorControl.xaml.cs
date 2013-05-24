@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 using ICSharpCode.SharpDevelop.Project;
+using Microsoft.Win32;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -87,6 +88,64 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             this.ViewModel.Reset();
+        }
+
+        private void NewTypeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var repositoryPath = this.ViewModel.ImportPage.RepositoryPath;
+            if (repositoryPath.IsNullOrWhiteSpace())
+            {
+                return;
+            }
+
+            var openFileDialog = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Filter = Properties.Resources.NewTypePathSelectionControlFilter,
+                Multiselect = false,
+                ShowReadOnly = false
+            };
+
+            if (!openFileDialog.ShowDialog(this.GetControlWindow()).GetValueOrDefault())
+            {
+                return;
+            }
+
+            try
+            {
+                var docDefinition = SapIDocDefinition.LoadHeader(openFileDialog.FileName);
+
+                var path = Path.Combine(repositoryPath, docDefinition.Name);
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                var destinationFilePath = Path.Combine(path, Path.GetFileName(openFileDialog.FileName));
+                File.Copy(openFileDialog.FileName, destinationFilePath, true);
+
+                this.ViewModel.ImportPage.RefreshRepositoryItems();
+            }
+            catch (Exception ex)
+            {
+                if (ex.IsFatal())
+                {
+                    throw;
+                }
+
+                this.ShowErrorBox(ex, "Error importing a new type");
+            }
+        }
+
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ShowErrorBox(new NotImplementedException().Message);
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.ImportPage.RefreshRepositoryItems();
         }
 
         #endregion

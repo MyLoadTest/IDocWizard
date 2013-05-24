@@ -124,6 +124,24 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New Type....
+        /// </summary>
+        public static string NewTypeButtonContent {
+            get {
+                return ResourceManager.GetString("NewTypeButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C header files|*.h.
+        /// </summary>
+        public static string NewTypePathSelectionControlFilter {
+            get {
+                return ResourceManager.GetString("NewTypePathSelectionControlFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Parameters.
         /// </summary>
         public static string ParametersTabHeader {

@@ -22,7 +22,7 @@
     <Pad id="MyLoadTest.SapIDocGenerator.UI.Addin.Pads.WizardPad"
          icon="PadIcons.TaskList"
          category="Main"
-         title="SAP IDoc Generator Wizard"
+         title="SAP IDoc Generator"
          defaultPosition="Bottom"
          class="MyLoadTest.SapIDocGenerator.UI.Addin.Pads.WizardPad"/>
   </Path>

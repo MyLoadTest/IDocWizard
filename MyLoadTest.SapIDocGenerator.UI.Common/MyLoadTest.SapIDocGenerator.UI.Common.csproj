@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="ControlItem.cs" />
     <Compile Include="ControlItem.Helper.cs" />
+    <Compile Include="Controls\RepositoryItem.cs" />
     <Compile Include="Controls\WizardPageViewModel.cs" />
     <Compile Include="Controls\ImportPageViewModel.cs" />
     <Compile Include="Controls\PathSelectionControl.xaml.cs">
@@ -106,6 +107,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

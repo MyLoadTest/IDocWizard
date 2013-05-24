@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
 using Application = System.Windows.Application;
@@ -73,6 +74,23 @@ namespace MyLoadTest.SapIDocGenerator.UI
             {
                 action(item);
             }
+        }
+
+        public static bool IsNullOrEmpty(this string value)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
+        public static bool IsNullOrWhiteSpace(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value);
+        }
+
+        public static bool IsFatal(this Exception exception)
+        {
+            return exception is ThreadAbortException
+                || exception is StackOverflowException
+                || exception is OutOfMemoryException;
         }
 
         public static PropertyInfo GetPropertyInfo<TObject, TProperty>(

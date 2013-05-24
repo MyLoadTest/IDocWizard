@@ -4,13 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
-        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignHeight="300"
-        d:DesignWidth="300" MinWidth="200">
+        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase" mc:Ignorable="d"
+        d:DesignHeight="300" d:DesignWidth="300" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
     <Grid>
-        <TabControl TabStripPlacement="Bottom">
+        <TabControl>
             <TabItem Header="{x:Static props:Resources.WizardTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Grid>
@@ -55,15 +56,44 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <controls:PathSelectionControl Grid.Row="0" Mode="DirectorySelection"
-                                SelectedPath="{Binding ImportPage.RepositoryPath,Mode=TwoWay}" />
-                        <ListView Grid.Row="1" MinHeight="150">
+                        <Grid.Resources>
+                            <CollectionViewSource x:Key="RepositoryItemsListViewSource"
+                                    Source="{Binding ImportPage.RepositoryItems}"
+                                    d:DesignSource="{d:DesignInstance Type=controls:RepositoryItem, CreateList=True}">
+                                <CollectionViewSource.SortDescriptions>
+                                    <componentModel:SortDescription PropertyName="Folder" Direction="Ascending" />
+                                </CollectionViewSource.SortDescriptions>
+                            </CollectionViewSource>
+                        </Grid.Resources>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <controls:PathSelectionControl Grid.Column="0" Mode="DirectorySelection"
+                                    SelectedPath="{Binding ImportPage.RepositoryPath,Mode=TwoWay}" />
+                            <Button Grid.Column="1" Content="Refresh" MinWidth="100" Margin="10,5,5,5"
+                                    Click="RefreshButton_Click"
+                                    IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
+                        </Grid>
+                        <ListView Name="RepositoryItemsListView" Grid.Row="1" MinHeight="100"
+                                ItemsSource="{Binding Source={StaticResource RepositoryItemsListViewSource}}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="IDoc Type" Width="300"
+                                            DisplayMemberBinding="{Binding Folder}" />
+                                    <GridViewColumn Header="Quantity" Width="100"
+                                            DisplayMemberBinding="{Binding Count}" />
+                                </GridView>
+                            </ListView.View>
                         </ListView>
                         <StackPanel Grid.Row="2" Orientation="Horizontal">
-                            <Button Content="New Type" Margin="5,5,10,5"
-                                    IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
-                            <Button Content="Import" Margin="5,5,10,5"
-                                    IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
+                            <Button Content="{x:Static props:Resources.NewTypeButtonContent}" MinWidth="100"
+                                    Margin="5,5,10,5" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
+                                    Click="NewTypeButton_Click" />
+                            <Button Content="Import" MinWidth="100" Margin="5,5,10,5"
+                                    IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
+                                    Click="ImportButton_Click" />
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>

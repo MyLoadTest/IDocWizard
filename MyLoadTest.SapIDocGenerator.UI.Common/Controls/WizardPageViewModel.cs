@@ -75,8 +75,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(this.DefinitionFilePath)
-                    && !string.IsNullOrWhiteSpace(this.ExampleFilePath);
+                return !this.DefinitionFilePath.IsNullOrWhiteSpace()
+                    && !this.ExampleFilePath.IsNullOrWhiteSpace();
             }
         }
 

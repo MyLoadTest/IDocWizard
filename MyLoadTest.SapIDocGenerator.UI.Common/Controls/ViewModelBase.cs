@@ -21,6 +21,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #endregion
 
+        #region Public Methods
+
+        public abstract void Reset();
+
+        #endregion
+
         #region INotifyPropertyChanged Members
 
         public event PropertyChangedEventHandler PropertyChanged;

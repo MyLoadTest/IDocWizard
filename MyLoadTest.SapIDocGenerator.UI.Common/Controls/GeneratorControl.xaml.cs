@@ -5,14 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using HP.LR.Vugen.BackEnd.Project.ProjectSystem.ScriptItems;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
-using HP.Utt.ProjectSystem.Persistence;
 using ICSharpCode.SharpDevelop.Project;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public partial class WizardControl
+    public partial class GeneratorControl
     {
         #region Constants and Fields
 
@@ -22,7 +20,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Constructors
 
-        public WizardControl()
+        public GeneratorControl()
         {
             InitializeComponent();
         }
@@ -78,8 +76,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return;
             }
 
-            var definition = SapIDocDefinition.LoadHeader(this.ViewModel.DefinitionFilePath);
-            var idocText = File.ReadAllText(this.ViewModel.ExampleFilePath);
+            var definition = SapIDocDefinition.LoadHeader(this.ViewModel.WizardPage.DefinitionFilePath);
+            var idocText = File.ReadAllText(this.ViewModel.WizardPage.ExampleFilePath);
             var doc = new SapIDoc(definition, idocText);
             var actionContents = doc.GetVuGenActionContents();
 

@@ -20,13 +20,13 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public static readonly DependencyProperty ModeProperty =
             Helper.RegisterDependencyProperty(
                 (PathSelectionControl obj) => obj.Mode,
-                null,
+                new PropertyMetadata(PathSelectionControlMode.FileSelection),
                 value => value is PathSelectionControlMode && ((PathSelectionControlMode)value).IsDefined());
 
         public static readonly DependencyProperty SelectedPathProperty =
             Helper.RegisterDependencyProperty(
                 (PathSelectionControl obj) => obj.SelectedPath,
-                new FrameworkPropertyMetadata(string.Empty, OnFilePathChanged));
+                new FrameworkPropertyMetadata(string.Empty, OnSelectedPathChanged));
 
         public static readonly DependencyProperty FileDialogFilterProperty =
             Helper.RegisterDependencyProperty((PathSelectionControl obj) => obj.FileDialogFilter);
@@ -109,7 +109,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Private Methods
 
-        private static void OnFilePathChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        private static void OnSelectedPathChanged(
+            DependencyObject dependencyObject,
+            DependencyPropertyChangedEventArgs e)
         {
             var self = (PathSelectionControl)dependencyObject;
             self.FilePathTextBox.SetValue(TextBox.TextProperty, self.SelectedPath);

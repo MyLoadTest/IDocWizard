@@ -6,22 +6,21 @@ using System.Linq.Expressions;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public sealed class WizardControlViewModel : ViewModelBase
+    public sealed class WizardPageViewModel : ViewModelBase
     {
         #region Constants and Fields
 
         private string _definitionFilePath;
         private string _exampleFilePath;
-        private string _repositoryPath;
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="WizardControlViewModel"/> class.
+        ///     Initializes a new instance of the <see cref="WizardPageViewModel"/> class.
         /// </summary>
-        public WizardControlViewModel()
+        public WizardPageViewModel()
         {
             Reset();
         }
@@ -81,31 +80,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        public string RepositoryPath
-        {
-            [DebuggerNonUserCode]
-            get
-            {
-                return _repositoryPath;
-            }
-
-            set
-            {
-                if (value == _repositoryPath)
-                {
-                    return;
-                }
-
-                _repositoryPath = value;
-                RaisePropertyChanged(obj => obj.RepositoryPath);
-            }
-        }
-
         #endregion
 
         #region Public Methods
 
-        public void Reset()
+        public override void Reset()
         {
             this.DefinitionFilePath = string.Empty;
             this.ExampleFilePath = string.Empty;
@@ -116,9 +95,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         #region Private Methods
 
         private void RaisePropertyChanged<T>(
-            Expression<Func<WizardControlViewModel, T>> propertyGetterExpression)
+            Expression<Func<WizardPageViewModel, T>> propertyGetterExpression)
         {
-            RaisePropertyChanged<WizardControlViewModel, T>(propertyGetterExpression);
+            RaisePropertyChanged<WizardPageViewModel, T>(propertyGetterExpression);
         }
 
         #endregion

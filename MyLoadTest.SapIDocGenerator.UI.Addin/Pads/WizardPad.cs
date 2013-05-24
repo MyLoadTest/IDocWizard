@@ -23,7 +23,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Pads
         /// </summary>
         public WizardPad()
         {
-            this.InnerControl = new WizardControl();
+            this.InnerControl = new GeneratorControl();
 
             _nativeControl = new ElementHost
             {
@@ -60,7 +60,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Pads
             }
         }
 
-        public WizardControl InnerControl
+        public GeneratorControl InnerControl
         {
             get;
             private set;

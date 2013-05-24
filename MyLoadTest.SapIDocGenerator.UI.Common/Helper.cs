@@ -378,6 +378,13 @@ namespace MyLoadTest.SapIDocGenerator.UI
         {
             var propertyInfo = GetPropertyInfo(propertyGetterExpression);
 
+            if (propertyInfo.DeclaringType != typeof(TObject))
+            {
+                throw new ArgumentException(
+                    @"Inconsistency between property expression and declared object type.",
+                    "propertyGetterExpression");
+            }
+
             return DependencyProperty.Register(
                 propertyInfo.Name,
                 propertyInfo.PropertyType,

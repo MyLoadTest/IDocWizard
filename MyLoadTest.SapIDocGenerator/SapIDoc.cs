@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System;
 using System.Xml.Linq;
 
 namespace MyLoadTest.SapIDocGenerator
@@ -99,13 +100,6 @@ namespace MyLoadTest.SapIDocGenerator
         #region constructors
 
         /// <summary>
-        /// The no-args constructor is not allowed. You must create an instance of the IDoc class with an SapIDocDefinition and an IDoc file.
-        /// </summary>
-        private SapIDoc()
-        {
-        }
-
-        /// <summary>
         /// When an IDoc object is created, the fields are read according to positions from the SapIDocDefinition.
         /// An IDocException is thrown if the
         /// </summary>
@@ -130,30 +124,30 @@ namespace MyLoadTest.SapIDocGenerator
         /// feature has been deferred.
         /// </summary>
         /// <returns></returns>
-        public XElement Xml()
+        public XElement GetXml()
         {
             DebugLog.Write("Building XML output...");
 
-            XElement idoc = new XElement("IDOC", new XAttribute("BEGIN", "1"));
+            var idoc = new XElement("IDOC", new XAttribute("BEGIN", "1"));
             // Add the Control Record fields
-            XElement seg = new XElement(ControlRecord["TABNAM"], new XAttribute("SEGMENT", "1"));
-            foreach (KeyValuePair<string, string> field in ControlRecord)
+            var seg = new XElement(ControlRecord["TABNAM"], new XAttribute("SEGMENT", "1"));
+            foreach (var field in ControlRecord)
             {
                 seg.Add(new XElement(field.Key, field.Value));
             }
             idoc.Add(seg);
 
             // Add each segment (in order)
-            foreach (Dictionary<string, string> segment in Segments)
+            foreach (var segment in Segments)
             {
                 seg = new XElement(segment["SEGNAM"], new XAttribute("SEGMENT", "1"));
-                foreach (KeyValuePair<string, string> field in segment)
+                foreach (var field in segment)
                 {
                     seg.Add(new XElement(field.Key, field.Value));
                 }
                 idoc.Add(seg);
             }
-            XElement xml = new XElement(Type, idoc);
+            var xml = new XElement(Type, idoc);
 
             DebugLog.Write("XML IDoc:\n{0}", xml.ToString());
             return xml;
@@ -188,15 +182,15 @@ namespace MyLoadTest.SapIDocGenerator
         ///  - escapes quote for attributes
         ///  - adds a length attribute for each field
         ///  - adds a comment with the Segment/Field description
-        ///  - adds a comment for enumarated fields with allowed values (and their descriptions)
+        ///  - adds a comment for enumerated fields with allowed values (and their descriptions)
         ///
         /// Example output:
-        /// "<ZISUPODMAS_BAPIZBUSMASSENDEM01>"
-        /// "    <IDOC BEGIN=\"1\">"
-        /// "        <EDI_DC40 SEGMENT=\"1\">"                    // IDoc Control Record for Interface to External System
-        /// "            <TABNAM length=\"10\">EDI_DC40</TABNAM>" // Name of Table Structure
-        /// "            <MANDT length=\"3\">MAN</MANDT>"         // Client
-        /// "            <DIRECT length=\"1\">1</DIRECT>"         // Direction [1 = Outbound, 2 = Inbound]
+        /// &quot;&lt;ZISUPODMAS_BAPIZBUSMASSENDEM01&gt;&quot;
+        /// &quot;    &lt;IDOC BEGIN=\&quot;1\&quot;&gt;&quot;
+        /// &quot;        &lt;EDI_DC40 SEGMENT=\&quot;1\&quot;&gt;&quot;                    // IDoc Control Record for Interface to External System
+        /// &quot;            &lt;TABNAM length=\&quot;10\&quot;&gt;EDI_DC40&lt;/TABNAM&gt;&quot; // Name of Table Structure
+        /// &quot;            &lt;MANDT length=\&quot;3\&quot;&gt;MAN&lt;/MANDT&gt;&quot;         // Client
+        /// &quot;            &lt;DIRECT length=\&quot;1\&quot;&gt;1&lt;/DIRECT&gt;&quot;         // Direction [1 = Outbound, 2 = Inbound]
         ///
         /// </summary>
         /// <returns>Text that is ready to be used by a function in VuGen.</returns>
@@ -224,7 +218,7 @@ namespace MyLoadTest.SapIDocGenerator
                 idoc += String.Format(
                     "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
                     field.Key,
-                    fieldLength.ToString(),
+                    fieldLength.ToString(CultureInfo.InvariantCulture),
                     field.Value,
                     field.Key,
                     fieldDescription);
@@ -258,7 +252,7 @@ namespace MyLoadTest.SapIDocGenerator
                     idoc += String.Format(
                         "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
                         field.Key,
-                        fieldLength.ToString(),
+                        fieldLength.ToString(CultureInfo.InvariantCulture),
                         field.Value,
                         field.Key,
                         fieldDescription);
@@ -274,16 +268,15 @@ namespace MyLoadTest.SapIDocGenerator
                 Type);
 
             // TODO: The license should be added from a file or from a registry key, so that it is not hard-coded for all users.
-            string license =
-                "    // The license key must be set before idoc_create() can be called.\n" +
-                    "    idoc_set_license(\n" +
-                    "        \"<license>\"\n" +
-                    "        \"    <name>Joe User</name>\"\n" +
-                    "        \"    <company>BigCo</company>\"\n" +
-                    "        \"    <email>joe.user@example.com</email>\"\n" +
-                    "        \"    <key>ANUAA-ADHHB-BS7VU-MVH45-9ZG3B-U3PUQ</key>\"\n" +
-                    "        \"    <expires>2013-10-01</expires>\"\n" +
-                    "        \"</license>\");\n";
+            const string License = "    // The license key must be set before idoc_create() can be called.\n" +
+                "    idoc_set_license(\n" +
+                "        \"<license>\"\n" +
+                "        \"    <name>Joe User</name>\"\n" +
+                "        \"    <company>BigCo</company>\"\n" +
+                "        \"    <email>joe.user@example.com</email>\"\n" +
+                "        \"    <key>ANUAA-ADHHB-BS7VU-MVH45-9ZG3B-U3PUQ</key>\"\n" +
+                "        \"    <expires>2013-10-01</expires>\"\n" +
+                "        \"</license>\");\n";
 
             // TODO: put error message code here in case DLL is not found.
             string dll =
@@ -308,7 +301,7 @@ namespace MyLoadTest.SapIDocGenerator
                     "    return 0;\n" +
                     "}}",
                 dll,
-                license,
+                License,
                 idoc);
 
             DebugLog.Write("VuGen output:\n{0}", action);
@@ -330,7 +323,7 @@ namespace MyLoadTest.SapIDocGenerator
 
             // Each Record/Segment will be on a new line.
             // "RemoveEmptyEntries" handles case of blank rows due to "\r\n"
-            string[] rows = idoc.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] rows = idoc.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             if (rows.Length < 2)
             {
                 throw new SapIDocDefinitionException("An IDoc cannot have less than 2 segments.");
@@ -357,7 +350,7 @@ namespace MyLoadTest.SapIDocGenerator
             for (int i = 1; i < rows.Length; i++)
             {
                 // Process the fields from the Data Record (except the SDATA field)
-                Dictionary<string, string> currentSegment = new Dictionary<string, string>();
+                var currentSegment = new Dictionary<string, string>();
                 string segmentName = null;
                 foreach (SapIDocField field in Definition.DataRecord)
                 {
@@ -385,7 +378,6 @@ namespace MyLoadTest.SapIDocGenerator
                 }
                 Segments.Add(currentSegment);
             }
-            return;
         }
 
         #endregion

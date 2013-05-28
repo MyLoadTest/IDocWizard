@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Data;
+using System.Xml.Linq;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 using ICSharpCode.SharpDevelop.Project;
 using Microsoft.Win32;
@@ -77,12 +80,24 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return;
             }
 
-            var definition = SapIDocDefinition.LoadHeader(this.ViewModel.WizardPage.DefinitionFilePath);
-            var idocText = File.ReadAllText(this.ViewModel.WizardPage.ExampleFilePath);
-            var doc = new SapIDoc(definition, idocText);
-            var actionContents = doc.GetVuGenActionContents();
+            try
+            {
+                var definition = SapIDocDefinition.LoadHeader(this.ViewModel.WizardPage.DefinitionFilePath);
+                var idocText = File.ReadAllText(this.ViewModel.WizardPage.ExampleFilePath);
+                var doc = new SapIDoc(definition, idocText);
+                var actionContents = doc.GetVuGenActionContents();
 
-            File.WriteAllText(action.FullFileName, actionContents, Encoding.Default);
+                File.WriteAllText(action.FullFileName, actionContents, Encoding.Default);
+            }
+            catch (Exception ex)
+            {
+                if (ex.IsFatal())
+                {
+                    throw;
+                }
+
+                this.ShowErrorBox(ex, "Error creating script");
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -92,8 +107,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private void NewTypeButton_Click(object sender, RoutedEventArgs e)
         {
-            var repositoryPath = this.ViewModel.ImportPage.RepositoryPath;
-            if (repositoryPath.IsNullOrWhiteSpace())
+            if (!this.ViewModel.ImportPage.IsRepositoryPathSelected)
             {
                 return;
             }
@@ -114,18 +128,17 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             try
             {
-                var docDefinition = SapIDocDefinition.LoadHeader(openFileDialog.FileName);
+                var filePath = openFileDialog.FileName;
+                var docDefinition = SapIDocDefinition.LoadHeader(filePath);
 
-                var path = Path.Combine(repositoryPath, docDefinition.Name);
+                var path = Path.Combine(this.ViewModel.ImportPage.RepositoryPath, docDefinition.Name);
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                 }
 
-                var destinationFilePath = Path.Combine(path, Path.GetFileName(openFileDialog.FileName));
-                File.Copy(openFileDialog.FileName, destinationFilePath, true);
-
-                this.ViewModel.ImportPage.RefreshRepositoryItems();
+                var destinationFilePath = Path.Combine(path, Path.GetFileName(filePath));
+                File.Copy(filePath, destinationFilePath, true);
             }
             catch (Exception ex)
             {
@@ -136,11 +149,72 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
                 this.ShowErrorBox(ex, "Error importing a new type");
             }
+
+            this.ViewModel.ImportPage.RefreshRepositoryItems();
         }
 
         private void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            this.ShowErrorBox(new NotImplementedException().Message);
+            if (!this.ViewModel.ImportPage.IsRepositoryPathSelected)
+            {
+                return;
+            }
+
+            var collectionView = this.RepositoryItemsListView.ItemsSource as ICollectionView;
+            if (collectionView == null || collectionView.CurrentItem == null)
+            {
+                return;
+            }
+
+            var repositoryItem = collectionView.CurrentItem as RepositoryItem;
+            if (repositoryItem == null)
+            {
+                return;
+            }
+
+            var openFileDialog = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                CheckPathExists = true,
+                Filter = Properties.Resources.ImportPathSelectionControlFilter,
+                Multiselect = true,
+                ShowReadOnly = false
+            };
+
+            if (!openFileDialog.ShowDialog(this.GetControlWindow()).GetValueOrDefault()
+                || !openFileDialog.FileNames.Any())
+            {
+                return;
+            }
+
+            var filePaths = openFileDialog.FileNames;
+
+            try
+            {
+                var definition = SapIDocDefinition.LoadHeader(repositoryItem.DefinitionFilePath);
+                foreach (var filePath in filePaths)
+                {
+                    var contents = File.ReadAllText(filePath);
+                    var doc = new SapIDoc(definition, contents);
+                    var resultingFileContents = doc.GetXml().ToString(SaveOptions.None);
+
+                    var resultingFilePath = Path.Combine(
+                        this.ViewModel.ImportPage.RepositoryPath,
+                        repositoryItem.Folder,
+                        string.Format(CultureInfo.InvariantCulture, "{0}.txt", doc.Number));
+
+                    File.WriteAllText(resultingFilePath, resultingFileContents);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.IsFatal())
+                {
+                    throw;
+                }
+
+                this.ShowErrorBox(ex, "Error importing IDoc file(s)");
+            }
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)

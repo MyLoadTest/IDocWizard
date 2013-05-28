@@ -6,7 +6,7 @@
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
         xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
         xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase" mc:Ignorable="d"
-        d:DesignHeight="300" d:DesignWidth="300" MinWidth="200">
+        d:DesignHeight="300" d:DesignWidth="500" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
@@ -56,15 +56,6 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Grid.Resources>
-                            <CollectionViewSource x:Key="RepositoryItemsListViewSource"
-                                    Source="{Binding ImportPage.RepositoryItems}"
-                                    d:DesignSource="{d:DesignInstance Type=controls:RepositoryItem, CreateList=True}">
-                                <CollectionViewSource.SortDescriptions>
-                                    <componentModel:SortDescription PropertyName="Folder" Direction="Ascending" />
-                                </CollectionViewSource.SortDescriptions>
-                            </CollectionViewSource>
-                        </Grid.Resources>
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -77,13 +68,36 @@
                                     IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
                         </Grid>
                         <ListView Name="RepositoryItemsListView" Grid.Row="1" MinHeight="100"
-                                ItemsSource="{Binding Source={StaticResource RepositoryItemsListViewSource}}">
+                                HorizontalAlignment="Stretch"
+                                ItemsSource="{Binding Path=ImportPage.RepositoryItemsView}"
+                                IsSynchronizedWithCurrentItem="True">
+                            <ListView.Resources>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.Resources>
                             <ListView.View>
-                                <GridView>
+                                <GridView AllowsColumnReorder="False">
                                     <GridViewColumn Header="IDoc Type" Width="300"
-                                            DisplayMemberBinding="{Binding Folder}" />
-                                    <GridViewColumn Header="Quantity" Width="100"
-                                            DisplayMemberBinding="{Binding Count}" />
+                                            DisplayMemberBinding="{Binding Folder}">
+                                        <GridViewColumn.HeaderContainerStyle>
+                                            <Style TargetType="GridViewColumnHeader">
+                                                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                            </Style>
+                                        </GridViewColumn.HeaderContainerStyle>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Quantity" Width="100">
+                                        <GridViewColumn.HeaderContainerStyle>
+                                            <Style TargetType="GridViewColumnHeader">
+                                                <Setter Property="HorizontalContentAlignment" Value="Right" />
+                                            </Style>
+                                        </GridViewColumn.HeaderContainerStyle>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Count}" TextAlignment="Right" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
                                 </GridView>
                             </ListView.View>
                         </ListView>
@@ -92,7 +106,7 @@
                                     Margin="5,5,10,5" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
                                     Click="NewTypeButton_Click" />
                             <Button Content="Import" MinWidth="100" Margin="5,5,10,5"
-                                    IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
+                                    IsEnabled="{Binding ImportPage.ShouldImportButtonBeEnabled}"
                                     Click="ImportButton_Click" />
                         </StackPanel>
                     </Grid>

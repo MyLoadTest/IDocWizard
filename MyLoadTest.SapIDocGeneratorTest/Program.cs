@@ -113,22 +113,22 @@ namespace MyLoadTest.IDoc
             //    Console.WriteLine("IDoc Number: {0}", idoc.Number);
             //    string path = repositoryPath + "\\" + idoc.Type + "\\" + idoc.Number + ".xml";
             //    using (StreamWriter writer = new StreamWriter(filepath)) {
-            //        writer.WriteLine(idoc.Xml.ToString());
+            //        writer.WriteLine(idoc.GetXml.ToString());
             //    }
             //}
             // Output Action.c file
             Console.WriteLine("Action.c: {0}", idoc.GetVuGenActionContents());
 
             // Save IDoc for input parameter
-            Console.WriteLine("IDoc XML to save for Parameter input: {0}", idoc.Xml());
+            Console.WriteLine("IDoc XML to save for Parameter input: {0}", idoc.GetXml());
 
             // Create output files
             xmlFile = idoc.Number + ".xml";
             Console.WriteLine("Creating XML IDoc output file: {0}", xmlFile);
-            File.WriteAllText(xmlFile, idoc.Xml().ToString());
+            File.WriteAllText(xmlFile, idoc.GetXml().ToString());
             Console.WriteLine("Creating VuGen output file: {0}", sourceFile);
             File.WriteAllText(sourceFile, idoc.GetVuGenActionContents());
-            //Console.WriteLine(idoc.Xml().ToString());
+            //Console.WriteLine(idoc.GetXml().ToString());
             //Console.WriteLine(idoc.GetVuGenActionContents());
 
             Console.Write("finished. Press any key to continue . . . ");

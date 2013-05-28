@@ -8,13 +8,19 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public string Folder
         {
             get;
-            set;
+            internal set;
         }
 
         public int Count
         {
             get;
-            set;
+            internal set;
+        }
+
+        public string DefinitionFilePath
+        {
+            get;
+            internal set;
         }
     }
 }

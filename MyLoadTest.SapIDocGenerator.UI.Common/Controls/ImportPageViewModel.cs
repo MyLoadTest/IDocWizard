@@ -30,6 +30,13 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             _repositoryItemsDirect = new ObservableCollection<RepositoryItem>();
             this.RepositoryItems = new ReadOnlyObservableCollection<RepositoryItem>(_repositoryItemsDirect);
 
+            this.RepositoryItemsView = CollectionViewSource.GetDefaultView(this.RepositoryItems);
+            this.RepositoryItemsView.SortDescriptions.Add(
+                new SortDescription(
+                    Helper.GetPropertyName((RepositoryItem obj) => obj.Folder),
+                    ListSortDirection.Ascending));
+            this.RepositoryItemsView.CurrentChanged += this.RepositoryItemsView_CurrentChanged;
+
             Reset();
         }
 
@@ -73,6 +80,20 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             private set;
         }
 
+        public ICollectionView RepositoryItemsView
+        {
+            get;
+            private set;
+        }
+
+        public bool ShouldImportButtonBeEnabled
+        {
+            get
+            {
+                return this.IsRepositoryPathSelected && this.RepositoryItemsView.CurrentItem != null;
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -97,14 +118,23 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 var directories = Directory.GetDirectories(this.RepositoryPath, "*", SearchOption.TopDirectoryOnly);
                 foreach (var directory in directories)
                 {
-                    if (!Directory.GetFiles(directory, "*.h", SearchOption.TopDirectoryOnly).Any())
+                    var definitionFilePath = Directory
+                        .GetFiles(directory, "*.h", SearchOption.TopDirectoryOnly)
+                        .FirstOrDefault();
+                    if (definitionFilePath.IsNullOrWhiteSpace())
                     {
                         continue;
                     }
 
-                    var count = Directory.GetFiles(directory, "*.xml", SearchOption.TopDirectoryOnly).Length;
+                    var count = Directory.GetFiles(directory, "*.txt", SearchOption.TopDirectoryOnly).Length;
 
-                    var item = new RepositoryItem { Folder = Path.GetFileName(directory), Count = count };
+                    var item = new RepositoryItem
+                    {
+                        Folder = Path.GetFileName(directory),
+                        Count = count,
+                        DefinitionFilePath = definitionFilePath
+                    };
+
                     _repositoryItemsDirect.Add(item);
                 }
             }
@@ -133,6 +163,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             Expression<Func<ImportPageViewModel, T>> propertyGetterExpression)
         {
             RaisePropertyChanged<ImportPageViewModel, T>(propertyGetterExpression);
+        }
+
+        private void RepositoryItemsView_CurrentChanged(object sender, EventArgs eventArgs)
+        {
+            RaisePropertyChanged(obj => obj.ShouldImportButtonBeEnabled);
         }
 
         #endregion

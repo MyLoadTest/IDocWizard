@@ -129,13 +129,13 @@
     <value>4. Generate the VuGen script</value>
   </data>
   <data name="DefinitionFilePathSelectionControlFilter" xml:space="preserve">
-    <value>C header files|*.h</value>
+    <value>C header files (*.h)|*.h</value>
   </data>
   <data name="DefinitionFilePathSelectionControlTitle" xml:space="preserve">
     <value>Open IDoc Definition File</value>
   </data>
   <data name="ExampleFilePathSelectionControlFilter" xml:space="preserve">
-    <value>IDoc text files|*.txt|All files|*.*</value>
+    <value>IDoc text files (*.txt)|*.txt|All files (*.*)|*.*</value>
   </data>
   <data name="ExampleFilePathSelectionControlTitle" xml:space="preserve">
     <value>Open Example IDoc file</value>
@@ -160,5 +160,8 @@
   </data>
   <data name="NewTypePathSelectionControlFilter" xml:space="preserve">
     <value>C header files|*.h</value>
+  </data>
+  <data name="ImportPathSelectionControlFilter" xml:space="preserve">
+    <value>All files (*.*)|*.*</value>
   </data>
 </root>

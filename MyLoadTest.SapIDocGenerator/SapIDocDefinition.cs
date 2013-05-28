@@ -115,6 +115,7 @@ namespace MyLoadTest.SapIDocGenerator
             {
                 return _idocName;
             }
+
             private set
             {
                 if (String.IsNullOrEmpty(value))
@@ -135,6 +136,7 @@ namespace MyLoadTest.SapIDocGenerator
             {
                 return _controlRecord;
             }
+
             private set
             {
                 _controlRecord = value;
@@ -150,6 +152,7 @@ namespace MyLoadTest.SapIDocGenerator
             {
                 return _dataRecord;
             }
+
             private set
             {
                 _dataRecord = value;
@@ -165,6 +168,7 @@ namespace MyLoadTest.SapIDocGenerator
             {
                 return _segments;
             }
+
             private set
             {
                 _segments = value;
@@ -223,11 +227,11 @@ namespace MyLoadTest.SapIDocGenerator
         /// <returns>A new SapIDocDefinition object</returns>
         public static SapIDocDefinition LoadHeader(string path)
         {
+            DebugLog.Write("Calling {0} with file: {1}", MethodBase.GetCurrentMethod().Name, path);
+
             SapIDocSegment controlRecord = null;
             SapIDocSegment dataRecord = null;
-            Dictionary<string, SapIDocSegment> segments = new Dictionary<string, SapIDocSegment>();
-
-            DebugLog.Write("Calling SapIDocDefinition.ParseHeader, with file: {0}", path);
+            var segments = new Dictionary<string, SapIDocSegment>();
 
             if (File.Exists(path) == false)
             {

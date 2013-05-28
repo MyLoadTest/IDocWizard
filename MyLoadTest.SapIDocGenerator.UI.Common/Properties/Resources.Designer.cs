@@ -79,7 +79,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to C header files|*.h.
+        ///   Looks up a localized string similar to C header files (*.h)|*.h.
         /// </summary>
         public static string DefinitionFilePathSelectionControlFilter {
             get {
@@ -97,7 +97,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to IDoc text files|*.txt|All files|*.*.
+        ///   Looks up a localized string similar to IDoc text files (*.txt)|*.txt|All files (*.*)|*.*.
         /// </summary>
         public static string ExampleFilePathSelectionControlFilter {
             get {
@@ -111,6 +111,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         public static string ExampleFilePathSelectionControlTitle {
             get {
                 return ResourceManager.GetString("ExampleFilePathSelectionControlTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All files (*.*)|*.*.
+        /// </summary>
+        public static string ImportPathSelectionControlFilter {
+            get {
+                return ResourceManager.GetString("ImportPathSelectionControlFilter", resourceCulture);
             }
         }
         

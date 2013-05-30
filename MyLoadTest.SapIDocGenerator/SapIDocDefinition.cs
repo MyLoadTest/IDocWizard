@@ -227,7 +227,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// <returns>A new SapIDocDefinition object</returns>
         public static SapIDocDefinition LoadHeader(string path)
         {
-            DebugLog.Write("Calling {0} with file: {1}", MethodBase.GetCurrentMethod().Name, path);
+            DebugLog.Write("Calling {0} with file: {1}", MethodBase.GetCurrentMethod().GetQualifiedName(), path);
 
             SapIDocSegment controlRecord = null;
             SapIDocSegment dataRecord = null;

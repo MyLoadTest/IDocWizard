@@ -51,6 +51,9 @@
     <Reference Include="ICSharpCode.SharpDevelop">
       <HintPath>..\_References_\SharpDevelop\ICSharpCode.SharpDevelop.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -79,7 +82,6 @@
       <DependentUpon>GeneratorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\GeneratorControlViewModel.cs" />
-    <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -98,6 +100,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MyLoadTest.Common\MyLoadTest.Common.csproj">
+      <Project>{B4177FDF-1347-4E46-BC52-8E1559173CEE}</Project>
+      <Name>MyLoadTest.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyLoadTest.SapIDocGenerator\MyLoadTest.SapIDocGenerator.csproj">
       <Project>{3FC9243A-EE34-4C2D-ADB5-28D98B3B6FB9}</Project>
       <Name>MyLoadTest.SapIDocGenerator</Name>
@@ -109,6 +115,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -78,6 +78,9 @@
       <HintPath>..\_References_\SharpDevelop\ICSharpCode.SharpDevelop.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -102,12 +105,17 @@
     <AppDesigner Include="Properties\" />
     <None Include="AddInWritingHelp.txt" />
     <None Include="App.config" />
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="MyLoadTest.SapIDocGenerator.UI.Addin.addin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="Commands\StartupCommand.cs" />
     <Compile Include="Pads\WizardPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -127,10 +135,12 @@ if /i "%25ADDIN_TARGET_PATH%25" equ "" (
 
 if exist "%25ADDIN_TARGET_PATH%25" ( rd /s /q "%25ADDIN_TARGET_PATH%25" || exit 1 )
 
-xcopy /f /g /h /r /y "$(TargetDir)\MyLoadTest.SapIDocGenerator*.*" "%25ADDIN_TARGET_PATH%25\" || exit 2
+xcopy /f /g /h /r /y "$(TargetDir)\MyLoadTest.*" "%25ADDIN_TARGET_PATH%25\" || exit 2
 
 xcopy /f /g /h /r /y "$(TargetDir)\log4net.*" "%25ADDIN_TARGET_PATH%25\" || exit 3
 
-xcopy /f /g /h /r /y "$(ProjectDir)\..\_References_\src2srcml\*.*" "%25ADDIN_TARGET_PATH%25\src2srcml\" || exit 4</PostBuildEvent>
+xcopy /f /g /h /r /y "$(TargetDir)\log4net.config" "%25ADDIN_TARGET_PATH%25\" || exit 4
+
+xcopy /f /g /h /r /y "$(ProjectDir)\..\_References_\src2srcml\*.*" "%25ADDIN_TARGET_PATH%25\src2srcml\" || exit 5</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,7 +15,7 @@ using Control = System.Windows.Controls.Control;
 using IWin32Window = System.Windows.Forms.IWin32Window;
 using MessageBox = System.Windows.MessageBox;
 
-namespace MyLoadTest.SapIDocGenerator.UI
+namespace MyLoadTest
 {
     public static class Helper
     {
@@ -91,6 +92,32 @@ namespace MyLoadTest.SapIDocGenerator.UI
             return exception is ThreadAbortException
                 || exception is StackOverflowException
                 || exception is OutOfMemoryException;
+        }
+
+        public static string GetLocalPath(this Assembly assembly)
+        {
+            #region Argument Check
+
+            if (assembly == null)
+            {
+                throw new ArgumentNullException("assembly");
+            }
+
+            #endregion
+
+            var uri = new Uri(assembly.CodeBase, UriKind.Absolute);
+            if (!uri.IsFile)
+            {
+                throw new InvalidOperationException("The assembly does not have the local path.");
+            }
+
+            return uri.LocalPath.EnsureNotNull();
+        }
+
+        public static string GetDirectory(this Assembly assembly)
+        {
+            var path = GetLocalPath(assembly);
+            return Path.GetDirectoryName(path).EnsureNotNull();
         }
 
         public static PropertyInfo GetPropertyInfo<TObject, TProperty>(
@@ -214,6 +241,21 @@ namespace MyLoadTest.SapIDocGenerator.UI
         {
             var propertyInfo = GetPropertyInfo(propertyGetterExpression);
             return propertyInfo.Name;
+        }
+
+        public static string GetQualifiedName(this MethodBase method)
+        {
+            #region Argument Check
+
+            if (method == null)
+            {
+                throw new ArgumentNullException("method");
+            }
+
+            #endregion
+
+            var type = (method.DeclaringType ?? method.ReflectedType).EnsureNotNull();
+            return type.Name + Type.Delimiter + method.Name;
         }
 
         public static TAttribute GetSoleAttribute<TAttribute>(

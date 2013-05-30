@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGenerator
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGenerator.UI.Addin", "MyLoadTest.SapIDocGenerator.UI.Addin\MyLoadTest.SapIDocGenerator.UI.Addin.csproj", "{E1898A7F-39FE-4B02-B0F8-FB7555310CF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.Common", "MyLoadTest.Common\MyLoadTest.Common.csproj", "{B4177FDF-1347-4E46-BC52-8E1559173CEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -49,6 +51,10 @@ Global
 		{E1898A7F-39FE-4B02-B0F8-FB7555310CF9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{E1898A7F-39FE-4B02-B0F8-FB7555310CF9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E1898A7F-39FE-4B02-B0F8-FB7555310CF9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B4177FDF-1347-4E46-BC52-8E1559173CEE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B4177FDF-1347-4E46-BC52-8E1559173CEE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B4177FDF-1347-4E46-BC52-8E1559173CEE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B4177FDF-1347-4E46-BC52-8E1559173CEE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

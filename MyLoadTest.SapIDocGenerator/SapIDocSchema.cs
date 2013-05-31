@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -12,84 +13,88 @@ namespace MyLoadTest.SapIDocGenerator
     /// Having a separate class for the schema will not work because I am going to have to additional elements for the
     /// fields in the Data Record to each segment.
     /// </summary>
-    public class SapIDocSchema
+    public sealed class SapIDocSchema
     {
-        #region fields
+        #region Fields
 
-        private XmlSchemaSet schemas = new XmlSchemaSet();
-
-        #endregion
-
-        #region properties
+        private readonly XmlSchemaSet _schemas = new XmlSchemaSet();
 
         #endregion
 
-        #region constructors
+        #region Constructors
 
         /// <summary>
-        /// The no-args constructor is not allowed.
+        ///     Initializes a new instance of the <see cref="SapIDocSchema"/> class
+        ///     using an XSD that has been exported from SAP.
         /// </summary>
-        private SapIDocSchema()
-        {
-        }
-
-        /// <summary>
-        /// Constructor to create a new SapIDocSchema from an XSD that has been exported from SAP.
-        /// </summary>
-        /// <param name="xsd"></param>
+        /// <param name="xsd">
+        ///     The root element of the XSD schema.
+        /// </param>
         public SapIDocSchema(XElement xsd)
         {
-            DebugLog.Write("New SapIDocSchema created from:\n{0}", xsd.ToString());
-            schemas.Add("", XmlReader.Create(new StringReader(xsd.ToString())));
+            DebugLog.Write("Creating new IDoc schema from: {0}", xsd);
+
+            using (var xsdReader = new StringReader(xsd.ToString()))
+            {
+                using (var schemaDocument = XmlReader.Create(xsdReader))
+                {
+                    _schemas.Add(string.Empty, schemaDocument);
+                }
+            }
         }
 
         #endregion
 
-        #region public methods
+        #region Public Methods
 
         /// <summary>
-        /// Create an IDoc Schema from an XSD file that has been exported from SAP.
+        ///     Creates an IDoc schema from the specified XSD file that was exported from SAP.
         /// </summary>
-        /// <param name="path">The XSD filename</param>
-        /// <returns>Returns a new SapIDocSchema object.</returns>
-        public static SapIDocSchema Load(string path)
+        /// <param name="path">
+        ///     The XSD filename.
+        /// </param>
+        /// <returns>
+        ///     Returns a new <see cref="SapIDocSchema"/> object.
+        /// </returns>
+        public static SapIDocSchema LoadFromFile(string path)
         {
-            DebugLog.Write("Calling SapIDocSchema.Load({0})", path);
-            // Read file contents
+            DebugLog.Write("Entered {0}('{1}')", MethodBase.GetCurrentMethod().GetQualifiedName(), path);
+
             XElement definition;
             try
             {
                 definition = XElement.Load(path);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                string msg = String.Format("Problem reading file {0}", path);
-                throw new SapIDocDefinitionException(msg, e);
+                var message = string.Format("Error loading XSD schema from '{0}'.", path);
+                throw new SapIDocException(message, ex);
             }
+
             return new SapIDocSchema(definition);
         }
 
         /// <summary>
-        /// Checks whether the IDoc XML conforms to the definition in the XSD.
+        ///     Checks whether the IDoc XML conforms to the definition in the XSD.
         /// </summary>
-        /// <param name="idoc">The IDoc to check.</param>
-        /// <returns>Returns true if the IDoc validates successfully, otherwise throws an SapIDocDefinitionException (yes,
-        /// this is a bit of a WTF).</returns>
-        public bool Validate(XElement idoc)
+        /// <param name="idoc">
+        ///     The root XML element of the IDoc to check.
+        /// </param>
+        /// <exception cref="SapIDocException">
+        ///     Validation has failed.
+        /// </exception>
+        public void Validate(XElement idoc)
         {
             // Schema validation is much simpler if you use an XDocument instead of an XElement.
-            XDocument doc = new XDocument(idoc);
+            var doc = new XDocument(idoc);
 
-            // Note that the second argument is a ValidationEventHandler(Object sender, ValidationEventArgs e)
             doc.Validate(
-                schemas,
-                (o, e) =>
+                _schemas,
+                (sender, e) =>
                 {
-                    string msg = String.Format("The IDoc XML did not validate.\n{0}", e.Message);
-                    throw new SapIDocDefinitionException(msg);
+                    var message = string.Format("The IDoc XML validation has failed: {0}", e.Message);
+                    throw new SapIDocException(message);
                 });
-
-            return true;
         }
 
         #endregion

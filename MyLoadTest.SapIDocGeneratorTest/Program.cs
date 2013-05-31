@@ -1,13 +1,14 @@
 ﻿/// copyright Stuart Moncrieff
 /// Blah blah blah
 
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using MyLoadTest.SapIDocGenerator;
 using NDesk.Options;
 
-namespace MyLoadTest.IDoc
+namespace MyLoadTest.SapIDocGeneratorTest
 {
     /// <summary>
     /// This program converts a flat-text IDoc file (and it's C-Header definition) into an XML-formatted IDoc and a VuGen Action.c file.

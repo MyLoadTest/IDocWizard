@@ -11,40 +11,85 @@ namespace MyLoadTest.SapIDocGenerator
     ///  - length
     ///  - TODO: other field properties
     /// </summary>
-    public class SapIDocField
+    public sealed class SapIDocField
     {
-        #region private fields
+        #region Constructors
 
-        private String _fieldName;
-        private String _fieldDescription;
-        private int _startPos;
-        private int _length;
-        // TODO: make these match the names in the definition.
-        // add more field properties.
-        // NOTE: do this after I can parse the input file.
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SapIDocField"/> class.
+        /// </summary>
+        /// <param name="name">
+        ///     The name of the IDoc field.
+        /// </param>
+        /// <param name="description">
+        ///     The description of the IDoc field.
+        /// </param>
+        /// <param name="startPosition">
+        ///     The starting position of the IDoc field.
+        ///     Note that this may have to be calculated from the lengths of the preceding fields.
+        /// </param>
+        /// <param name="length">
+        ///     The length of the IDoc field.
+        /// </param>
+        public SapIDocField(string name, string description, int startPosition, int length)
+        {
+            DebugLog.Write("Creating new IDoc field");
+            DebugLog.Write("  Field name: '{0}'", name);
+            DebugLog.Write("  Field description: '{0}'", description);
+            DebugLog.Write("  Field starting position: {0}", startPosition);
+            DebugLog.Write("  Field length: {0}", length);
+
+            #region Argument Check
+
+            if (name.IsNullOrEmpty())
+            {
+                throw new ArgumentException("Field name cannot be empty.", "name");
+            }
+
+            if (description.IsNullOrEmpty())
+            {
+                throw new ArgumentException("Field description cannot be empty.", "description");
+            }
+
+            if (startPosition < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "startPosition",
+                    startPosition,
+                    "Field starting position cannot be negative.");
+            }
+
+            if (length < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "length",
+                    length,
+                    "Field length must be positive.");
+            }
+
+            #endregion
+
+            this.Name = name;
+            this.Description = description;
+            this.Position = startPosition;
+            this.Length = length;
+        }
 
         #endregion
 
-        #region properties
+        #region Public Properties
+
+        // TODO: make these match the names in the definition.
+        // add more field properties.
+        // NOTE: do this after I can parse the input file.
 
         /// <summary>
         /// The field name
         /// </summary>
         public string Name
         {
-            get
-            {
-                return _fieldName;
-            }
-            private set
-            {
-                if (String.IsNullOrEmpty(value))
-                {
-                    throw new SapIDocDefinitionException("Field name cannot be empty.");
-                }
-                DebugLog.Write("Field name: {0}", value);
-                _fieldName = value;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -52,19 +97,8 @@ namespace MyLoadTest.SapIDocGenerator
         /// </summary>
         public string Description
         {
-            get
-            {
-                return _fieldDescription;
-            }
-            private set
-            {
-                if (String.IsNullOrEmpty(value))
-                {
-                    throw new SapIDocDefinitionException("Field description cannot be empty.");
-                }
-                DebugLog.Write("Field description: {0}", value);
-                _fieldDescription = value;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -73,20 +107,8 @@ namespace MyLoadTest.SapIDocGenerator
         /// </summary>
         public int Position
         {
-            get
-            {
-                return _startPos;
-            }
-            private set
-            {
-                if (value < 0)
-                {
-                    string msg = String.Format("Field starting position cannot be negative. Value: {0}", value);
-                    throw new SapIDocDefinitionException(msg);
-                }
-                DebugLog.Write("Field starting position: {0}", value);
-                _startPos = value;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -94,64 +116,8 @@ namespace MyLoadTest.SapIDocGenerator
         /// </summary>
         public int Length
         {
-            get
-            {
-                return _length;
-            }
-            private set
-            {
-                if (value < 1)
-                {
-                    string msg = String.Format("Field length position cannot be 0 or negative. Value: {0}", value);
-                    throw new SapIDocDefinitionException(msg);
-                }
-                DebugLog.Write("Field length position: {0}", value);
-                _length = value;
-            }
-        }
-
-        #endregion
-
-        #region constructors
-
-        /// <summary>
-        /// The no-args constructor is not allowed
-        /// </summary>
-        private SapIDocField()
-        {
-        }
-
-        /// <summary>
-        /// Field constructor.
-        ///
-        /// When a Field object is created, the field definition must be specified.
-        /// </summary>
-        /// <param name="fieldName">The name of the Field</param>
-        /// <param name="fieldDescription">The description of the Field</param>
-        /// <param name="startPos">The starting position of the field. Note that this may have be to be calculated from the lengths of the preceeding fields.</param>
-        /// <param name="length">The length of the Field</param>
-        public SapIDocField(string fieldName, string fieldDescription, int startPos, int length)
-        {
-            Name = fieldName;
-            Description = fieldDescription;
-            Position = startPos;
-            Length = length;
-        }
-
-        // TODO:
-        /// <summary>
-        /// Note that the length of the Field is calculated from the length of the enum values (which should all be the same length).
-        /// Note: I don't really need this anymore, as it is not possible to create an IDoc definition from the XSD, only to verify an IDoc XML.
-        /// </summary>
-        /// <param name="fieldName">The name of the Field</param>
-        /// <param name="fieldDescription">The description of the Field</param>
-        /// <param name="startPos">The starting position of the field. Note that this may have be to be calculated from the lengths of the preceeding fields.</param>
-        /// <param name="length">The length of the Field</param>
-        /// <param name="enumValues"></param>
-        public SapIDocField(string fieldName, int startPos, Dictionary<string, string> enumValues)
-        {
-            // TODO: can have IsEnum property that checks if _enumValues is null.
-            // FUCk! each enum value has a different description.
+            get;
+            private set;
         }
 
         #endregion

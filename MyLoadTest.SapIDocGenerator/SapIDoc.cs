@@ -15,7 +15,31 @@ namespace MyLoadTest.SapIDocGenerator
     /// </summary>
     public sealed class SapIDoc
     {
-        #region properties
+        #region Constructors
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SapIDoc"/> class.
+        /// </summary>
+        /// <param name="definition">
+        ///     The definition of IDoc.
+        /// </param>
+        /// <param name="flatTextIdoc">
+        ///     The contents of a flat-text IDoc file.
+        /// </param>
+        public SapIDoc(SapIDocDefinition definition, string flatTextIdoc)
+        {
+            DebugLog.Write("========== New IDoc created ==========");
+
+            this.Definition = definition;
+            this.ControlRecord = new Dictionary<string, string>();
+            this.Segments = new List<Dictionary<string, string>>();
+
+            Parse(flatTextIdoc);
+        }
+
+        #endregion
+
+        #region Public Properties
 
         /// <summary>
         /// The IDoc Basic Type (from IDOCTYP field in Control Record)
@@ -56,24 +80,6 @@ namespace MyLoadTest.SapIDocGenerator
         }
 
         /// <summary>
-        /// IDoc Data Record for Interface to External System
-        /// The IDoc Data Record specifies common fields at the beginning of each line in the IDoc file, and the SDATA area that
-        /// contains all the Segment data fields.
-        /// </summary>
-        //public Dictionary<string, string> DataRecord {
-        //    get;
-        //    private set;
-        //}
-        /// <summary>
-        /// IDoc Status Record for Interface to External System
-        /// Note: I am pretty sure that I will never see an IDoc Status Record, because I think they are removed before
-        /// they are stored on the filesystem.
-        /// </summary>
-        //public Dictionary<string, string> StatusRecord {
-        //    get;
-        //    private set;
-        //}
-        /// <summary>
         /// The SapIDocDefinition contains information about segment properties and field positions. It is needed in order
         /// to interpret the flat-text IDoc file.
         /// </summary>
@@ -97,26 +103,7 @@ namespace MyLoadTest.SapIDocGenerator
 
         #endregion
 
-        #region constructors
-
-        /// <summary>
-        /// When an IDoc object is created, the fields are read according to positions from the SapIDocDefinition.
-        /// An IDocException is thrown if the
-        /// </summary>
-        /// <param name="definition">The SapIDocDefinition</param>
-        /// <param name="idoc">The contents of a flat-text IDoc file</param>
-        public SapIDoc(SapIDocDefinition definition, string idoc)
-        {
-            DebugLog.Write("========== New IDoc created ==========");
-            Definition = definition;
-            ControlRecord = new Dictionary<string, string>();
-            Segments = new List<Dictionary<string, string>>();
-            ParseIDoc(idoc); // all the hard work is done by this method.
-        }
-
-        #endregion
-
-        #region public methods
+        #region Public Methods
 
         /// <summary>
         /// An XML representation of the IDoc.
@@ -199,22 +186,22 @@ namespace MyLoadTest.SapIDocGenerator
             DebugLog.Write("Building VuGen output...");
 
             // Start building the IDoc string
-            string idoc = String.Format(
-                "    // Create an IDoc file from XML input. Note that values can be parameterised.\n" +
+            var idoc = string.Format(
+                "    // Create an IDoc file from XML input. Note that values can be parameterized.\n" +
                     "    idoc_create(\"IDocParam\",\n" +
                     "        \"<{0}>\"\n" +
                     "        \"    <IDOC BEGIN=\\\"1\\\">\"\n",
                 Type);
 
             // Add the IDoc Control Record fields
-            string segmentName = ControlRecord["TABNAM"];
-            string segmentDescription = Definition.ControlRecord.Description;
-            idoc += String.Format(
+            var segmentName = ControlRecord["TABNAM"];
+            var segmentDescription = Definition.ControlRecord.Description;
+            idoc += string.Format(
                 "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n", segmentName, segmentDescription);
-            foreach (KeyValuePair<string, string> field in ControlRecord)
+            foreach (var field in ControlRecord)
             {
-                string fieldDescription = Definition.ControlRecord[field.Key].Description;
-                int fieldLength = Definition.ControlRecord[field.Key].Length;
+                var fieldDescription = Definition.ControlRecord[field.Key].Description;
+                var fieldLength = Definition.ControlRecord[field.Key].Length;
                 idoc += String.Format(
                     "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
                     field.Key,
@@ -223,17 +210,17 @@ namespace MyLoadTest.SapIDocGenerator
                     field.Key,
                     fieldDescription);
             }
-            idoc += String.Format(
+            idoc += string.Format(
                 "        \"        </{0}>\"\n", segmentName);
 
             // Add each IDoc segment (in order)
-            foreach (Dictionary<string, string> segment in Segments)
+            foreach (var segment in Segments)
             {
                 segmentName = segment["SEGNAM"];
                 segmentDescription = Definition.Segments[segmentName].Description;
                 idoc += String.Format(
                     "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n", segmentName, segmentDescription);
-                foreach (KeyValuePair<string, string> field in segment)
+                foreach (var field in segment)
                 {
                     // The field Desciption could be in either the Data Segment definition or the Segment definition.
                     // Note that this code assumes that field names are never the same in the Data Record and the Segment Data.
@@ -279,17 +266,16 @@ namespace MyLoadTest.SapIDocGenerator
                 "        \"</license>\");\n";
 
             // TODO: put error message code here in case DLL is not found.
-            string dll =
-                "    // The IDoc DLL must be loaded before any idoc_ functions are called.\n" +
-                    "    int rc = lr_load_dll(\"idoc.dll\");\n" +
-                    "    if (rc != 0) {\n" +
-                    "        lr_error_message(\"Problem loading idoc.dll\");\n" +
-                    "        lr_abort();\n" +
-                    "    }\n";
+            const string Dll = "    // The IDoc DLL must be loaded before any idoc_ functions are called.\n" +
+                "    int rc = lr_load_dll(\"idoc.dll\");\n" +
+                "    if (rc != 0) {\n" +
+                "        lr_error_message(\"Problem loading idoc.dll\");\n" +
+                "        lr_abort();\n" +
+                "    }\n";
 
             // This is the Action.c file
             // Note special escaping for curly braces due to String.Format replacement parameters.
-            string action = String.Format(
+            var action = string.Format(
                 "Action()\n" +
                     "{{\n" +
                     "{0}" +
@@ -300,7 +286,7 @@ namespace MyLoadTest.SapIDocGenerator
                     "\n" +
                     "    return 0;\n" +
                     "}}",
-                dll,
+                Dll,
                 License,
                 idoc);
 
@@ -310,30 +296,30 @@ namespace MyLoadTest.SapIDocGenerator
 
         #endregion
 
-        #region private methods
+        #region Private Methods
 
         /// <summary>
         /// Extracts field data from each Segment in the input IDoc.
         /// </summary>
-        /// <param name="idoc">The flat-text IDoc file</param>
+        /// <param name="flatTextIdoc">The flat-text IDoc file</param>
         /// <returns>Nothing, or throws an exception if there is a problem parsing the IDoc.</returns>
-        private void ParseIDoc(string idoc)
+        private void Parse(string flatTextIdoc)
         {
-            DebugLog.Write("Parsing flat text input IDoc:\n{0}", idoc);
+            DebugLog.Write("Parsing flat text input IDoc:\n{0}", flatTextIdoc);
 
             // Each Record/Segment will be on a new line.
             // "RemoveEmptyEntries" handles case of blank rows due to "\r\n"
-            string[] rows = idoc.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var rows = flatTextIdoc.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             if (rows.Length < 2)
             {
-                throw new SapIDocDefinitionException("An IDoc cannot have less than 2 segments.");
+                throw new SapIDocException("An IDoc cannot have less than 2 segments.");
             }
 
             // The first row is always the Control Record. All other rows are Segments, with a Data Record at the start.
             DebugLog.Write("Starting Control Record...");
-            foreach (SapIDocField field in Definition.ControlRecord)
+            foreach (var field in Definition.ControlRecord)
             {
-                string val = rows[0].Substring(field.Position, field.Length).TrimEnd();
+                var val = rows[0].Substring(field.Position, field.Length).TrimEnd();
                 DebugLog.Write("{0}={1}", field.Name, val);
                 ControlRecord.Add(field.Name, val);
                 if (field.Name == "IDOCTYP")
@@ -347,18 +333,18 @@ namespace MyLoadTest.SapIDocGenerator
             }
 
             // Process all the Segments
-            for (int i = 1; i < rows.Length; i++)
+            for (var i = 1; i < rows.Length; i++)
             {
                 // Process the fields from the Data Record (except the SDATA field)
                 var currentSegment = new Dictionary<string, string>();
                 string segmentName = null;
-                foreach (SapIDocField field in Definition.DataRecord)
+                foreach (var field in Definition.DataRecord)
                 {
                     if (field.Name == "SDATA")
                     {
                         break; // this is the last field in the Data Record section of the Segment.
                     }
-                    string val = rows[i].Substring(field.Position, field.Length).TrimEnd();
+                    var val = rows[i].Substring(field.Position, field.Length).TrimEnd();
                     // TODO: can throw an OutOfBounds Exception if it is the wrong IDoc.
                     if (field.Name == "SEGNAM")
                     {
@@ -369,10 +355,10 @@ namespace MyLoadTest.SapIDocGenerator
                     currentSegment.Add(field.Name, val);
                 }
                 // Process the fields from the specified Segment.
-                foreach (SapIDocField field in Definition.Segments[segmentName])
+                foreach (var field in Definition.Segments[segmentName])
                 {
                     // TODO: can throw a KeyNotFoundException if it is the wrong IDoc.
-                    string val = rows[i].Substring(field.Position, field.Length).TrimEnd();
+                    var val = rows[i].Substring(field.Position, field.Length).TrimEnd();
                     DebugLog.Write("{0}={1}", field.Name, val);
                     currentSegment.Add(field.Name, val);
                 }

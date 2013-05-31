@@ -40,46 +40,17 @@ namespace MyLoadTest.SapIDocGenerator
         #region Fields
 
         private string _idocName;
-        private SapIDocSegment _controlRecord;
-        private SapIDocSegment _dataRecord;
-        private Dictionary<string, SapIDocSegment> _segments = new Dictionary<string, SapIDocSegment>();
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Create an IDoc definition from an XSD that has been exported from SAP
-        ///
-        /// Note: actually, you can't do this. The XSD should only be using for validating the IDoc that has been received/generated.
-        /// Evidence of this statement:
-        ///   This Field definition, which does not specify a length.
-        ///
-        /// <xsd:element name="TABNAM" type="xsd:string" fixed="EDI_DC40">
-        ///   <xsd:annotation>
-        ///    <xsd:documentation>Name of Table Structure</xsd:documentation>
-        ///   </xsd:annotation>
-        ///  </xsd:element>
-        ///
-        /// Length is defined in C-Header as:
-        ///       Char tabnam[10];                              // Name of Table Structure
-        ///
-        /// ...and in the Definition as:
-        ///
-        ///       NAME                TABNAM
-        ///       TEXT                Name of Table Structure
-        ///       TYPE                CHARACTER
-        ///       LENGTH              000010
-        ///       FIELD_POS           0001
-        ///       CHARACTER_FIRST     000001
-        ///       CHARACTER_LAST      000010
-        ///
+        ///     Prevents a default instance of the <see cref="SapIDocDefinition"/> class from being created.
         /// </summary>
-        /// <param name="xsd">IDoc definition XSD</param>
-        private SapIDocDefinition(XElement xsd)
+        private SapIDocDefinition()
         {
-            throw new NotImplementedException(
-                "It is not possible to create an SapIDocDefinition from the information in the XSD file.");
+            this.Segments = new Dictionary<string, SapIDocSegment>();
         }
 
         /// <summary>
@@ -92,9 +63,14 @@ namespace MyLoadTest.SapIDocGenerator
         /// <param name="dataRecord">The Data Record Segment</param>
         /// <param name="segments">The Segments of the IDoc</param>
         public SapIDocDefinition(
-            string name, SapIDocSegment controlRecord, SapIDocSegment dataRecord, Dictionary<string, SapIDocSegment> segments)
+            string name,
+            SapIDocSegment controlRecord,
+            SapIDocSegment dataRecord,
+            Dictionary<string, SapIDocSegment> segments)
+            : this()
         {
             DebugLog.Write("========== New SapIDocDefinition created with Dictionary<> of Segments ==========");
+
             Name = name;
             ControlRecord = controlRecord;
             DataRecord = dataRecord;
@@ -120,43 +96,23 @@ namespace MyLoadTest.SapIDocGenerator
             {
                 if (String.IsNullOrEmpty(value))
                 {
-                    throw new SapIDocDefinitionException("IDoc name cannot be empty.");
+                    throw new SapIDocException("IDoc name cannot be empty.");
                 }
                 DebugLog.Write("IDoc name: {0}", value);
                 _idocName = value;
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public SapIDocSegment ControlRecord
         {
-            get
-            {
-                return _controlRecord;
-            }
-
-            private set
-            {
-                _controlRecord = value;
-            }
+            get;
+            private set;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         public SapIDocSegment DataRecord
         {
-            get
-            {
-                return _dataRecord;
-            }
-
-            private set
-            {
-                _dataRecord = value;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -164,15 +120,8 @@ namespace MyLoadTest.SapIDocGenerator
         /// </summary>
         public Dictionary<string, SapIDocSegment> Segments
         {
-            get
-            {
-                return _segments;
-            }
-
-            private set
-            {
-                _segments = value;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -188,7 +137,7 @@ namespace MyLoadTest.SapIDocGenerator
         //    {
         //        if (String.IsNullOrEmpty(value))
         //        {
-        //            throw new SapIDocDefinitionException("IDoc description cannot be empty."); // This might cause problems if they haven't bothered to enter a description.
+        //            throw new SapIDocException("IDoc description cannot be empty."); // This might cause problems if they haven't bothered to enter a description.
         //        }
         //        _log.Write("IDoc description: {0}", value);
         //        _idocDescription = value;
@@ -199,26 +148,26 @@ namespace MyLoadTest.SapIDocGenerator
 
         #region Public Methods
 
-        /// <summary>
-        /// Create an IDoc definition from an XSD file that has been exported from SAP.
-        /// </summary>
-        /// <param name="path">The XSD filename</param>
-        /// <returns>Returns a new IDocDefinion object.</returns>
-        public static SapIDocDefinition LoadXsd(string path)
-        {
-            // Read file contents
-            XElement definition;
-            try
-            {
-                definition = XElement.Load(path);
-            }
-            catch (Exception e)
-            {
-                string msg = String.Format("Problem reading file {0}", path);
-                throw new SapIDocDefinitionException(msg, e);
-            }
-            return new SapIDocDefinition(definition);
-        }
+        /////// <summary>
+        /////// Create an IDoc definition from an XSD file that has been exported from SAP.
+        /////// </summary>
+        /////// <param name="path">The XSD filename</param>
+        /////// <returns>Returns a new IDocDefinion object.</returns>
+        ////public static SapIDocDefinition LoadXsd(string path)
+        ////{
+        ////    // Read file contents
+        ////    XElement definition;
+        ////    try
+        ////    {
+        ////        definition = XElement.Load(path);
+        ////    }
+        ////    catch (Exception e)
+        ////    {
+        ////        string msg = String.Format("Problem reading file {0}", path);
+        ////        throw new SapIDocException(msg, e);
+        ////    }
+        ////    return new SapIDocDefinition(definition);
+        ////}
 
         /// <summary>
         /// Reads an IDoc Definition (C-Header) from the file system, and creates an SapIDocDefinition object.
@@ -233,16 +182,16 @@ namespace MyLoadTest.SapIDocGenerator
             SapIDocSegment dataRecord = null;
             var segments = new Dictionary<string, SapIDocSegment>();
 
-            if (File.Exists(path) == false)
+            if (!File.Exists(path))
             {
-                string msg = String.Format("Could not find C Header file: {0}", path);
-                throw new SapIDocDefinitionException(msg);
+                var msg = String.Format("Could not find C Header file: {0}", path);
+                throw new SapIDocException(msg);
             }
 
             DebugLog.Write("C Header file contents:\n{0}", File.ReadAllText(path));
 
             // Convert the C code to XML (srcml) so it can be easily processed.
-            XElement srcml = src2srcml(path);
+            var srcml = ConvertCToSrcml(path);
 
             // The src2srcml command adds "src:" namespace prefixes to all elements.
             var nsm = new XmlNamespaceManager(new NameTable());
@@ -259,16 +208,16 @@ namespace MyLoadTest.SapIDocGenerator
                 String segmentDescription =
                     tmpSegDescComment.Substring(3, tmpSegDescComment.Length - (3 + 2)).TrimEnd();
                 // remove start/end block-comment, and any trailing whitespace.
-                SapIDocSegment currentSegment = new SapIDocSegment(segmentName, segmentDescription);
+                var currentSegment = new SapIDocSegment(segmentName, segmentDescription);
                 // must Add() each field to this separately.
 
-                IEnumerable<XElement> fieldsXml =
-                    seg.XPathSelectElements("./src:type/src:struct/src:block/src:decl_stmt", nsm);
-                IEnumerable<XElement> commentsXml =
-                    seg.XPathSelectElements("./src:type/src:struct/src:block/src:comment", nsm);
-                if (fieldsXml.Count<XElement>() != commentsXml.Count<XElement>())
+                var fieldsXml =
+                    seg.XPathSelectElements("./src:type/src:struct/src:block/src:decl_stmt", nsm).ToArray();
+                var commentsXml =
+                    seg.XPathSelectElements("./src:type/src:struct/src:block/src:comment", nsm).ToArray();
+                if (fieldsXml.Count() != commentsXml.Count())
                 {
-                    throw new SapIDocDefinitionException(
+                    throw new SapIDocException(
                         "Each field definition in the C-Header should have a matching comment.");
                 }
 
@@ -295,7 +244,6 @@ namespace MyLoadTest.SapIDocGenerator
                     segments.Add(segmentName, currentSegment);
                 }
 
-                List<SapIDocField> fields = new List<SapIDocField>();
                 foreach (var fld in fieldsXml.Zip(commentsXml, (field, comment) => new { field, comment }))
                 {
                     string fieldName =
@@ -322,46 +270,46 @@ namespace MyLoadTest.SapIDocGenerator
             return new SapIDocDefinition(idocName, controlRecord, dataRecord, segments);
         }
 
-        /// <summary>
-        ///
-        /// The IDoc definition looks like this:
-        /// BEGIN_RECORD_SECTION
-        ///   BEGIN_CONTROL_RECORD
-        ///     BEGIN_FIELDS
-        ///       NAME                TABNAM
-        ///       TEXT                Name of Table Structure
-        ///       TYPE                CHARACTER
-        ///       LENGTH              000010
-        ///       FIELD_POS           0001
-        ///       CHARACTER_FIRST     000001
-        ///       CHARACTER_LAST      000010
-        ///
-        /// The structure of the IDoc definition is:
-        ///     BEGIN_RECORD_SECTION
-        ///         BEGIN_CONTROL_RECORD
-        ///             BEGIN_FIELDS (multiple fields)
-        ///             END_FIELDS
-        ///         END_CONTROL_RECORD
-        ///         BEGIN_DATA_RECORD
-        ///             BEGIN_FIELDS (multiple fields)
-        ///             END_FIELDS
-        ///         END_DATA_RECORD
-        ///         BEGIN_STATUS_RECORD
-        ///             BEGIN_FIELDS (multiple fields)
-        ///             END_FIELDS
-        ///         END_STATUS_RECORD
-        ///     END_RECORD_SECTION
-        ///     BEGIN_SEGMENT_SECTION
-        ///         BEGIN_IDOC
-        ///             BEGIN_SEGMENT (multiple segments)
-        ///                 BEGIN_FIELDS (multiple fields)
-        ///                 END_FIELDS
-        ///             END_SEGMENT
-        ///         END_IDOC
-        ///     END_SEGMENT_SECTION
-        /// </summary>
-        /// <param name="text">A String that contains TODO.</param>
-        /// <returns></returns>
+        ///// <summary>
+        /////
+        ///// The IDoc definition looks like this:
+        ///// BEGIN_RECORD_SECTION
+        /////   BEGIN_CONTROL_RECORD
+        /////     BEGIN_FIELDS
+        /////       NAME                TABNAM
+        /////       TEXT                Name of Table Structure
+        /////       TYPE                CHARACTER
+        /////       LENGTH              000010
+        /////       FIELD_POS           0001
+        /////       CHARACTER_FIRST     000001
+        /////       CHARACTER_LAST      000010
+        /////
+        ///// The structure of the IDoc definition is:
+        /////     BEGIN_RECORD_SECTION
+        /////         BEGIN_CONTROL_RECORD
+        /////             BEGIN_FIELDS (multiple fields)
+        /////             END_FIELDS
+        /////         END_CONTROL_RECORD
+        /////         BEGIN_DATA_RECORD
+        /////             BEGIN_FIELDS (multiple fields)
+        /////             END_FIELDS
+        /////         END_DATA_RECORD
+        /////         BEGIN_STATUS_RECORD
+        /////             BEGIN_FIELDS (multiple fields)
+        /////             END_FIELDS
+        /////         END_STATUS_RECORD
+        /////     END_RECORD_SECTION
+        /////     BEGIN_SEGMENT_SECTION
+        /////         BEGIN_IDOC
+        /////             BEGIN_SEGMENT (multiple segments)
+        /////                 BEGIN_FIELDS (multiple fields)
+        /////                 END_FIELDS
+        /////             END_SEGMENT
+        /////         END_IDOC
+        /////     END_SEGMENT_SECTION
+        ///// </summary>
+        ///// <param name="text">A String that contains TODO.</param>
+        ///// <returns></returns>
         //public static SapIDocDefinition ParseStructure(string text)
         //{
         //_log.Write("Parsing IDoc definition.");
@@ -851,12 +799,12 @@ namespace MyLoadTest.SapIDocGenerator
         /// </summary>
         /// <param name="path">The file name of the C Header</param>
         /// <returns>An XElement containing a srcml represenation of the C Header</returns>
-        private static XElement src2srcml(string path)
+        private static XElement ConvertCToSrcml(string path)
         {
             // Call the src2srcml.exe process, and pass the source code to it via stdin.
-            string dllFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dllFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             ////int tabSize = 4;
-            Process p = new Process()
+            var p = new Process
             {
                 StartInfo =
                 {
@@ -893,7 +841,7 @@ namespace MyLoadTest.SapIDocGenerator
             {
                 var errorOutput = p.StandardError.ReadToEnd();
                 string msg = String.Format("Error when calling src2srcml:\n{0}", errorOutput);
-                throw new SapIDocDefinitionException(msg, e);
+                throw new SapIDocException(msg, e);
             }
             finally
             {

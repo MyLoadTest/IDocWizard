@@ -79,7 +79,7 @@ namespace MyLoadTest.SapIDocGenerator
             foreach (var field in this)
             {
                 // TODO: http://stackoverflow.com/questions/644017/net-format-a-string-with-fixed-spaces
-                Console.WriteLine("{0, 10}: {1}", field.Name, input.Substring(field.Position - 1, field.Length));
+                Console.WriteLine("{0, 10}: {1}", field.Name, input.Substring(field.StartPosition - 1, field.Length));
             }
         }
 

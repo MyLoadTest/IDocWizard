@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace MyLoadTest.SapIDocGenerator
@@ -89,17 +90,17 @@ namespace MyLoadTest.SapIDocGenerator
             private set;
         }
 
-        /// <summary>
-        /// The XSD (exported from WE60) contains enough information to validate the field lengths and values in an
-        /// IDoc if it is in XML format.
-        /// Note: This property must be set before checking the .IsValid property.
-        /// </summary>
-        public XElement Xsd
-        {
-            // TODO: it would be better to have a LoadXsd() method, as the XSD must be modified before being used for validation.
-            get;
-            private set;
-        }
+        /////// <summary>
+        /////// The XSD (exported from WE60) contains enough information to validate the field lengths and values in an
+        /////// IDoc if it is in XML format.
+        /////// Note: This property must be set before checking the .IsValid property.
+        /////// </summary>
+        ////public XElement Xsd
+        ////{
+        ////    // TODO: it would be better to have a LoadXsd() method, as the XSD must be modified before being used for validation.
+        ////    get;
+        ////    private set;
+        ////}
 
         #endregion
 
@@ -116,12 +117,13 @@ namespace MyLoadTest.SapIDocGenerator
             DebugLog.Write("Building XML output...");
 
             var idoc = new XElement("IDOC", new XAttribute("BEGIN", "1"));
-            // Add the Control Record fields
+            //// Add the Control Record fields
             var seg = new XElement(ControlRecord["TABNAM"], new XAttribute("SEGMENT", "1"));
             foreach (var field in ControlRecord)
             {
                 seg.Add(new XElement(field.Key, field.Value));
             }
+
             idoc.Add(seg);
 
             // Add each segment (in order)
@@ -132,8 +134,10 @@ namespace MyLoadTest.SapIDocGenerator
                 {
                     seg.Add(new XElement(field.Key, field.Value));
                 }
+
                 idoc.Add(seg);
             }
+
             var xml = new XElement(Type, idoc);
 
             DebugLog.Write("XML IDoc:\n{0}", xml.ToString());
@@ -185,24 +189,26 @@ namespace MyLoadTest.SapIDocGenerator
         {
             DebugLog.Write("Building VuGen output...");
 
-            // Start building the IDoc string
-            var idoc = string.Format(
+            var idoc = new StringBuilder();
+
+            //// Start building the IDoc string
+            idoc.AppendFormat(
                 "    // Create an IDoc file from XML input. Note that values can be parameterized.\n" +
                     "    idoc_create(\"IDocParam\",\n" +
                     "        \"<{0}>\"\n" +
                     "        \"    <IDOC BEGIN=\\\"1\\\">\"\n",
-                Type);
+                this.Type);
 
             // Add the IDoc Control Record fields
             var segmentName = ControlRecord["TABNAM"];
             var segmentDescription = Definition.ControlRecord.Description;
-            idoc += string.Format(
+            idoc.AppendFormat(
                 "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n", segmentName, segmentDescription);
             foreach (var field in ControlRecord)
             {
                 var fieldDescription = Definition.ControlRecord[field.Key].Description;
                 var fieldLength = Definition.ControlRecord[field.Key].Length;
-                idoc += String.Format(
+                idoc.AppendFormat(
                     "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
                     field.Key,
                     fieldLength.ToString(CultureInfo.InvariantCulture),
@@ -210,19 +216,21 @@ namespace MyLoadTest.SapIDocGenerator
                     field.Key,
                     fieldDescription);
             }
-            idoc += string.Format(
-                "        \"        </{0}>\"\n", segmentName);
+
+            idoc.AppendFormat("        \"        </{0}>\"\n", segmentName);
 
             // Add each IDoc segment (in order)
             foreach (var segment in Segments)
             {
                 segmentName = segment["SEGNAM"];
                 segmentDescription = Definition.Segments[segmentName].Description;
-                idoc += String.Format(
-                    "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n", segmentName, segmentDescription);
+                idoc.AppendFormat(
+                    "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n",
+                    segmentName,
+                    segmentDescription);
                 foreach (var field in segment)
                 {
-                    // The field Desciption could be in either the Data Segment definition or the Segment definition.
+                    // The field Description could be in either the Data Segment definition or the Segment definition.
                     // Note that this code assumes that field names are never the same in the Data Record and the Segment Data.
                     string fieldDescription;
                     int fieldLength;
@@ -236,7 +244,8 @@ namespace MyLoadTest.SapIDocGenerator
                         fieldDescription = Definition.Segments[segmentName][field.Key].Description;
                         fieldLength = Definition.Segments[segmentName][field.Key].Length;
                     }
-                    idoc += String.Format(
+
+                    idoc.AppendFormat(
                         "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
                         field.Key,
                         fieldLength.ToString(CultureInfo.InvariantCulture),
@@ -244,15 +253,15 @@ namespace MyLoadTest.SapIDocGenerator
                         field.Key,
                         fieldDescription);
                 }
-                idoc += String.Format(
-                    "        \"        </{0}>\"\n", segmentName);
+
+                idoc.AppendFormat("        \"        </{0}>\"\n", segmentName);
             }
 
             // Add the last part of the IDoc string
-            idoc += String.Format(
+            idoc.AppendFormat(
                 "        \"    </IDOC>\"\n" +
                     "        \"</{0}>\");\n",
-                Type);
+                this.Type);
 
             // TODO: The license should be added from a file or from a registry key, so that it is not hard-coded for all users.
             const string License = "    // The license key must be set before idoc_create() can be called.\n" +
@@ -274,7 +283,7 @@ namespace MyLoadTest.SapIDocGenerator
                 "    }\n";
 
             // This is the Action.c file
-            // Note special escaping for curly braces due to String.Format replacement parameters.
+            // Note special escaping for curly braces due to string.Format replacement parameters.
             var action = string.Format(
                 "Action()\n" +
                     "{{\n" +
@@ -290,7 +299,7 @@ namespace MyLoadTest.SapIDocGenerator
                 License,
                 idoc);
 
-            DebugLog.Write("VuGen output:\n{0}", action);
+            DebugLog.Write("VuGen output:{0}{1}", Environment.NewLine, action);
             return action;
         }
 
@@ -299,10 +308,11 @@ namespace MyLoadTest.SapIDocGenerator
         #region Private Methods
 
         /// <summary>
-        /// Extracts field data from each Segment in the input IDoc.
+        ///     Extracts field data from each Segment in the input IDoc.
         /// </summary>
-        /// <param name="flatTextIdoc">The flat-text IDoc file</param>
-        /// <returns>Nothing, or throws an exception if there is a problem parsing the IDoc.</returns>
+        /// <param name="flatTextIdoc">
+        ///     The flat-text IDoc file.
+        /// </param>
         private void Parse(string flatTextIdoc)
         {
             DebugLog.Write("Parsing flat text input IDoc:\n{0}", flatTextIdoc);
@@ -316,19 +326,22 @@ namespace MyLoadTest.SapIDocGenerator
             }
 
             // The first row is always the Control Record. All other rows are Segments, with a Data Record at the start.
-            DebugLog.Write("Starting Control Record...");
+            DebugLog.Write("Processing Control Record...");
             foreach (var field in Definition.ControlRecord)
             {
-                var val = rows[0].Substring(field.Position, field.Length).TrimEnd();
-                DebugLog.Write("{0}={1}", field.Name, val);
-                ControlRecord.Add(field.Name, val);
-                if (field.Name == "IDOCTYP")
+                var value = rows[0].Substring(field.StartPosition, field.Length).TrimEnd();
+                DebugLog.Write("{0}={1}", field.Name, value);
+                this.ControlRecord.Add(field.Name, value);
+
+                switch (field.Name)
                 {
-                    Type = val;
-                }
-                else if (field.Name == "DOCNUM")
-                {
-                    Number = val;
+                    case "IDOCTYP":
+                        this.Type = value;
+                        break;
+
+                    case "DOCNUM":
+                        this.Number = value;
+                        break;
                 }
             }
 
@@ -344,24 +357,33 @@ namespace MyLoadTest.SapIDocGenerator
                     {
                         break; // this is the last field in the Data Record section of the Segment.
                     }
-                    var val = rows[i].Substring(field.Position, field.Length).TrimEnd();
-                    // TODO: can throw an OutOfBounds Exception if it is the wrong IDoc.
+
+                    var value = rows[i].Substring(field.StartPosition, field.Length).TrimEnd();
+                    //// TODO: can throw an OutOfBounds Exception if it is the wrong IDoc.
                     if (field.Name == "SEGNAM")
                     {
-                        segmentName = val;
+                        segmentName = value;
                         DebugLog.Write("Starting Segment \"{0}\"...", segmentName);
                     }
-                    DebugLog.Write("{0}={1}", field.Name, val);
-                    currentSegment.Add(field.Name, val);
+
+                    DebugLog.Write("{0}={1}", field.Name, value);
+                    currentSegment.Add(field.Name, value);
                 }
+
+                if (segmentName == null)
+                {
+                    throw new SapIDocException("Segment is not found.");
+                }
+
                 // Process the fields from the specified Segment.
                 foreach (var field in Definition.Segments[segmentName])
                 {
                     // TODO: can throw a KeyNotFoundException if it is the wrong IDoc.
-                    var val = rows[i].Substring(field.Position, field.Length).TrimEnd();
+                    var val = rows[i].Substring(field.StartPosition, field.Length).TrimEnd();
                     DebugLog.Write("{0}={1}", field.Name, val);
                     currentSegment.Add(field.Name, val);
                 }
+
                 Segments.Add(currentSegment);
             }
         }

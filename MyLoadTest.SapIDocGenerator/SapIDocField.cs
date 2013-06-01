@@ -71,7 +71,7 @@ namespace MyLoadTest.SapIDocGenerator
 
             this.Name = name;
             this.Description = description;
-            this.Position = startPosition;
+            this.StartPosition = startPosition;
             this.Length = length;
         }
 
@@ -105,7 +105,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// The starting position of the field i.e. the byte/character offset.
         /// Note tht fields never start at 0, as the segment name takes up the first x characters.
         /// </summary>
-        public int Position
+        public int StartPosition
         {
             get;
             private set;

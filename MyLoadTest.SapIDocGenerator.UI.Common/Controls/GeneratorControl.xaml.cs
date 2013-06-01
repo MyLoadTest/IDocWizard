@@ -129,9 +129,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             try
             {
                 var filePath = openFileDialog.FileName;
-                var docDefinition = SapIDocDefinition.LoadHeader(filePath);
+                var definition = SapIDocDefinition.LoadHeader(filePath);
 
-                var path = Path.Combine(this.ViewModel.ImportPage.RepositoryPath, docDefinition.Name);
+                var path = Path.Combine(this.ViewModel.ImportPage.RepositoryPath, definition.Name);
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);

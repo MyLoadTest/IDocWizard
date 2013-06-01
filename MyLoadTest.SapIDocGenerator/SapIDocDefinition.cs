@@ -37,21 +37,7 @@ namespace MyLoadTest.SapIDocGenerator
     /// </summary>
     public sealed class SapIDocDefinition
     {
-        #region Fields
-
-        private string _idocName;
-
-        #endregion
-
         #region Constructors
-
-        /// <summary>
-        ///     Prevents a default instance of the <see cref="SapIDocDefinition"/> class from being created.
-        /// </summary>
-        private SapIDocDefinition()
-        {
-            this.Segments = new Dictionary<string, SapIDocSegment>();
-        }
 
         /// <summary>
         /// Constructor to create an SapIDocDefinition when the segment contents are already known
@@ -62,19 +48,42 @@ namespace MyLoadTest.SapIDocGenerator
         /// <param name="controlRecord">The Control Record Segment</param>
         /// <param name="dataRecord">The Data Record Segment</param>
         /// <param name="segments">The Segments of the IDoc</param>
-        public SapIDocDefinition(
+        private SapIDocDefinition(
             string name,
             SapIDocSegment controlRecord,
             SapIDocSegment dataRecord,
             Dictionary<string, SapIDocSegment> segments)
-            : this()
         {
-            DebugLog.Write("========== New SapIDocDefinition created with Dictionary<> of Segments ==========");
+            DebugLog.Write("========== Creating {0} with dictionary of Segments ==========", GetType().Name);
 
-            Name = name;
-            ControlRecord = controlRecord;
-            DataRecord = dataRecord;
-            Segments = segments;
+            #region Argument Check
+
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("IDoc name cannot be empty.", "name");
+            }
+
+            if (controlRecord == null)
+            {
+                throw new ArgumentNullException("controlRecord");
+            }
+
+            if (dataRecord == null)
+            {
+                throw new ArgumentNullException("dataRecord");
+            }
+
+            if (segments == null)
+            {
+                throw new ArgumentNullException("segments");
+            }
+
+            #endregion
+
+            this.Name = name;
+            this.ControlRecord = controlRecord;
+            this.DataRecord = dataRecord;
+            this.Segments = segments;
         }
 
         #endregion
@@ -82,25 +91,15 @@ namespace MyLoadTest.SapIDocGenerator
         #region Public Properties
 
         /// <summary>
-        /// The IDoc name e.g. "ZISUPODMAS_BAPIZBUSMASSENDEM01".
-        /// Note that this property can only be set when an instance of the class is created.
+        ///     Gets or sets the IDoc name.
         /// </summary>
+        /// <remarks>
+        ///     For instance, &quot;ZISUPODMAS_BAPIZBUSMASSENDEM01&quot;.
+        /// </remarks>
         public string Name
         {
-            get
-            {
-                return _idocName;
-            }
-
-            private set
-            {
-                if (String.IsNullOrEmpty(value))
-                {
-                    throw new SapIDocException("IDoc name cannot be empty.");
-                }
-                DebugLog.Write("IDoc name: {0}", value);
-                _idocName = value;
-            }
+            get;
+            private set;
         }
 
         public SapIDocSegment ControlRecord
@@ -124,25 +123,25 @@ namespace MyLoadTest.SapIDocGenerator
             private set;
         }
 
-        /// <summary>
-        /// The IDoc description e.g. "BAPI Outbound;Meter Asset Standing Data Updates".
-        /// Note that this property can only be set when an instance of the class is created.
-        /// Note that this property can be found in the XSD definition, but not in the C-Header definition or the
-        /// Structure definition.
-        /// </summary>
-        //public string Description
-        //{
-        //    get { return _idocDescription; }
-        //    private set
-        //    {
-        //        if (String.IsNullOrEmpty(value))
-        //        {
-        //            throw new SapIDocException("IDoc description cannot be empty."); // This might cause problems if they haven't bothered to enter a description.
-        //        }
-        //        _log.Write("IDoc description: {0}", value);
-        //        _idocDescription = value;
-        //    }
-        //}
+        ///// <summary>
+        ///// The IDoc description e.g. "BAPI Outbound;Meter Asset Standing Data Updates".
+        ///// Note that this property can only be set when an instance of the class is created.
+        ///// Note that this property can be found in the XSD definition, but not in the C-Header definition or the
+        ///// Structure definition.
+        ///// </summary>
+        ////public string Description
+        ////{
+        ////    get { return _idocDescription; }
+        ////    private set
+        ////    {
+        ////        if (String.IsNullOrEmpty(value))
+        ////        {
+        ////            throw new SapIDocException("IDoc description cannot be empty."); // This might cause problems if they haven't bothered to enter a description.
+        ////        }
+        ////        _log.Write("IDoc description: {0}", value);
+        ////        _idocDescription = value;
+        ////    }
+        ////}
 
         #endregion
 
@@ -184,11 +183,10 @@ namespace MyLoadTest.SapIDocGenerator
 
             if (!File.Exists(path))
             {
-                var msg = String.Format("Could not find C Header file: {0}", path);
-                throw new SapIDocException(msg);
+                throw new SapIDocException(string.Format("Could not find C Header file: {0}", path));
             }
 
-            DebugLog.Write("C Header file contents:\n{0}", File.ReadAllText(path));
+            DebugLog.Write("C Header file contents:{0}{1}", Environment.NewLine, File.ReadAllText(path));
 
             // Convert the C code to XML (srcml) so it can be easily processed.
             var srcml = ConvertCToSrcml(path);
@@ -196,20 +194,19 @@ namespace MyLoadTest.SapIDocGenerator
             // The src2srcml command adds "src:" namespace prefixes to all elements.
             var nsm = new XmlNamespaceManager(new NameTable());
             nsm.AddNamespace("src", "http://www.sdml.info/srcML/src");
-            // Note that XPathSelectElement does not use the default namespace (""), will always return NULL if you query an XML document that has a default namespace.
+            //// Note that XPathSelectElement does not use the default namespace (""), will always return NULL if you query an XML document that has a default namespace.
             nsm.AddNamespace("cpp", "http://www.sdml.info/srcML/cpp");
 
             // Extract the field definitions from each IDoc segment (typedef/struct).
-            IEnumerable<XElement> structsXml = srcml.XPathSelectElements("/src:typedef", nsm);
-            foreach (XElement seg in structsXml)
+            var structsXml = srcml.XPathSelectElements("/src:typedef", nsm);
+            foreach (var seg in structsXml)
             {
-                String segmentName = seg.XPathSelectElement("./src:name", nsm).Value.ToUpper();
-                String tmpSegDescComment = seg.XPathSelectElement("./src:type/src:struct/src:comment", nsm).Value;
-                String segmentDescription =
-                    tmpSegDescComment.Substring(3, tmpSegDescComment.Length - (3 + 2)).TrimEnd();
-                // remove start/end block-comment, and any trailing whitespace.
+                var segmentName = seg.XPathSelectElement("./src:name", nsm).Value.ToUpper();
+                var tmpSegDescComment = seg.XPathSelectElement("./src:type/src:struct/src:comment", nsm).Value;
+                var segmentDescription = tmpSegDescComment.Substring(3, tmpSegDescComment.Length - (3 + 2)).TrimEnd();
+                //// remove start/end block-comment, and any trailing whitespace.
                 var currentSegment = new SapIDocSegment(segmentName, segmentDescription);
-                // must Add() each field to this separately.
+                //// must Add() each field to this separately.
 
                 var fieldsXml =
                     seg.XPathSelectElements("./src:type/src:struct/src:block/src:decl_stmt", nsm).ToArray();
@@ -222,68 +219,523 @@ namespace MyLoadTest.SapIDocGenerator
                 }
 
                 int fieldStartPos; // The starting position changes if it is a data segment.
-                if (segmentDescription == "IDoc Control Record for Interface to External System")
+                switch (segmentDescription)
                 {
-                    fieldStartPos = 0;
-                    controlRecord = currentSegment;
-                }
-                else if (segmentDescription == "IDoc Data Record for Interface to External System")
-                {
-                    fieldStartPos = 0;
-                    dataRecord = currentSegment;
-                }
-                else if (segmentDescription == "IDoc Status Record for Interface to External System")
-                {
-                    DebugLog.Write("Skipping Status Record definition, as this is not needed to read an IDoc.");
-                    continue;
-                }
-                else
-                {
-                    fieldStartPos = dataRecord["SDATA"].Position;
-                    // The Data Record will always be defined before any segments, so this should never get a NullPointerException.
-                    segments.Add(segmentName, currentSegment);
+                    case "IDoc Control Record for Interface to External System":
+                        fieldStartPos = 0;
+                        controlRecord = currentSegment;
+                        break;
+
+                    case "IDoc Data Record for Interface to External System":
+                        fieldStartPos = 0;
+                        dataRecord = currentSegment;
+                        break;
+
+                    case "IDoc Status Record for Interface to External System":
+                        DebugLog.Write("Skipping Status Record definition, as this is not needed to read an IDoc.");
+                        continue;
+                    default:
+                        fieldStartPos = dataRecord.EnsureNotNull()["SDATA"].StartPosition;
+                        segments.Add(segmentName, currentSegment);
+                        break;
                 }
 
                 foreach (var fld in fieldsXml.Zip(commentsXml, (field, comment) => new { field, comment }))
                 {
-                    string fieldName =
-                        fld.field.XPathSelectElement("./src:decl/src:name/src:name", nsm).Value.ToUpper();
-                    int fieldLength =
-                        Convert.ToInt32(
-                            fld.field.XPathSelectElement("./src:decl/src:name/src:index/src:expr", nsm).Value);
-                    String tmpFldDescComment = fld.comment.Value;
-                    String fieldDescription =
-                        tmpFldDescComment.Substring(3, tmpFldDescComment.Length - (3 + 2)).TrimEnd();
-                    // remove start/end block-comment, and any trailing whitespace.
+                    var fieldName =
+                        fld.field.XPathSelectElement("./src:decl/src:name/src:name", nsm).Value.ToUpperInvariant();
+                    var fieldLength = Convert.ToInt32(
+                        fld.field.XPathSelectElement("./src:decl/src:name/src:index/src:expr", nsm).Value);
+                    var tmpFldDescComment = fld.comment.Value;
+                    var fieldDescription = tmpFldDescComment
+                        .Substring(3, tmpFldDescComment.Length - (3 + 2))
+                        .TrimEnd();
+                    //// remove start/end block-comment, and any trailing whitespace.
                     currentSegment.Add(new SapIDocField(fieldName, fieldDescription, fieldStartPos, fieldLength));
                     fieldStartPos += fieldLength;
                 }
             }
 
-            // To get the IDoc name, look for the comment that says "/* Segment structures for IDoc type ZISUPODMAS_BAPIZBUSMASSENDEM01 */".
-            // Note that there is no IDoc description in the C-Header or the exported Structure.
-            string tmpIdocName =
-                srcml.XPathSelectElement("//src:comment[contains(., 'Segment structures for IDoc type')]", nsm).Value;
-            String idocName = tmpIdocName.Substring(36, tmpIdocName.Length - (36 + 2)).TrimEnd();
-            // remove start/end block-comment, and any trailing whitespace.
+            //// To get the IDoc name, look for the comment that says "/* Segment structures for IDoc type ZISUPODMAS_BAPIZBUSMASSENDEM01 */".
+            //// Note that there is no IDoc description in the C-Header or the exported Structure.
+            var tmpIdocName = srcml
+                .XPathSelectElement("//src:comment[contains(., 'Segment structures for IDoc type')]", nsm)
+                .Value;
+            var idocName = tmpIdocName.Substring(36, tmpIdocName.Length - (36 + 2)).TrimEnd();
+            //// remove start/end block-comment, and any trailing whitespace.
 
             return new SapIDocDefinition(idocName, controlRecord, dataRecord, segments);
         }
 
-        ///// <summary>
-        /////
-        ///// The IDoc definition looks like this:
-        ///// BEGIN_RECORD_SECTION
-        /////   BEGIN_CONTROL_RECORD
-        /////     BEGIN_FIELDS
-        /////       NAME                TABNAM
-        /////       TEXT                Name of Table Structure
-        /////       TYPE                CHARACTER
-        /////       LENGTH              000010
-        /////       FIELD_POS           0001
-        /////       CHARACTER_FIRST     000001
-        /////       CHARACTER_LAST      000010
-        /////
+        /////// <summary>
+        ///////
+        /////// The IDoc definition looks like this:
+        /////// BEGIN_RECORD_SECTION
+        ///////   BEGIN_CONTROL_RECORD
+        ///////     BEGIN_FIELDS
+        ///////       NAME                TABNAM
+        ///////       TEXT                Name of Table Structure
+        ///////       TYPE                CHARACTER
+        ///////       LENGTH              000010
+        ///////       FIELD_POS           0001
+        ///////       CHARACTER_FIRST     000001
+        ///////       CHARACTER_LAST      000010
+        ///////
+        /////// The structure of the IDoc definition is:
+        ///////     BEGIN_RECORD_SECTION
+        ///////         BEGIN_CONTROL_RECORD
+        ///////             BEGIN_FIELDS (multiple fields)
+        ///////             END_FIELDS
+        ///////         END_CONTROL_RECORD
+        ///////         BEGIN_DATA_RECORD
+        ///////             BEGIN_FIELDS (multiple fields)
+        ///////             END_FIELDS
+        ///////         END_DATA_RECORD
+        ///////         BEGIN_STATUS_RECORD
+        ///////             BEGIN_FIELDS (multiple fields)
+        ///////             END_FIELDS
+        ///////         END_STATUS_RECORD
+        ///////     END_RECORD_SECTION
+        ///////     BEGIN_SEGMENT_SECTION
+        ///////         BEGIN_IDOC
+        ///////             BEGIN_SEGMENT (multiple segments)
+        ///////                 BEGIN_FIELDS (multiple fields)
+        ///////                 END_FIELDS
+        ///////             END_SEGMENT
+        ///////         END_IDOC
+        ///////     END_SEGMENT_SECTION
+        /////// </summary>
+        /////// <param name="text">A String that contains TODO.</param>
+        /////// <returns></returns>
+        ////public static SapIDocDefinition ParseStructure(string text)
+        ////{
+        ////_log.Write("Parsing IDoc definition.");
+        ////// Note: will replace this with a state table in the future.
+        ////Dictionary<string, bool> state = new Dictionary<string, bool>() {
+        ////    {"RECORD_SECTION", false},
+        ////    {"CONTROL_RECORD", false},
+        ////    {"DATA_RECORD", false},
+        ////    {"STATUS_RECORD", false},
+        ////    {"SEGMENT_SECTION", false},
+        ////    {"IDOC", false},
+        ////    {"SEGMENT", false},
+        ////    {"FIELDS", false}
+        ////};
+        ////// break string into lines, and extract name and value using a regular expression.
+        ////using (StringReader sr = new StringReader(text))
+        ////{
+        ////    // Regular expression should match:
+        ////    // - the start of a line, then
+        ////    // - zero or more whitespace characters, then
+        ////    // - 1 or more alpha characters (the first word => name), then
+        ////    // - zero or more whitespace characters, then
+        ////    // - zero or more alpha characters or whitespace characters (multiple words => value), then
+        ////    // - the end of a line.
+        ////    // Note use of named groups
+        ////    // Useful C# regex tutorial here: http://www.codeproject.com/Articles/9099/The-30-Minute-Regex-Tutorial
+        ////    //Regex regex = new Regex(@"^\s*(?<name>\w+).*"); // works for first word
+        ////    //Regex regex = new Regex(@"^\s*\b(?<name>\w+)\b"); // works for first word
+        ////    Regex regex = new Regex(@"^\s*\b(?<name>\w+)\b\s*(?<value>[\w\s]*)$");
+        ////    Match match;
+        ////    string line;
+        ////    int lineNum = 0;
+        ////    while ((line = sr.ReadLine()) != null)
+        ////    {
+        ////        lineNum++;
+        ////        match = regex.Match(line);
+        ////        string name = match.Groups["name"].Value;
+        ////        string value = match.Groups["value"].Value;
+        ////        // TODO: Replace this with a proper state machine/state table. This is kludgy.
+        ////        switch (name)
+        ////        {
+        ////            case "":
+        ////                // Ignore blank lines
+        ////                break;
+        ////            case "BEGIN_RECORD_SECTION":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["RECORD_SECTION"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "END_RECORD_SECTION":
+        ////                if ((state["RECORD_SECTION"] == true) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["RECORD_SECTION"] = false;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "BEGIN_CONTROL_RECORD":
+        ////                if ((state["RECORD_SECTION"] == true) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["CONTROL_RECORD"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "END_CONTROL_RECORD":
+        ////                if ((state["RECORD_SECTION"] == true) &&
+        ////                    (state["CONTROL_RECORD"] == true) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["CONTROL_RECORD"] = false;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TODO":
+        ////                if ((state["RECORD_SECTION"] == false) &&
+        ////                    (state["CONTROL_RECORD"] == false) &&
+        ////                    (state["DATA_RECORD"] == false) &&
+        ////                    (state["STATUS_RECORD"] == false) &&
+        ////                    (state["SEGMENT_SECTION"] == false) &&
+        ////                    (state["IDOC"] == false) &&
+        ////                    (state["SEGMENT"] == false) &&
+        ////                    (state["FIELDS"] == false))
+        ////                {
+        ////                    state["TODO"] = true;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "NAME":
+        ////                if ((state["FIELDS"] == true) && (name == null))
+        ////                {
+        ////                    name = value;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "TEXT":
+        ////                if ((state["FIELDS"] == true) && (text == null))
+        ////                {
+        ////                    text = value;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////            case "TYPE":
+        ////                if ((state["FIELDS"] == true) && (type == null))
+        ////                {
+        ////                    type = value;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "LENGTH":
+        ////                if ((state["FIELDS"] == true) && (length == null))
+        ////                {
+        ////                    length = value;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "FIELD_POS":
+        ////                if ((state["FIELDS"] == true) && (fieldPos == null))
+        ////                {
+        ////                    fieldPos = value;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "CHARACTER_FIRST":
+        ////                if ((state["FIELDS"] == true) && (characterFirst == null))
+        ////                {
+        ////                    characterFirst = value;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            case "CHARACTER_LAST":
+        ////                if (IsValidState(state) == true) { }
+        ////                if ((state["FIELDS"] == true) && (characterLast == null))
+        ////                {
+        ////                    characterLast = value;
+        ////                    // TODO: add field to segment.
+        ////                    // Reset all field values
+        ////                    name = null;
+        ////                    text = null;
+        ////                    type = null;
+        ////                    length = null;
+        ////                    fieldPos = null;
+        ////                    characterFirst = null;
+        ////                    characterLast = null;
+        ////                }
+        ////                else
+        ////                {
+        ////                    goto default;
+        ////                }
+        ////                break;
+        ////            default:
+        ////                string msg = String.Format("Invalid IDoc description element on line {0}.", lineNum);
+        ////                _log.Write(msg);
+        ////                throw new FormatException(msg);
+        ////                break;
+        ////        }
+        ////        Console.WriteLine("Name: {0}", match.Groups["name"].Value);
+        ////        Console.WriteLine("Value: {0}", match.Groups["value"].Value);
+        ////        //Console.WriteLine(match.Groups["value"].Value);
+        ////        // TODO: regex to break it into name/value pairs.
+        ////        // TODO
+        ////    }
+        ////}
+        ////Console.WriteLine();
+        ////return new SapIDocDefinition();
+        ////}
+
         ///// The structure of the IDoc definition is:
         /////     BEGIN_RECORD_SECTION
         /////         BEGIN_CONTROL_RECORD
@@ -307,480 +759,26 @@ namespace MyLoadTest.SapIDocGenerator
         /////             END_SEGMENT
         /////         END_IDOC
         /////     END_SEGMENT_SECTION
-        ///// </summary>
-        ///// <param name="text">A String that contains TODO.</param>
-        ///// <returns></returns>
-        //public static SapIDocDefinition ParseStructure(string text)
-        //{
-        //_log.Write("Parsing IDoc definition.");
-        //// Note: will replace this with a state table in the future.
-        //Dictionary<string, bool> state = new Dictionary<string, bool>() {
-        //    {"RECORD_SECTION", false},
-        //    {"CONTROL_RECORD", false},
-        //    {"DATA_RECORD", false},
-        //    {"STATUS_RECORD", false},
-        //    {"SEGMENT_SECTION", false},
-        //    {"IDOC", false},
-        //    {"SEGMENT", false},
-        //    {"FIELDS", false}
-        //};
-        //// break string into lines, and extract name and value using a regular expression.
-        //using (StringReader sr = new StringReader(text))
-        //{
-        //    // Regular expression should match:
-        //    // - the start of a line, then
-        //    // - zero or more whitespace characters, then
-        //    // - 1 or more alpha characters (the first word => name), then
-        //    // - zero or more whitespace characters, then
-        //    // - zero or more alpha characters or whitespace characters (multiple words => value), then
-        //    // - the end of a line.
-        //    // Note use of named groups
-        //    // Useful C# regex tutorial here: http://www.codeproject.com/Articles/9099/The-30-Minute-Regex-Tutorial
-        //    //Regex regex = new Regex(@"^\s*(?<name>\w+).*"); // works for first word
-        //    //Regex regex = new Regex(@"^\s*\b(?<name>\w+)\b"); // works for first word
-        //    Regex regex = new Regex(@"^\s*\b(?<name>\w+)\b\s*(?<value>[\w\s]*)$");
-        //    Match match;
-        //    string line;
-        //    int lineNum = 0;
-        //    while ((line = sr.ReadLine()) != null)
-        //    {
-        //        lineNum++;
-        //        match = regex.Match(line);
-        //        string name = match.Groups["name"].Value;
-        //        string value = match.Groups["value"].Value;
-        //        // TODO: Replace this with a proper state machine/state table. This is kludgy.
-        //        switch (name)
-        //        {
-        //            case "":
-        //                // Ignore blank lines
-        //                break;
-        //            case "BEGIN_RECORD_SECTION":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["RECORD_SECTION"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "END_RECORD_SECTION":
-        //                if ((state["RECORD_SECTION"] == true) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["RECORD_SECTION"] = false;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "BEGIN_CONTROL_RECORD":
-        //                if ((state["RECORD_SECTION"] == true) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["CONTROL_RECORD"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "END_CONTROL_RECORD":
-        //                if ((state["RECORD_SECTION"] == true) &&
-        //                    (state["CONTROL_RECORD"] == true) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["CONTROL_RECORD"] = false;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TODO":
-        //                if ((state["RECORD_SECTION"] == false) &&
-        //                    (state["CONTROL_RECORD"] == false) &&
-        //                    (state["DATA_RECORD"] == false) &&
-        //                    (state["STATUS_RECORD"] == false) &&
-        //                    (state["SEGMENT_SECTION"] == false) &&
-        //                    (state["IDOC"] == false) &&
-        //                    (state["SEGMENT"] == false) &&
-        //                    (state["FIELDS"] == false))
-        //                {
-        //                    state["TODO"] = true;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "NAME":
-        //                if ((state["FIELDS"] == true) && (name == null))
-        //                {
-        //                    name = value;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "TEXT":
-        //                if ((state["FIELDS"] == true) && (text == null))
-        //                {
-        //                    text = value;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //            case "TYPE":
-        //                if ((state["FIELDS"] == true) && (type == null))
-        //                {
-        //                    type = value;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "LENGTH":
-        //                if ((state["FIELDS"] == true) && (length == null))
-        //                {
-        //                    length = value;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "FIELD_POS":
-        //                if ((state["FIELDS"] == true) && (fieldPos == null))
-        //                {
-        //                    fieldPos = value;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "CHARACTER_FIRST":
-        //                if ((state["FIELDS"] == true) && (characterFirst == null))
-        //                {
-        //                    characterFirst = value;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            case "CHARACTER_LAST":
-        //                if (IsValidState(state) == true) { }
-        //                if ((state["FIELDS"] == true) && (characterLast == null))
-        //                {
-        //                    characterLast = value;
-        //                    // TODO: add field to segment.
-        //                    // Reset all field values
-        //                    name = null;
-        //                    text = null;
-        //                    type = null;
-        //                    length = null;
-        //                    fieldPos = null;
-        //                    characterFirst = null;
-        //                    characterLast = null;
-        //                }
-        //                else
-        //                {
-        //                    goto default;
-        //                }
-        //                break;
-        //            default:
-        //                string msg = String.Format("Invalid IDoc description element on line {0}.", lineNum);
-        //                _log.Write(msg);
-        //                throw new FormatException(msg);
-        //                break;
-        //        }
-        //        Console.WriteLine("Name: {0}", match.Groups["name"].Value);
-        //        Console.WriteLine("Value: {0}", match.Groups["value"].Value);
-        //        //Console.WriteLine(match.Groups["value"].Value);
-        //        // TODO: regex to break it into name/value pairs.
-        //        // TODO
-        //    }
-        //}
-        //Console.WriteLine();
-        //return new SapIDocDefinition();
-        //}
-        /// The structure of the IDoc definition is:
-        ///     BEGIN_RECORD_SECTION
-        ///         BEGIN_CONTROL_RECORD
-        ///             BEGIN_FIELDS (multiple fields)
-        ///             END_FIELDS
-        ///         END_CONTROL_RECORD
-        ///         BEGIN_DATA_RECORD
-        ///             BEGIN_FIELDS (multiple fields)
-        ///             END_FIELDS
-        ///         END_DATA_RECORD
-        ///         BEGIN_STATUS_RECORD
-        ///             BEGIN_FIELDS (multiple fields)
-        ///             END_FIELDS
-        ///         END_STATUS_RECORD
-        ///     END_RECORD_SECTION
-        ///     BEGIN_SEGMENT_SECTION
-        ///         BEGIN_IDOC
-        ///             BEGIN_SEGMENT (multiple segments)
-        ///                 BEGIN_FIELDS (multiple fields)
-        ///                 END_FIELDS
-        ///             END_SEGMENT
-        ///         END_IDOC
-        ///     END_SEGMENT_SECTION
-        //private static bool IsValidState(byte[] state)
-        //{
-        //    // http://stackoverflow.com/questions/713341/comparing-arrays-in-c-sharp
-        //    // var arraysAreEqual = Enumerable.SequenceEqual(a1, a2);
-        //    // validStates.SequenceEqual()
-        //    // A list of all valid states when reading an IDoc definition
-        //    List<bool[]> validStates = new List<bool[]>();
-        //    //                          RECORD_SECTION | CONTROL_RECORD | DATA_RECORD | STATUS_RECORD | SEGMENT_SECTION | IDOC | SEGMENT_SECTION | SEGMENT_VALUE | SEGMENT FIELDS | FIELD_VALUE
-        //    validStates.Add(new bool[] { true, false, false, false, false, false, false, false, false, false }); // BEGIN_RECORD_SECTION. At start of IDoc definition.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // BEGIN_CONTROL_RECORD.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // .
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // BEGIN_FIELDS.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
-        //    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION
-        //    return false;
-        //}
+        ////private static bool IsValidState(byte[] state)
+        ////{
+        ////    // http://stackoverflow.com/questions/713341/comparing-arrays-in-c-sharp
+        ////    // var arraysAreEqual = Enumerable.SequenceEqual(a1, a2);
+        ////    // validStates.SequenceEqual()
+        ////    // A list of all valid states when reading an IDoc definition
+        ////    List<bool[]> validStates = new List<bool[]>();
+        ////    //                          RECORD_SECTION | CONTROL_RECORD | DATA_RECORD | STATUS_RECORD | SEGMENT_SECTION | IDOC | SEGMENT_SECTION | SEGMENT_VALUE | SEGMENT FIELDS | FIELD_VALUE
+        ////    validStates.Add(new bool[] { true, false, false, false, false, false, false, false, false, false }); // BEGIN_RECORD_SECTION. At start of IDoc definition.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // BEGIN_CONTROL_RECORD.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // .
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // BEGIN_FIELDS.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION.
+        ////    validStates.Add(new bool[] { false, false, false, false, false, false, false, false, false, false }); // END_RECORD_SECTION
+        ////    return false;
+        ////}
 
         #endregion
 
@@ -802,23 +800,23 @@ namespace MyLoadTest.SapIDocGenerator
         private static XElement ConvertCToSrcml(string path)
         {
             // Call the src2srcml.exe process, and pass the source code to it via stdin.
-            var dllFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dllFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).EnsureNotNull();
             ////int tabSize = 4;
             var p = new Process
             {
                 StartInfo =
                 {
                     FileName = dllFolder + @"\src2srcml\src2srcml.exe",
-                    // assume it is always installed in the \srcml subdirectory.
-                    Arguments = String.Format("--language=C --xmlns:src=http://www.sdml.info/srcML/src \"{0}\"", path),
+                    //// assume it is always installed in the \srcml subdirectory.
+                    Arguments = string.Format("--language=C --xmlns:src=http://www.sdml.info/srcML/src \"{0}\"", path),
                     CreateNoWindow = true, // prevent the new shell window from briefly flashing up
                     UseShellExecute = false,
-                    // needs to be false in order to redirect output. Must specify the full path name, as it will not use the shell's %PATH% variable.
+                    //// needs to be false in order to redirect output. Must specify the full path name, as it will not use the shell's %PATH% variable.
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     RedirectStandardInput = true, // redirect all 3, as it should be all 3 or none
                     WorkingDirectory = dllFolder
-                    // If p.WorkingDirectory is not specified, the default working directory is %SYSTEMROOT%\system32
+                    //// If p.WorkingDirectory is not specified, the default working directory is %SYSTEMROOT%\system32
                 }
             };
 
@@ -829,19 +827,19 @@ namespace MyLoadTest.SapIDocGenerator
             XElement srcml;
             try
             {
-                string output = p.StandardOutput.ReadToEnd(); //.Dump()
-                //Console.WriteLine("########## OUTPUT ##########\n{0}\n########## END OUTPUT ##########", output);
+                var output = p.StandardOutput.ReadToEnd(); // .Dump()
+                ////Console.WriteLine("########## OUTPUT ##########\n{0}\n########## END OUTPUT ##########", output);
 
                 srcml = XElement.Parse(output);
 
                 // ...then wait n milliseconds for exit (as after exit, it can't read the output)
                 p.WaitForExit(10000); // Documentation: http://msdn.microsoft.com/en-us/library/ty0d8k56.aspx
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 var errorOutput = p.StandardError.ReadToEnd();
-                string msg = String.Format("Error when calling src2srcml:\n{0}", errorOutput);
-                throw new SapIDocException(msg, e);
+                var message = string.Format("Error when calling src2srcml:{0}{1}", Environment.NewLine, errorOutput);
+                throw new SapIDocException(message, ex);
             }
             finally
             {

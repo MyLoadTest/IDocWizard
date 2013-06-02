@@ -13,7 +13,7 @@
         <TabControl Name="Tabs">
             <TabItem Name="WizardTab" Header="{x:Static props:Resources.WizardTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid>
+                    <Grid Margin="5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -38,7 +38,7 @@
                         <TextBlock Grid.Row="4" Margin="5" Text="{x:Static props:Resources.WizardInstructions4}"
                                 TextWrapping="Wrap" />
                         <StackPanel Grid.Row="5" Orientation="Horizontal">
-                            <Button Content="{x:Static props:Resources.CreateButtonTitle}" Margin="5,5,10,5"
+                            <Button Content="{x:Static props:Resources.CreateButtonTitle}" Margin="0,5,10,5"
                                     MinWidth="100" Click="CreateButton_Click"
                                     IsEnabled="{Binding WizardPage.IsCreateEnabled}" />
                             <Button Content="{x:Static props:Resources.CancelButtonTitle}" Margin="5,5,10,5"
@@ -49,7 +49,7 @@
             </TabItem>
             <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid>
+                    <Grid Margin="5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -102,7 +102,7 @@
                         </ListView>
                         <StackPanel Grid.Row="2" Orientation="Horizontal">
                             <Button Content="{x:Static props:Resources.NewTypeButtonContent}" MinWidth="100"
-                                    Margin="5,5,10,5" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
+                                    Margin="0,5,10,5" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
                                     Click="NewTypeButton_Click" />
                             <Button Content="Import" MinWidth="100" Margin="5,5,10,5"
                                     IsEnabled="{Binding ImportPage.ShouldImportButtonBeEnabled}"
@@ -112,7 +112,21 @@
                 </ScrollViewer>
             </TabItem>
             <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}">
-                (TODO)
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ComboBox Grid.Row="0" ItemsSource="{Binding ParametersPage.IdocItems}"
+                                IsSynchronizedWithCurrentItem="True" IsEditable="False"
+                                HorizontalAlignment="Stretch" />
+                        <TreeView Grid.Row="1" MinHeight="100"></TreeView>
+                        <Button Grid.Row="2" Content="Replace/Copy to Clipboard" MinWidth="100" Margin="0,5,10,5"
+                                HorizontalAlignment="Left" Click="ReplaceOrCopyButton_Click" />
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
     </Grid>

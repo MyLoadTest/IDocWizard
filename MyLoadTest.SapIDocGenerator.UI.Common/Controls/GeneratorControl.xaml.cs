@@ -251,6 +251,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             this.ViewModel.ImportPage.RefreshRepositoryItems();
         }
 
+        private void ReplaceOrCopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ShowErrorBox(new NotImplementedException().Message);
+        }
+
         #endregion
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -17,6 +16,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             this.ImportPage = new ImportPageViewModel();
             this.WizardPage = new WizardPageViewModel();
+            this.ParametersPage = new ParametersPageViewModel();
 
             Reset();
         }
@@ -37,6 +37,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             private set;
         }
 
+        public ParametersPageViewModel ParametersPage
+        {
+            get;
+            private set;
+        }
+
         #endregion
 
         #region Public Methods
@@ -45,16 +51,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             this.WizardPage.Reset();
             this.ImportPage.Reset();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private void RaisePropertyChanged<T>(
-            Expression<Func<GeneratorControlViewModel, T>> propertyGetterExpression)
-        {
-            RaisePropertyChanged<GeneratorControlViewModel, T>(propertyGetterExpression);
+            this.ParametersPage.Reset();
         }
 
         #endregion

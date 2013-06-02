@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -15,7 +14,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
-        private readonly ObservableCollection<RepositoryItem> _repositoryItemsDirect;
+        private readonly List<RepositoryItem> _repositoryItems;
         private string _repositoryPath;
 
         #endregion
@@ -27,10 +26,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         /// </summary>
         public ImportPageViewModel()
         {
-            _repositoryItemsDirect = new ObservableCollection<RepositoryItem>();
-            this.RepositoryItems = new ReadOnlyObservableCollection<RepositoryItem>(_repositoryItemsDirect);
+            _repositoryItems = new List<RepositoryItem>();
 
-            this.RepositoryItemsView = CollectionViewSource.GetDefaultView(this.RepositoryItems);
+            this.RepositoryItemsView = CollectionViewSource.GetDefaultView(_repositoryItems);
             this.RepositoryItemsView.SortDescriptions.Add(
                 new SortDescription(
                     Helper.GetPropertyName((RepositoryItem obj) => obj.Folder),
@@ -74,12 +72,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        public ReadOnlyObservableCollection<RepositoryItem> RepositoryItems
-        {
-            get;
-            private set;
-        }
-
         public ICollectionView RepositoryItemsView
         {
             get;
@@ -106,7 +98,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         public void RefreshRepositoryItems()
         {
-            _repositoryItemsDirect.Clear();
+            _repositoryItems.Clear();
 
             if (this.RepositoryPath.IsNullOrWhiteSpace())
             {
@@ -135,7 +127,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                         DefinitionFilePath = definitionFilePath
                     };
 
-                    _repositoryItemsDirect.Add(item);
+                    _repositoryItems.Add(item);
                 }
             }
             catch (Exception ex)

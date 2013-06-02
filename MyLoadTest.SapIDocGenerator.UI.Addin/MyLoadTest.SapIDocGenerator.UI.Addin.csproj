@@ -112,6 +112,7 @@
     <None Include="MyLoadTest.SapIDocGenerator.UI.Addin.addin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="Commands\ReplaceWithIDocParameterCommand.cs" />
     <Compile Include="Commands\StartupCommand.cs" />
     <Compile Include="Pads\WizardPad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,15 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
-        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
-        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase" mc:Ignorable="d"
-        d:DesignHeight="300" d:DesignWidth="500" MinWidth="200">
+        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignHeight="300"
+        d:DesignWidth="500" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
     <Grid>
-        <TabControl>
-            <TabItem Header="{x:Static props:Resources.WizardTabHeader}">
+        <TabControl Name="Tabs">
+            <TabItem Name="WizardTab" Header="{x:Static props:Resources.WizardTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -48,7 +47,7 @@
                     </Grid>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="{x:Static props:Resources.ImportTabHeader}">
+            <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -112,7 +111,8 @@
                     </Grid>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="{x:Static props:Resources.ParametersTabHeader}">
+            <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}">
+                (TODO)
             </TabItem>
         </TabControl>
     </Grid>

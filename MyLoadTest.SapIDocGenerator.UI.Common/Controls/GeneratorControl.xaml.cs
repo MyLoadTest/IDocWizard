@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Xml.Linq;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
@@ -27,6 +28,34 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public GeneratorControl()
         {
             InitializeComponent();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void ActivateTab(GeneratorControlTab tab)
+        {
+            TabItem tabItem;
+            switch (tab)
+            {
+                case GeneratorControlTab.Wizard:
+                    tabItem = this.WizardTab;
+                    break;
+
+                case GeneratorControlTab.Import:
+                    tabItem = this.ImportTab;
+                    break;
+
+                case GeneratorControlTab.Parameters:
+                    tabItem = this.ParametersTab;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException("tab", tab, null);
+            }
+
+            this.Tabs.SelectedItem = tabItem;
         }
 
         #endregion

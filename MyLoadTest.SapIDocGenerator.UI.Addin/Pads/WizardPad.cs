@@ -90,18 +90,16 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Pads
             return pad == null ? null : pad.PadContent as WizardPad;
         }
 
-        public static bool ShowInWorkbench()
+        public static WizardPad ShowInWorkbench()
         {
             var padDescriptor = FindPadDescriptor();
-            if (padDescriptor == null)
+            if (padDescriptor != null)
             {
-                return false;
+                padDescriptor.CreatePad();
+                DoActivate(padDescriptor);
             }
 
-            padDescriptor.CreatePad();
-            DoActivate(padDescriptor);
-
-            return true;
+            return FindPad();
         }
 
         public void Activate()

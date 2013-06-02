@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="ControlItem.cs" />
     <Compile Include="ControlItem.Helper.cs" />
+    <Compile Include="Controls\GeneratorControlTab.cs" />
     <Compile Include="Controls\RepositoryItem.cs" />
     <Compile Include="Controls\WizardPageViewModel.cs" />
     <Compile Include="Controls\ImportPageViewModel.cs" />

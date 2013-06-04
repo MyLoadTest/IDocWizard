@@ -29,7 +29,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// </param>
         public SapIDoc(SapIDocDefinition definition, string flatTextIdoc)
         {
-            DebugLog.Write("========== New IDoc created ==========");
+            Logger.Debug("========== New IDoc created ==========");
 
             this.Definition = definition;
             this.ControlRecord = new Dictionary<string, string>();
@@ -114,7 +114,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// <returns></returns>
         public XElement GetXml()
         {
-            DebugLog.Write("Building XML output...");
+            Logger.Debug("Building XML output...");
 
             var idoc = new XElement("IDOC", new XAttribute("BEGIN", "1"));
             //// Add the Control Record fields
@@ -140,7 +140,7 @@ namespace MyLoadTest.SapIDocGenerator
 
             var xml = new XElement(Type, idoc);
 
-            DebugLog.Write("XML IDoc:\n{0}", xml.ToString());
+            Logger.DebugFormat("XML IDoc:\n{0}", xml.ToString());
             return xml;
         }
 
@@ -187,7 +187,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// <returns>Text that is ready to be used by a function in VuGen.</returns>
         public string GetVuGenActionContents()
         {
-            DebugLog.Write("Building VuGen output...");
+            Logger.Debug("Building VuGen output...");
 
             var idoc = new StringBuilder();
 
@@ -299,7 +299,7 @@ namespace MyLoadTest.SapIDocGenerator
                 License,
                 idoc);
 
-            DebugLog.Write("VuGen output:{0}{1}", Environment.NewLine, action);
+            Logger.DebugFormat("VuGen output:{0}{1}", Environment.NewLine, action);
             return action;
         }
 
@@ -315,7 +315,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// </param>
         private void Parse(string flatTextIdoc)
         {
-            DebugLog.Write("Parsing flat text input IDoc:\n{0}", flatTextIdoc);
+            Logger.DebugFormat("Parsing flat text input IDoc:\n{0}", flatTextIdoc);
 
             // Each Record/Segment will be on a new line.
             // "RemoveEmptyEntries" handles case of blank rows due to "\r\n"
@@ -326,11 +326,11 @@ namespace MyLoadTest.SapIDocGenerator
             }
 
             // The first row is always the Control Record. All other rows are Segments, with a Data Record at the start.
-            DebugLog.Write("Processing Control Record...");
+            Logger.Debug("Processing Control Record...");
             foreach (var field in Definition.ControlRecord)
             {
                 var value = rows[0].Substring(field.StartPosition, field.Length).TrimEnd();
-                DebugLog.Write("{0}={1}", field.Name, value);
+                Logger.DebugFormat("{0}={1}", field.Name, value);
                 this.ControlRecord.Add(field.Name, value);
 
                 switch (field.Name)
@@ -363,10 +363,10 @@ namespace MyLoadTest.SapIDocGenerator
                     if (field.Name == "SEGNAM")
                     {
                         segmentName = value;
-                        DebugLog.Write("Starting Segment \"{0}\"...", segmentName);
+                        Logger.DebugFormat("Starting Segment \"{0}\"...", segmentName);
                     }
 
-                    DebugLog.Write("{0}={1}", field.Name, value);
+                    Logger.DebugFormat("{0}={1}", field.Name, value);
                     currentSegment.Add(field.Name, value);
                 }
 
@@ -380,7 +380,7 @@ namespace MyLoadTest.SapIDocGenerator
                 {
                     // TODO: can throw a KeyNotFoundException if it is the wrong IDoc.
                     var val = rows[i].Substring(field.StartPosition, field.Length).TrimEnd();
-                    DebugLog.Write("{0}={1}", field.Name, val);
+                    Logger.DebugFormat("{0}={1}", field.Name, val);
                     currentSegment.Add(field.Name, val);
                 }
 

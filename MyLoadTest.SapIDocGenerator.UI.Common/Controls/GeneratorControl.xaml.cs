@@ -157,17 +157,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             try
             {
-                var filePath = openFileDialog.FileName;
-                var definition = SapIDocDefinition.LoadHeader(filePath);
-
-                var path = Path.Combine(this.ViewModel.ImportPage.RepositoryPath, definition.Name);
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                var destinationFilePath = Path.Combine(path, Path.GetFileName(filePath));
-                File.Copy(filePath, destinationFilePath, true);
+                this.ViewModel.ImportPage.CreateNewType(openFileDialog.FileName);
             }
             catch (Exception ex)
             {
@@ -216,24 +206,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return;
             }
 
-            var filePaths = openFileDialog.FileNames;
-
             try
             {
-                var definition = SapIDocDefinition.LoadHeader(repositoryItem.DefinitionFilePath);
-                foreach (var filePath in filePaths)
-                {
-                    var contents = File.ReadAllText(filePath);
-                    var doc = new SapIDoc(definition, contents);
-                    var resultingFileContents = doc.GetXml().ToString(SaveOptions.None);
-
-                    var resultingFilePath = Path.Combine(
-                        this.ViewModel.ImportPage.RepositoryPath,
-                        repositoryItem.Folder,
-                        string.Format(CultureInfo.InvariantCulture, "{0}.txt", doc.Number));
-
-                    File.WriteAllText(resultingFilePath, resultingFileContents);
-                }
+                this.ViewModel.ImportPage.ImportIdocFiles(repositoryItem, openFileDialog.FileNames);
             }
             catch (Exception ex)
             {
@@ -244,6 +219,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
                 this.ShowErrorBox(ex, "Error importing IDoc file(s)");
             }
+
+            this.ViewModel.ImportPage.RefreshRepositoryItems();
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)

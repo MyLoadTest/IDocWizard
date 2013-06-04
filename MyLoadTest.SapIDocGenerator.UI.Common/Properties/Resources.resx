@@ -164,4 +164,7 @@
   <data name="ImportPathSelectionControlFilter" xml:space="preserve">
     <value>All files (*.*)|*.*</value>
   </data>
+  <data name="ImportButtonContent" xml:space="preserve">
+    <value>Import...</value>
+  </data>
 </root>

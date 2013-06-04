@@ -19,7 +19,7 @@ namespace MyLoadTest
 {
     public static class Helper
     {
-        #region Constants
+        #region Constants and Fields
 
         private const bool DefaultInheritAttributeParameter = true;
 
@@ -34,6 +34,20 @@ namespace MyLoadTest
         /// </summary>
         private const string InvalidExpressionMessageAutoFormat =
             "Invalid expression (must be a getter of a property of some type): {{ {0} }}.";
+
+        private static readonly Dictionary<MessageBoxImage, LogLevel> MessageBoxImageToLogLevelMap =
+            new Dictionary<MessageBoxImage, LogLevel>
+            {
+                ////{ MessageBoxImage.Asterisk, LogLevel.Info },
+                { MessageBoxImage.Error, LogLevel.Error },
+                ////{ MessageBoxImage.Exclamation, LogLevel.Warning },
+                ////{ MessageBoxImage.Hand, LogLevel.Error },
+                { MessageBoxImage.Information, LogLevel.Info },
+                { MessageBoxImage.None, LogLevel.Debug },
+                { MessageBoxImage.Question, LogLevel.Info },
+                ////{ MessageBoxImage.Stop, LogLevel.Error },
+                { MessageBoxImage.Warning, LogLevel.Warning }
+            };
 
         #endregion
 
@@ -85,6 +99,24 @@ namespace MyLoadTest
         public static bool IsNullOrWhiteSpace(this string value)
         {
             return string.IsNullOrWhiteSpace(value);
+        }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary,
+            TKey key,
+            TValue defaultValue = default(TValue))
+        {
+            #region Argument Check
+
+            if (dictionary == null)
+            {
+                throw new ArgumentNullException("dictionary");
+            }
+
+            #endregion
+
+            TValue result;
+            return dictionary.TryGetValue(key, out result) ? result : defaultValue;
         }
 
         public static bool IsFatal(this Exception exception)
@@ -349,6 +381,9 @@ namespace MyLoadTest
             MessageBoxButton button,
             MessageBoxImage icon)
         {
+            var logLevel = MessageBoxImageToLogLevelMap.GetValueOrDefault(icon, LogLevel.Info);
+            Logger.Write(logLevel, message);
+
             var actualWindow = window ?? Application.Current.MainWindow;
             return MessageBox.Show(actualWindow, message, actualWindow.Title, button, icon);
         }
@@ -379,7 +414,10 @@ namespace MyLoadTest
 
         public static void ShowErrorBox(this Control control, Exception exception, string baseMessage)
         {
+            Logger.Error(baseMessage, exception);
+
             var message = string.Format(
+                CultureInfo.InvariantCulture,
                 "{0}: [{1}] {2}",
                 baseMessage,
                 exception.GetType().Name,

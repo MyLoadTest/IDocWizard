@@ -33,11 +33,11 @@ namespace MyLoadTest.SapIDocGenerator
         /// </param>
         public SapIDocField(string name, string description, int startPosition, int length)
         {
-            DebugLog.Write("Creating new IDoc field");
-            DebugLog.Write("  Field name: '{0}'", name);
-            DebugLog.Write("  Field description: '{0}'", description);
-            DebugLog.Write("  Field starting position: {0}", startPosition);
-            DebugLog.Write("  Field length: {0}", length);
+            Logger.Debug("Creating new IDoc field");
+            Logger.DebugFormat("  Field name: '{0}'", name);
+            Logger.DebugFormat("  Field description: '{0}'", description);
+            Logger.DebugFormat("  Field starting position: {0}", startPosition);
+            Logger.DebugFormat("  Field length: {0}", length);
 
             #region Argument Check
 

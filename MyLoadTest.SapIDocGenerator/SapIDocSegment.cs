@@ -20,9 +20,9 @@ namespace MyLoadTest.SapIDocGenerator
         /// <param name="description">The Description of the Segment</param>
         public SapIDocSegment(string name, string description)
         {
-            DebugLog.Write("Creating new IDoc segment");
-            DebugLog.Write("  Segment name: '{0}'", name);
-            DebugLog.Write("  Segment description: '{0}'", description);
+            Logger.Debug("Creating new IDoc segment");
+            Logger.DebugFormat("  Segment name: '{0}'", name);
+            Logger.DebugFormat("  Segment description: '{0}'", description);
 
             #region Argument Check
 

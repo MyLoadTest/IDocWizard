@@ -32,7 +32,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// </param>
         public SapIDocSchema(XElement xsd)
         {
-            DebugLog.Write("Creating new IDoc schema from: {0}", xsd);
+            Logger.DebugFormat("Creating new IDoc schema from: {0}", xsd);
 
             using (var xsdReader = new StringReader(xsd.ToString()))
             {
@@ -58,7 +58,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// </returns>
         public static SapIDocSchema LoadFromFile(string path)
         {
-            DebugLog.Write("Entered {0}('{1}')", MethodBase.GetCurrentMethod().GetQualifiedName(), path);
+            Logger.DebugFormat("Entered {0}('{1}')", MethodBase.GetCurrentMethod().GetQualifiedName(), path);
 
             XElement definition;
             try

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Windows.Data;
+using System.Xml.Linq;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -96,8 +97,10 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             RefreshRepositoryItems();
         }
 
-        public void RefreshRepositoryItems()
+        public void RefreshRepositoryItems(bool keepSelection = true)
         {
+            var oldSelectedItem = keepSelection ? this.RepositoryItemsView.CurrentItem : null;
+
             _repositoryItems.Clear();
 
             if (this.RepositoryPath.IsNullOrWhiteSpace())
@@ -144,6 +147,70 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                         CultureInfo.InvariantCulture,
                         "Error reading repository '{0}'.",
                         this.RepositoryPath));
+            }
+
+            this.RepositoryItemsView.Refresh();
+
+            if (oldSelectedItem != null)
+            {
+                this.RepositoryItemsView.MoveCurrentTo(oldSelectedItem);
+            }
+        }
+
+        public void CreateNewType(string filePath)
+        {
+            #region Argument Check
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException(
+                    @"The value can be neither empty or whitespace-only string nor null.",
+                    "filePath");
+            }
+
+            #endregion
+
+            var definition = SapIDocDefinition.LoadHeader(filePath);
+
+            var path = Path.Combine(this.RepositoryPath, definition.Name);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            var destinationFilePath = Path.Combine(path, Path.GetFileName(filePath).EnsureNotNull());
+            File.Copy(filePath, destinationFilePath, true);
+        }
+
+        public void ImportIdocFiles(RepositoryItem repositoryItem, IEnumerable<string> filePaths)
+        {
+            #region Argument Check
+
+            if (repositoryItem == null)
+            {
+                throw new ArgumentNullException("repositoryItem");
+            }
+
+            if (filePaths == null)
+            {
+                throw new ArgumentNullException("filePaths");
+            }
+
+            #endregion
+
+            var definition = SapIDocDefinition.LoadHeader(repositoryItem.DefinitionFilePath);
+            foreach (var filePath in filePaths)
+            {
+                var contents = File.ReadAllText(filePath);
+                var doc = new SapIDoc(definition, contents);
+                var resultingFileContents = doc.GetXml().ToString(SaveOptions.None);
+
+                var resultingFilePath = Path.Combine(
+                    this.RepositoryPath,
+                    repositoryItem.Folder,
+                    string.Format(CultureInfo.InvariantCulture, "{0}.txt", doc.Number));
+
+                File.WriteAllText(resultingFilePath, resultingFileContents);
             }
         }
 

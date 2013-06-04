@@ -115,6 +115,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Import....
+        /// </summary>
+        public static string ImportButtonContent {
+            get {
+                return ResourceManager.GetString("ImportButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All files (*.*)|*.*.
         /// </summary>
         public static string ImportPathSelectionControlFilter {

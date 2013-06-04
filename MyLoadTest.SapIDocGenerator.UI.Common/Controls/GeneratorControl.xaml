@@ -104,8 +104,8 @@
                             <Button Content="{x:Static props:Resources.NewTypeButtonContent}" MinWidth="100"
                                     Margin="0,5,10,5" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
                                     Click="NewTypeButton_Click" />
-                            <Button Content="Import" MinWidth="100" Margin="5,5,10,5"
-                                    IsEnabled="{Binding ImportPage.ShouldImportButtonBeEnabled}"
+                            <Button Content="{x:Static props:Resources.ImportButtonContent}" MinWidth="100"
+                                    Margin="5,5,10,5" IsEnabled="{Binding ImportPage.ShouldImportButtonBeEnabled}"
                                     Click="ImportButton_Click" />
                         </StackPanel>
                     </Grid>

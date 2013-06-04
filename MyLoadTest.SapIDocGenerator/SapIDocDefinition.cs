@@ -54,7 +54,7 @@ namespace MyLoadTest.SapIDocGenerator
             SapIDocSegment dataRecord,
             Dictionary<string, SapIDocSegment> segments)
         {
-            DebugLog.Write("========== Creating {0} with dictionary of Segments ==========", GetType().Name);
+            Logger.DebugFormat("========== Creating {0} with dictionary of Segments ==========", GetType().Name);
 
             #region Argument Check
 
@@ -138,7 +138,7 @@ namespace MyLoadTest.SapIDocGenerator
         ////        {
         ////            throw new SapIDocException("IDoc description cannot be empty."); // This might cause problems if they haven't bothered to enter a description.
         ////        }
-        ////        _log.Write("IDoc description: {0}", value);
+        ////        _log.Debug("IDoc description: {0}", value);
         ////        _idocDescription = value;
         ////    }
         ////}
@@ -175,7 +175,7 @@ namespace MyLoadTest.SapIDocGenerator
         /// <returns>A new SapIDocDefinition object</returns>
         public static SapIDocDefinition LoadHeader(string path)
         {
-            DebugLog.Write("Calling {0} with file: {1}", MethodBase.GetCurrentMethod().GetQualifiedName(), path);
+            Logger.DebugFormat("Calling {0} with file: {1}", MethodBase.GetCurrentMethod().GetQualifiedName(), path);
 
             SapIDocSegment controlRecord = null;
             SapIDocSegment dataRecord = null;
@@ -186,7 +186,7 @@ namespace MyLoadTest.SapIDocGenerator
                 throw new SapIDocException(string.Format("Could not find C Header file: {0}", path));
             }
 
-            DebugLog.Write("C Header file contents:{0}{1}", Environment.NewLine, File.ReadAllText(path));
+            Logger.DebugFormat("C Header file contents:{0}{1}", Environment.NewLine, File.ReadAllText(path));
 
             // Convert the C code to XML (srcml) so it can be easily processed.
             var srcml = ConvertCToSrcml(path);
@@ -232,7 +232,7 @@ namespace MyLoadTest.SapIDocGenerator
                         break;
 
                     case "IDoc Status Record for Interface to External System":
-                        DebugLog.Write("Skipping Status Record definition, as this is not needed to read an IDoc.");
+                        Logger.Debug("Skipping Status Record definition, as this is not needed to read an IDoc.");
                         continue;
                     default:
                         fieldStartPos = dataRecord.EnsureNotNull()["SDATA"].StartPosition;
@@ -309,7 +309,7 @@ namespace MyLoadTest.SapIDocGenerator
         /////// <returns></returns>
         ////public static SapIDocDefinition ParseStructure(string text)
         ////{
-        ////_log.Write("Parsing IDoc definition.");
+        ////_log.Debug("Parsing IDoc definition.");
         ////// Note: will replace this with a state table in the future.
         ////Dictionary<string, bool> state = new Dictionary<string, bool>() {
         ////    {"RECORD_SECTION", false},
@@ -721,7 +721,7 @@ namespace MyLoadTest.SapIDocGenerator
         ////                break;
         ////            default:
         ////                string msg = String.Format("Invalid IDoc description element on line {0}.", lineNum);
-        ////                _log.Write(msg);
+        ////                _log.Debug(msg);
         ////                throw new FormatException(msg);
         ////                break;
         ////        }
@@ -820,7 +820,7 @@ namespace MyLoadTest.SapIDocGenerator
                 }
             };
 
-            DebugLog.Write("Calling \"{0}\" {1}", p.StartInfo.FileName, p.StartInfo.Arguments);
+            Logger.DebugFormat("Calling \"{0}\" {1}", p.StartInfo.FileName, p.StartInfo.Arguments);
             p.Start();
 
             // Read output from stdout

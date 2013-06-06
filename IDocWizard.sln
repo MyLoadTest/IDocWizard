@@ -14,6 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGenerator", "MyLoadTest.SapIDocGenerator\MyLoadTest.SapIDocGenerator.csproj", "{3FC9243A-EE34-4C2D-ADB5-28D98B3B6FB9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.SapIDocGenerator.UI.Addin", "MyLoadTest.SapIDocGenerator.UI.Addin\MyLoadTest.SapIDocGenerator.UI.Addin.csproj", "{E1898A7F-39FE-4B02-B0F8-FB7555310CF9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{16430D8C-B372-4C6F-B2CA-BCDE83580EA9} = {16430D8C-B372-4C6F-B2CA-BCDE83580EA9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLoadTest.Common", "MyLoadTest.Common\MyLoadTest.Common.csproj", "{B4177FDF-1347-4E46-BC52-8E1559173CEE}"
 EndProject

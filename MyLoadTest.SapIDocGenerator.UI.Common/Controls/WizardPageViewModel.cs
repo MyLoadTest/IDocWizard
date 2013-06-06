@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
+using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -88,6 +91,25 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             this.DefinitionFilePath = string.Empty;
             this.ExampleFilePath = string.Empty;
+        }
+
+        public void GenerateAction(IActionScriptItem actionItem)
+        {
+            #region Argument Check
+
+            if (actionItem == null)
+            {
+                throw new ArgumentNullException("actionItem");
+            }
+
+            #endregion
+
+            var definition = SapIDocDefinition.LoadHeader(this.DefinitionFilePath);
+            var idocText = File.ReadAllText(this.ExampleFilePath);
+            var doc = new SapIDoc(definition, idocText);
+            var actionContents = doc.GetVuGenActionContents();
+
+            File.WriteAllText(actionItem.FullFileName, actionContents, Encoding.Default);
         }
 
         #endregion

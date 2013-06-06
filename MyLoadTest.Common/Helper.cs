@@ -101,6 +101,18 @@ namespace MyLoadTest
             return string.IsNullOrWhiteSpace(value);
         }
 
+        public static void DisposeAndNull<T>(ref T instance)
+            where T : class, IDisposable
+        {
+            if (instance == null)
+            {
+                return;
+            }
+
+            instance.Dispose();
+            instance = null;
+        }
+
         public static TValue GetValueOrDefault<TKey, TValue>(
             this IDictionary<TKey, TValue> dictionary,
             TKey key,

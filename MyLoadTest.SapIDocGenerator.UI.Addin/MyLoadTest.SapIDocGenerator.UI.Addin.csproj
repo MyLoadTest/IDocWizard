@@ -127,12 +127,23 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <PropertyGroup>
-    <PostBuildEvent>setlocal
+    <PostBuildEvent>verify other 2&gt;nul
+setlocal enableextensions enabledelayedexpansion
+if errorlevel 1 (
+    echo *** Unable to enable extensions
+    exit 128
+)
+
+set PRG_FILES=%25ProgramFiles(x86)%25
+if /i "%25PRG_FILES%25" equ "" set PRG_FILES=%25ProgramFiles%25
 
 if /i "%25ADDIN_TARGET_PATH%25" equ "" (
     ::set ADDIN_TARGET_PATH=D:\Work\SharpDevelop.Src\4.1.0.8000_Release\AddIns\$(ProjectName)
-    set ADDIN_TARGET_PATH=C:\Program Files ^(x86^)\HP\Virtual User Generator\AddIns\MyLoadTest\$(ProjectName)
+    set ADDIN_TARGET_PATH=!PRG_FILES!\HP\Virtual User Generator\AddIns\MyLoadTest\$(ProjectName)
 )
+
+echo *** ADDIN_TARGET_PATH = "%25ADDIN_TARGET_PATH%25"
+echo.
 
 if exist "%25ADDIN_TARGET_PATH%25" ( rd /s /q "%25ADDIN_TARGET_PATH%25" || exit 1 )
 
@@ -142,6 +153,8 @@ xcopy /f /g /h /r /y "$(TargetDir)\log4net.*" "%25ADDIN_TARGET_PATH%25\" || exit
 
 xcopy /f /g /h /r /y "$(TargetDir)\log4net.config" "%25ADDIN_TARGET_PATH%25\" || exit 4
 
-xcopy /f /g /h /r /y "$(ProjectDir)\..\_References_\src2srcml\*.*" "%25ADDIN_TARGET_PATH%25\src2srcml\" || exit 5</PostBuildEvent>
+xcopy /f /g /h /r /y "$(ProjectDir)\..\_References_\src2srcml\*.*" "%25ADDIN_TARGET_PATH%25\src2srcml\" || exit 5
+
+xcopy /f /g /h /r /y "$(ProjectDir)\..\bin\$(Configuration)\idoc.*" "%25ADDIN_TARGET_PATH%25\idoc\" || exit 6</PostBuildEvent>
   </PropertyGroup>
 </Project>

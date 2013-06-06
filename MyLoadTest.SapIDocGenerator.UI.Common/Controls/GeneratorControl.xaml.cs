@@ -84,8 +84,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return;
             }
 
-            var action = script.GetActionByName(MainActionName);
-            if (action == null)
+            var actionItem = script.GetActionByName(MainActionName);
+            if (actionItem == null)
             {
                 this.ShowErrorBox(
                     string.Format(
@@ -98,7 +98,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             var confirmMessage = string.Format(
                 CultureInfo.InvariantCulture,
                 "The file '{0}' will be overwritten with the generated contents.{1}{1}Do you want to continue?",
-                action.FullFileName,
+                actionItem.FullFileName,
                 Environment.NewLine);
             var messageBoxResult = this.ShowMessageBox(
                 confirmMessage,
@@ -111,12 +111,10 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             try
             {
-                var definition = SapIDocDefinition.LoadHeader(this.ViewModel.WizardPage.DefinitionFilePath);
-                var idocText = File.ReadAllText(this.ViewModel.WizardPage.ExampleFilePath);
-                var doc = new SapIDoc(definition, idocText);
-                var actionContents = doc.GetVuGenActionContents();
+                ////var ini = new IniFile(script.FileName);
+                ////ini.GetType();
 
-                File.WriteAllText(action.FullFileName, actionContents, Encoding.Default);
+                this.ViewModel.WizardPage.GenerateAction(actionItem);
             }
             catch (Exception ex)
             {

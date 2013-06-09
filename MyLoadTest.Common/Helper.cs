@@ -397,7 +397,9 @@ namespace MyLoadTest
             Logger.Write(logLevel, message);
 
             var actualWindow = window ?? Application.Current.MainWindow;
-            return MessageBox.Show(actualWindow, message, actualWindow.Title, button, icon);
+            var result = MessageBox.Show(actualWindow, message, actualWindow.Title, button, icon);
+            Logger.WriteFormat(logLevel, "User answer: {0}", result);
+            return result;
         }
 
         public static MessageBoxResult ShowMessageBox(

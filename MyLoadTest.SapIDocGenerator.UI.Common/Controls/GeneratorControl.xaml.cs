@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Xml.Linq;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 using ICSharpCode.SharpDevelop.Project;
 using Microsoft.Win32;
@@ -97,8 +93,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             var confirmMessage = string.Format(
                 CultureInfo.InvariantCulture,
-                "The file '{0}' will be overwritten with the generated contents.{1}{1}Do you want to continue?",
+                "The file '{0}' WILL be overwritten with the generated contents.{2}{2}"
+                    + "The file '{1}' MAY also be updated.{2}{2}{2}"
+                    + "Do you want to continue?",
                 actionItem.FullFileName,
+                script.FileName,
                 Environment.NewLine);
             var messageBoxResult = this.ShowMessageBox(
                 confirmMessage,
@@ -111,10 +110,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             try
             {
-                ////var ini = new IniFile(script.FileName);
-                ////ini.GetType();
-
-                this.ViewModel.WizardPage.GenerateAction(actionItem);
+                this.ViewModel.WizardPage.GenerateAction(script, actionItem);
             }
             catch (Exception ex)
             {

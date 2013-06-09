@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IniFile.cs" />
+    <Compile Include="IniFileSection.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Log4NetConverters\HexThreadConverter .cs" />

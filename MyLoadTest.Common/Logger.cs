@@ -59,47 +59,47 @@ namespace MyLoadTest
 
         public static void Debug(string text)
         {
-            Log.Debug(text);
+            Log.Debug(FixText(text));
         }
 
         public static void DebugFormat(string format, params object[] args)
         {
-            Log.DebugFormat(CultureInfo.InvariantCulture, format, args);
+            Log.Debug(FixText(string.Format(CultureInfo.InvariantCulture, format, args)));
         }
 
         public static void Info(string text)
         {
-            Log.Info(text);
+            Log.Info(FixText(text));
         }
 
         public static void InfoFormat(string format, params object[] args)
         {
-            Log.InfoFormat(CultureInfo.InvariantCulture, format, args);
+            Log.Info(FixText(string.Format(CultureInfo.InvariantCulture, format, args)));
         }
 
         public static void Warning(string text)
         {
-            Log.Warn(text);
+            Log.Warn(FixText(text));
         }
 
         public static void WarningFormat(string format, params object[] args)
         {
-            Log.WarnFormat(CultureInfo.InvariantCulture, format, args);
+            Log.Warn(FixText(string.Format(CultureInfo.InvariantCulture, format, args)));
         }
 
         public static void Error(string text)
         {
-            Log.Error(text);
+            Log.Error(FixText(text));
         }
 
         public static void Error(string text, Exception exception)
         {
-            Log.Error(text, exception);
+            Log.Error(FixText(text), exception);
         }
 
         public static void ErrorFormat(string format, params object[] args)
         {
-            Log.ErrorFormat(CultureInfo.InvariantCulture, format, args);
+            Log.Error(FixText(string.Format(CultureInfo.InvariantCulture, format, args)));
         }
 
         public static void Write(LogLevel logLevel, string text)
@@ -110,6 +110,23 @@ namespace MyLoadTest
         public static void WriteFormat(LogLevel logLevel, string format, params object[] args)
         {
             WriteFormatMap[logLevel](format, args);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static string FixText(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return null;
+            }
+
+            return value
+                .Replace("\r", "[CR]")
+                .Replace("\n", "[LF]")
+                .Replace("\0", "[\\0]");
         }
 
         #endregion

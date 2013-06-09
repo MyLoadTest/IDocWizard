@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -9,9 +10,11 @@ using System.Text.RegularExpressions;
 
 namespace MyLoadTest
 {
-    public sealed class IniFile
+    public sealed class IniFile : IEnumerable<IniFileSection>
     {
         #region Constants and Fields
+
+        internal static readonly StringComparer NameComparer = StringComparer.OrdinalIgnoreCase;
 
         private const string SectionGroupName = "name";
         private const char KeyValueSeparator = '=';
@@ -21,7 +24,7 @@ namespace MyLoadTest
             RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Singleline);
 
-        private readonly IniFileSectionCollectionInternal _sectionCollection;
+        private readonly IniFileSectionCollectionInternal _sections;
 
         #endregion
 
@@ -32,18 +35,27 @@ namespace MyLoadTest
         /// </summary>
         public IniFile()
         {
-            _sectionCollection = new IniFileSectionCollectionInternal();
+            _sections = new IniFileSectionCollectionInternal();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="IniFile"/> class using the specified file.
-        /// </summary>
-        public IniFile(string filePath)
-            : this()
+        #endregion
+
+        #region Public Properties
+
+        public int Count
         {
-            using (var stream = File.OpenRead(filePath))
+            [DebuggerNonUserCode]
+            get
             {
-                Load(stream);
+                return _sections.Count;
+            }
+        }
+
+        public IniFileSection this[string name]
+        {
+            get
+            {
+                return GetOrAddSection(name);
             }
         }
 
@@ -51,9 +63,84 @@ namespace MyLoadTest
 
         #region Public Methods
 
+        public override string ToString()
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}. Count = {1}",
+                GetType().Name,
+                this.Count);
+        }
+
         public void Clear()
         {
-            _sectionCollection.Clear();
+            _sections.Clear();
+        }
+
+        public void Load(TextReader reader)
+        {
+            #region Argument Check
+
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
+
+            #endregion
+
+            Clear();
+
+            IniFileSection currentSection = null;
+            var isPreviousLineEmpty = false;
+
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var sectionMatch = SectionRegex.Match(line);
+                if (sectionMatch.Success)
+                {
+                    var sectionName = sectionMatch.Groups[SectionGroupName].Value;
+
+                    var section = _sections.Contains(sectionName)
+                        ? _sections[sectionName]
+                        : new IniFileSection(this, sectionName, isPreviousLineEmpty);
+
+                    _sections.Add(section);
+                    currentSection = section;
+                    continue;
+                }
+
+                line = line.TrimStart();
+                isPreviousLineEmpty = string.IsNullOrEmpty(line);
+
+                if (isPreviousLineEmpty)
+                {
+                    continue;
+                }
+
+                string key;
+                string value;
+
+                var separatorIndex = line.IndexOf(KeyValueSeparator);
+                if (separatorIndex < 0)
+                {
+                    key = line.TrimEnd();
+                    value = null;
+                }
+                else
+                {
+                    key = line.Substring(0, separatorIndex).TrimEnd();
+                    value = line.Substring(separatorIndex + 1, line.Length - separatorIndex - 1);
+                }
+
+                if (currentSection == null)
+                {
+                    currentSection = new IniFileSection(this, string.Empty, false);
+                    _sections.Add(currentSection);
+                }
+
+                currentSection.Add(key, value);
+            }
         }
 
         public void Load(Stream stream)
@@ -72,55 +159,68 @@ namespace MyLoadTest
 
             #endregion
 
-            Clear();
+            Load(new StreamReader(stream));  // MUST NOT dispose of StreamReader to prevent disposing of the stream
+        }
 
-            using (var streamReader = new StreamReader(stream))
+        public void LoadFromFile(string filePath)
+        {
+            #region Argument Check
+
+            if (string.IsNullOrWhiteSpace(filePath))
             {
-                IniFileSectionInternal currentSection = null;
+                throw new ArgumentException(
+                    @"The value can be neither empty or whitespace-only string nor null.",
+                    "filePath");
+            }
 
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
+            #endregion
+
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                Load(stream);
+            }
+        }
+
+        public void Save(TextWriter writer)
+        {
+            #region Argument Check
+
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+
+            #endregion
+
+            var insertSeparatorBetweenSections = false;
+            foreach (var section in _sections)
+            {
+                if (insertSeparatorBetweenSections && section.IsSeparatedFromPrevious)
                 {
-                    var sectionMatch = SectionRegex.Match(line);
-                    if (sectionMatch.Success)
+                    writer.WriteLine();
+                }
+
+                insertSeparatorBetweenSections = true;
+
+                if (!string.IsNullOrEmpty(section.Name))
+                {
+                    writer.WriteLine("[{0}]", section.Name);
+                }
+
+                foreach (var pair in section)
+                {
+                    writer.Write(pair.Key);
+                    if (pair.Value != null)
                     {
-                        var sectionName = sectionMatch.Groups[SectionGroupName].Value;
-
-                        var section = _sectionCollection.Contains(sectionName)
-                            ? _sectionCollection[sectionName]
-                            : new IniFileSectionInternal(sectionName);
-
-                        _sectionCollection.Add(section);
-                        currentSection = section;
-                        continue;
+                        writer.Write('=');
+                        writer.Write(pair.Value);
                     }
 
-                    line = line.TrimStart();
-
-                    string key;
-                    string value;
-
-                    var separatorIndex = line.IndexOf(KeyValueSeparator);
-                    if (separatorIndex < 0)
-                    {
-                        key = line.TrimEnd();
-                        value = null;
-                    }
-                    else
-                    {
-                        key = line.Substring(0, separatorIndex).TrimEnd();
-                        value = line.Substring(separatorIndex + 1, line.Length - separatorIndex - 1);
-                    }
-
-                    if (currentSection == null)
-                    {
-                        currentSection = new IniFileSectionInternal(string.Empty);
-                        _sectionCollection.Add(currentSection);
-                    }
-
-                    currentSection.Add(new KeyValuePair<string, string>(key, value));
+                    writer.WriteLine();
                 }
             }
+
+            writer.Flush();
         }
 
         public void Save(Stream stream)
@@ -139,71 +239,142 @@ namespace MyLoadTest
 
             #endregion
 
-            throw new NotImplementedException();
+            Save(new StreamWriter(stream));  // MUST NOT dispose of StreamWriter to prevent disposing of the stream
+        }
+
+        public void SaveToFile(string filePath)
+        {
+            #region Argument Check
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException(
+                    @"The value can be neither empty or whitespace-only string nor null.",
+                    "filePath");
+            }
+
+            #endregion
+
+            using (var stream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            {
+                Save(stream);
+            }
+        }
+
+        public IniFileSection AddSection(string name)
+        {
+            #region Argument Check
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            if (_sections.Contains(name))
+            {
+                throw new ArgumentException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "The section '{0}' already exists.",
+                        name),
+                    "name");
+            }
+
+            #endregion
+
+            return AddSectionInternal(name);
+        }
+
+        public IniFileSection GetSection(string name)
+        {
+            return GetSectionInternal(name, false);
+        }
+
+        public IniFileSection GetOrAddSection(string name)
+        {
+            return GetSectionInternal(name, true);
+        }
+
+        public bool RemoveSection(string name)
+        {
+            #region Argument Check
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            #endregion
+
+            if (!_sections.Contains(name))
+            {
+                return false;
+            }
+
+            var section = _sections[name];
+            _sections.Remove(name);
+            section.Owner = null;
+            return true;
+        }
+
+        #endregion
+
+        #region IEnumerable<IniFileSection> Members
+
+        public IEnumerator<IniFileSection> GetEnumerator()
+        {
+            return _sections.GetEnumerator();
+        }
+
+        #endregion
+
+        #region IEnumerable Members
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         #endregion
 
         #region Private Methods
 
-        #endregion
-
-        #region IniFileSectionInternal Class
-
-        private sealed class IniFileSectionInternal : KeyedCollection<string, KeyValuePair<string, string>>
+        private IniFileSection AddSectionInternal(string name)
         {
-            #region Constructors
+            var result = new IniFileSection(this, name, true);
+            _sections.Add(result);
+            return result;
+        }
 
-            public IniFileSectionInternal(string name)
-                : base(StringComparer.OrdinalIgnoreCase)
+        private IniFileSection GetSectionInternal(string name, bool createIfNotExists)
+        {
+            #region Argument Check
+
+            if (name == null)
             {
-                #region Argument Check
-
-                if (name == null)
-                {
-                    throw new ArgumentNullException("name");
-                }
-
-                #endregion
-
-                this.Name = name;
+                throw new ArgumentNullException("name");
             }
 
             #endregion
 
-            #region Public Properties
-
-            public string Name
-            {
-                get;
-                private set;
-            }
-
-            #endregion
-
-            #region Protected Methods
-
-            protected override string GetKeyForItem(KeyValuePair<string, string> item)
-            {
-                return item.Key;
-            }
-
-            #endregion
+            return _sections.Contains(name)
+                ? _sections[name]
+                : (createIfNotExists ? AddSectionInternal(name) : null);
         }
 
         #endregion
 
         #region IniFileSectionCollectionInternal Class
 
-        private sealed class IniFileSectionCollectionInternal : KeyedCollection<string, IniFileSectionInternal>
+        private sealed class IniFileSectionCollectionInternal : KeyedCollection<string, IniFileSection>
         {
             #region Constructors
 
             /// <summary>
             ///     Initializes a new instance of the <see cref="IniFileSectionCollectionInternal"/> class.
             /// </summary>
-            public IniFileSectionCollectionInternal()
-                : base(StringComparer.OrdinalIgnoreCase)
+            internal IniFileSectionCollectionInternal()
+                : base(NameComparer)
             {
                 // Nothing to do
             }
@@ -212,7 +383,7 @@ namespace MyLoadTest
 
             #region Protected Methods
 
-            protected override string GetKeyForItem(IniFileSectionInternal item)
+            protected override string GetKeyForItem(IniFileSection item)
             {
                 #region Argument Check
 

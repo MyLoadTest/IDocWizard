@@ -20,6 +20,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private static readonly string[] DllFiles = new[] { DllName, "idoc.pdb" };
 
+        private readonly GeneratorControlViewModel _owner;
         private string _definitionFilePath;
         private string _exampleFilePath;
 
@@ -30,8 +31,19 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         /// <summary>
         ///     Initializes a new instance of the <see cref="WizardPageViewModel"/> class.
         /// </summary>
-        public WizardPageViewModel()
+        public WizardPageViewModel(GeneratorControlViewModel owner)
         {
+            #region Argument Check
+
+            if (owner == null)
+            {
+                throw new ArgumentNullException("owner");
+            }
+
+            #endregion
+
+            _owner = owner;
+
             Reset();
         }
 

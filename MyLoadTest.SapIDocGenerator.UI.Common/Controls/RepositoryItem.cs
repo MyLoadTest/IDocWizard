@@ -13,10 +13,18 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             internal set;
         }
 
-        public int Count
+        public string[] XmlIdocFiles
         {
             get;
-            internal set;
+            set;
+        }
+
+        public int Count
+        {
+            get
+            {
+                return this.XmlIdocFiles == null ? 0 : this.XmlIdocFiles.Length;
+            }
         }
 
         public string DefinitionFilePath

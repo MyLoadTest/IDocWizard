@@ -52,6 +52,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="IniFileSection.cs" />
     <Compile Include="Logger.cs" />

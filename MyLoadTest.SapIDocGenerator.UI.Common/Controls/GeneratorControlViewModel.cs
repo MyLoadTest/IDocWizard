@@ -14,9 +14,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         /// </summary>
         public GeneratorControlViewModel()
         {
-            this.ImportPage = new ImportPageViewModel();
-            this.WizardPage = new WizardPageViewModel();
-            this.ParametersPage = new ParametersPageViewModel();
+            this.ImportPage = new ImportPageViewModel(this);
+            this.WizardPage = new WizardPageViewModel(this);
+            this.ParametersPage = new ParametersPageViewModel(this);
 
             Reset();
         }

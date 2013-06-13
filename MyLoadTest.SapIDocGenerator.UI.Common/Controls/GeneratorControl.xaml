@@ -4,11 +4,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
-        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignHeight="300"
-        d:DesignWidth="500" MinWidth="200">
+        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
+        xmlns:converters="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Converters" mc:Ignorable="d"
+        d:DesignHeight="300" d:DesignWidth="500" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="TreeNodeValueVisibilityConverter" />
+    </UserControl.Resources>
     <Grid>
         <TabControl Name="Tabs">
             <TabItem Name="WizardTab" Header="{x:Static props:Resources.WizardTabHeader}">
@@ -116,13 +120,27 @@
                     <Grid Margin="5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <ComboBox Grid.Row="0" ItemsSource="{Binding ParametersPage.IdocItems}"
+                        <ComboBox Grid.Row="0" ItemsSource="{Binding ParametersPage.IdocItemsView}"
                                 IsSynchronizedWithCurrentItem="True" IsEditable="False"
                                 HorizontalAlignment="Stretch" />
-                        <TreeView Grid.Row="1" MinHeight="100"></TreeView>
+                        <TreeView Grid.Row="1" MinHeight="100" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                ItemsSource="{Binding ParametersPage.IdocTreeNodesView}">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding Children}"
+                                        DataType="controls:IdocTreeNode">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Text="=" Margin="5,0"
+                                                Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                                        <TextBlock Text="{Binding Value}"
+                                                Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
                         <Button Grid.Row="2" Content="Replace/Copy to Clipboard" MinWidth="100" Margin="0,5,10,5"
                                 HorizontalAlignment="Left" Click="ReplaceOrCopyButton_Click" />
                     </Grid>

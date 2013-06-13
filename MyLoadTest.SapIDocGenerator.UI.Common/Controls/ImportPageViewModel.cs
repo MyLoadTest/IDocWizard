@@ -15,6 +15,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
+        private readonly GeneratorControlViewModel _owner;
         private readonly List<RepositoryItem> _repositoryItems;
         private string _repositoryPath;
 
@@ -25,8 +26,19 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         /// <summary>
         ///     Initializes a new instance of the <see cref="ImportPageViewModel"/> class.
         /// </summary>
-        public ImportPageViewModel()
+        public ImportPageViewModel(GeneratorControlViewModel owner)
         {
+            #region Argument Check
+
+            if (owner == null)
+            {
+                throw new ArgumentNullException("owner");
+            }
+
+            #endregion
+
+            _owner = owner;
+
             _repositoryItems = new List<RepositoryItem>();
 
             this.RepositoryItemsView = CollectionViewSource.GetDefaultView(_repositoryItems);
@@ -114,19 +126,22 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 foreach (var directory in directories)
                 {
                     var definitionFilePath = Directory
-                        .GetFiles(directory, "*.h", SearchOption.TopDirectoryOnly)
+                        .GetFiles(directory, Constants.DefinitionFileMask, SearchOption.TopDirectoryOnly)
                         .FirstOrDefault();
                     if (definitionFilePath.IsNullOrWhiteSpace())
                     {
                         continue;
                     }
 
-                    var count = Directory.GetFiles(directory, "*.txt", SearchOption.TopDirectoryOnly).Length;
+                    var xmlIdocFiles = Directory.GetFiles(
+                        directory,
+                        Constants.XmlIdocFileMask,
+                        SearchOption.TopDirectoryOnly);
 
                     var item = new RepositoryItem
                     {
                         Folder = Path.GetFileName(directory),
-                        Count = count,
+                        XmlIdocFiles = xmlIdocFiles,
                         DefinitionFilePath = definitionFilePath
                     };
 
@@ -155,6 +170,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             {
                 this.RepositoryItemsView.MoveCurrentTo(oldSelectedItem);
             }
+
+            _owner.ParametersPage.SetIdocItems(keepSelection, _repositoryItems);
         }
 
         public void CreateNewType(string filePath)

@@ -12,6 +12,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
+        private bool _isSelected;
         private string _name;
         private string _value;
 
@@ -22,14 +23,41 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         /// <summary>
         ///     Initializes a new instance of the <see cref="IdocTreeNode"/> class.
         /// </summary>
-        public IdocTreeNode()
+        internal IdocTreeNode(IdocTreeNode parent)
         {
+            this.Parent = parent;
             this.Children = new ObservableCollection<IdocTreeNode>();
         }
 
         #endregion
 
         #region Public Properties
+
+        public IdocTreeNode Parent
+        {
+            get;
+            private set;
+        }
+
+        public bool IsSelected
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return _isSelected;
+            }
+
+            set
+            {
+                if (value == _isSelected)
+                {
+                    return;
+                }
+
+                _isSelected = value;
+                RaisePropertyChanged(obj => obj.IsSelected);
+            }
+        }
 
         public string Name
         {

@@ -73,6 +73,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 _repositoryPath = value;
                 RaisePropertyChanged(obj => obj.RepositoryPath);
                 RaisePropertyChanged(obj => obj.IsRepositoryPathSelected);
+                RaisePropertyChanged(obj => obj.ShouldImportButtonBeEnabled);
+                RaisePropertyChanged(obj => obj.IsParametersTabAvailable);
                 RefreshRepositoryItems();
             }
         }
@@ -96,6 +98,14 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             get
             {
                 return this.IsRepositoryPathSelected && this.RepositoryItemsView.CurrentItem != null;
+            }
+        }
+
+        public bool IsParametersTabAvailable
+        {
+            get
+            {
+                return this.IsRepositoryPathSelected;
             }
         }
 

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
+using ICSharpCode.SharpDevelop.Editor;
+using ICSharpCode.SharpDevelop.Gui;
 using ICSharpCode.SharpDevelop.Project;
 using Microsoft.Win32;
 
@@ -16,6 +18,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         #region Constants and Fields
 
         private const string MainActionName = "Action";
+        private const string IdocParameterFormat = "{{IDoc:{0}:{1}}}";
 
         #endregion
 
@@ -224,7 +227,42 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private void ReplaceOrCopyButton_Click(object sender, RoutedEventArgs e)
         {
-            this.ShowErrorBox(new NotImplementedException().Message);
+            var fieldTreeNode = this.ViewModel.ParametersPage.GetSelectedIdocTreeNode();
+            if (fieldTreeNode == null || fieldTreeNode.Parent == null)
+            {
+                return;
+            }
+
+            var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
+            object activeViewContent = workbench.ActiveViewContent;
+            var textEditorProvider = activeViewContent as ITextEditorProvider;
+            if (textEditorProvider == null)
+            {
+                return;
+            }
+
+            var textEditor = textEditorProvider.TextEditor;
+            if (textEditor == null)
+            {
+                return;
+            }
+
+            var segmentTreeNode = fieldTreeNode.Parent.EnsureNotNull();
+
+            var parameter = string.Format(
+                CultureInfo.InvariantCulture,
+                IdocParameterFormat,
+                segmentTreeNode.Name,
+                fieldTreeNode.Name);
+
+            if (textEditor.SelectedText.IsNullOrEmpty())
+            {
+                Clipboard.SetText(parameter);
+            }
+            else
+            {
+                textEditor.SelectedText = parameter;
+            }
         }
 
         #endregion

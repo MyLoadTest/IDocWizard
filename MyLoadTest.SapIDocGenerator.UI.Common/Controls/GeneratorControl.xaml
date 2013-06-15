@@ -56,7 +56,7 @@
                     <Grid Margin="5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
@@ -115,9 +115,11 @@
                     </Grid>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="5">
+            <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}"
+                    IsEnabled="{Binding ImportPage.IsParametersTabAvailable}">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid Margin="5" VerticalAlignment="Stretch">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -126,8 +128,16 @@
                         <ComboBox Grid.Row="0" ItemsSource="{Binding ParametersPage.IdocItemsView}"
                                 IsSynchronizedWithCurrentItem="True" IsEditable="False"
                                 HorizontalAlignment="Stretch" />
-                        <TreeView Grid.Row="1" MinHeight="100" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                ItemsSource="{Binding ParametersPage.IdocTreeNodesView}">
+                        <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                VerticalContentAlignment="Top"
+                                ItemsSource="{Binding ParametersPage.IdocTreeNodesView}"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem">
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}"
                                         DataType="controls:IdocTreeNode">

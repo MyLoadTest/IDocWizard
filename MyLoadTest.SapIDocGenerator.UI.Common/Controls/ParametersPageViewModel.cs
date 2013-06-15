@@ -99,6 +99,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             RaisePropertyChanged(obj => obj.IdocItemsView);
         }
 
+        public IdocTreeNode GetSelectedIdocTreeNode()
+        {
+            return GetSelectedIdocTreeNodeInternal(_idocTreeNodes);
+        }
+
         #endregion
 
         #region Private Methods
@@ -139,13 +144,13 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             var segmentElements = document.XPathSelectElements("//*[@SEGMENT='1']");
             foreach (var segmentElement in segmentElements)
             {
-                var segmentTreeNode = new IdocTreeNode { Name = segmentElement.Name.LocalName };
+                var segmentTreeNode = new IdocTreeNode(null) { Name = segmentElement.Name.LocalName };
                 _idocTreeNodes.Add(segmentTreeNode);
 
                 var fieldElements = segmentElement.Descendants();
                 foreach (var fieldElement in fieldElements)
                 {
-                    var fieldTreeNode = new IdocTreeNode
+                    var fieldTreeNode = new IdocTreeNode(segmentTreeNode)
                     {
                         Name = fieldElement.Name.LocalName,
                         Value = fieldElement.Value
@@ -154,6 +159,25 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     segmentTreeNode.Children.Add(fieldTreeNode);
                 }
             }
+        }
+
+        private IdocTreeNode GetSelectedIdocTreeNodeInternal(IEnumerable<IdocTreeNode> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.IsSelected)
+                {
+                    return node;
+                }
+
+                var selectedChild = GetSelectedIdocTreeNodeInternal(node.Children);
+                if (selectedChild != null)
+                {
+                    return selectedChild;
+                }
+            }
+
+            return null;
         }
 
         private void IdocItems_CurrentChanged(object sender, EventArgs eventArgs)

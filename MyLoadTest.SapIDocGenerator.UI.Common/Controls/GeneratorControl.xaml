@@ -130,9 +130,7 @@
                                 HorizontalAlignment="Stretch" />
                         <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                VerticalContentAlignment="Top"
-                                ItemsSource="{Binding ParametersPage.IdocTreeNodesView}"
-                                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                ItemsSource="{Binding ParametersPage.IdocTreeNodesView}">
                             <TreeView.ItemContainerStyle>
                                 <Style TargetType="TreeViewItem">
                                     <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
@@ -152,7 +150,9 @@
                             </TreeView.ItemTemplate>
                         </TreeView>
                         <Button Grid.Row="2" Content="Replace/Copy to Clipboard" MinWidth="100" Margin="0,5,10,5"
-                                HorizontalAlignment="Left" Click="ReplaceOrCopyButton_Click" />
+                                HorizontalAlignment="Left"
+                                IsEnabled="{Binding ParametersPage.IsReplaceOrCopyButtonEnabled}"
+                                Click="ReplaceOrCopyButton_Click" />
                     </Grid>
                 </ScrollViewer>
             </TabItem>

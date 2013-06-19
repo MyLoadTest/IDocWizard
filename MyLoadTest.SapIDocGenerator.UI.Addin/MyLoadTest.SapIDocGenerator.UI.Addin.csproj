@@ -120,6 +120,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\MyLoadTest.Common\MyLoadTest.Common.csproj">
+      <Project>{B4177FDF-1347-4E46-BC52-8E1559173CEE}</Project>
+      <Name>MyLoadTest.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyLoadTest.SapIDocGenerator.UI.Common\MyLoadTest.SapIDocGenerator.UI.Common.csproj">
       <Project>{4E5491A0-2555-42A9-B3A7-9629F25A109E}</Project>
       <Name>MyLoadTest.SapIDocGenerator.UI.Common</Name>

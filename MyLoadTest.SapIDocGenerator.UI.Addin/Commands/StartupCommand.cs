@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using ICSharpCode.Core;
 using ICSharpCode.SharpDevelop.Gui;
+using MyLoadTest.Configuration;
 using MyLoadTest.SapIDocGenerator.UI.Addin.Pads;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
@@ -13,6 +14,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
     /// </summary>
     public sealed class StartupCommand : AbstractMenuCommand
     {
+        #region Constants and Fields
+
+        private static readonly string SettingNamePrefix = typeof(StartupCommand).Assembly.GetName().Name + ".";
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -20,12 +27,36 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
         /// </summary>
         public override void Run()
         {
+            InitializeSettingManager();
+
             WorkbenchSingleton.WorkbenchCreated += this.WorkbenchSingleton_WorkbenchCreated;
-       }
+        }
 
         #endregion
 
         #region Private Methods
+
+        private static void InitializeSettingManager()
+        {
+            SettingManager.Instance.SetAccessors(GetSetting, SetSetting);
+        }
+
+        private static string GetActualSettingName(string name)
+        {
+            var result = SettingNamePrefix + name;
+            return result;
+        }
+
+        private static void SetSetting(string name, string value)
+        {
+            PropertyService.Set(GetActualSettingName(name), value);
+        }
+
+        private static string GetSetting(string name, string defaultValue)
+        {
+            var result = PropertyService.Get(GetActualSettingName(name), defaultValue);
+            return result;
+        }
 
         private void WorkbenchSingleton_WorkbenchCreated(object sender, EventArgs e)
         {

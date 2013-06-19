@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Windows.Data;
 using System.Xml.Linq;
+using MyLoadTest.Configuration;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -47,8 +48,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     Helper.GetPropertyName((RepositoryItem obj) => obj.Folder),
                     ListSortDirection.Ascending));
             this.RepositoryItemsView.CurrentChanged += this.RepositoryItemsView_CurrentChanged;
-
-            Reset();
         }
 
         #endregion
@@ -70,12 +69,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     return;
                 }
 
-                _repositoryPath = value;
-                RaisePropertyChanged(obj => obj.RepositoryPath);
-                RaisePropertyChanged(obj => obj.IsRepositoryPathSelected);
-                RaisePropertyChanged(obj => obj.ShouldImportButtonBeEnabled);
-                RaisePropertyChanged(obj => obj.IsParametersTabAvailable);
-                RefreshRepositoryItems();
+                SetRepositoryPathInternal(value, true);
             }
         }
 
@@ -115,8 +109,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         public override void Reset()
         {
-            this.RepositoryPath = string.Empty;
-            RefreshRepositoryItems();
+            SetRepositoryPathInternal(SettingManager.Instance.RepositoryPath ?? string.Empty, false);
         }
 
         public void RefreshRepositoryItems(bool keepSelection = true)
@@ -249,6 +242,23 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             Expression<Func<ImportPageViewModel, T>> propertyGetterExpression)
         {
             RaisePropertyChanged<ImportPageViewModel, T>(propertyGetterExpression);
+        }
+
+        private void SetRepositoryPathInternal(string value, bool saveSetting)
+        {
+            _repositoryPath = value;
+
+            RaisePropertyChanged(obj => obj.RepositoryPath);
+            RaisePropertyChanged(obj => obj.IsRepositoryPathSelected);
+            RaisePropertyChanged(obj => obj.ShouldImportButtonBeEnabled);
+            RaisePropertyChanged(obj => obj.IsParametersTabAvailable);
+
+            RefreshRepositoryItems();
+
+            if (saveSetting)
+            {
+                SettingManager.Instance.RepositoryPath = _repositoryPath;
+            }
         }
 
         private void RepositoryItemsView_CurrentChanged(object sender, EventArgs eventArgs)

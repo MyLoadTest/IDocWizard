@@ -40,12 +40,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             _idocItems = new List<ControlItem<RepositoryItem>>();
             this.IdocItemsView = CollectionViewSource.GetDefaultView(_idocItems);
-            this.IdocItemsView.CurrentChanged += this.IdocItems_CurrentChanged;
+            this.IdocItemsView.CurrentChanged += this.IdocItemsView_CurrentChanged;
 
             _idocTreeNodes = new List<IdocTreeNode>();
             this.IdocTreeNodesView = CollectionViewSource.GetDefaultView(_idocTreeNodes);
-
-            Reset();
+            this.IdocTreeNodesView.CurrentChanged += IdocTreeNodesView_CurrentChanged;
         }
 
         #endregion
@@ -62,6 +61,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             get;
             private set;
+        }
+
+        public bool IsReplaceOrCopyButtonEnabled
+        {
+            get
+            {
+                var selectedIdocTreeNode = GetSelectedIdocTreeNode();
+                return selectedIdocTreeNode != null && selectedIdocTreeNode.Parent != null;
+            }
         }
 
         #endregion
@@ -108,6 +116,25 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Private Methods
 
+        private static IdocTreeNode GetSelectedIdocTreeNodeInternal(IEnumerable<IdocTreeNode> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (node.IsSelected)
+                {
+                    return node;
+                }
+
+                var selectedChild = GetSelectedIdocTreeNodeInternal(node.Children);
+                if (selectedChild != null)
+                {
+                    return selectedChild;
+                }
+            }
+
+            return null;
+        }
+
         private void RaisePropertyChanged<T>(
             Expression<Func<ParametersPageViewModel, T>> propertyGetterExpression)
         {
@@ -120,6 +147,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             this.IdocTreeNodesView.Refresh();
             RaisePropertyChanged(obj => obj.IdocTreeNodesView);
+            RaisePropertyChanged(obj => obj.IsReplaceOrCopyButtonEnabled);
         }
 
         private void DoRefreshIdocTree()
@@ -161,28 +189,14 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        private IdocTreeNode GetSelectedIdocTreeNodeInternal(IEnumerable<IdocTreeNode> nodes)
-        {
-            foreach (var node in nodes)
-            {
-                if (node.IsSelected)
-                {
-                    return node;
-                }
-
-                var selectedChild = GetSelectedIdocTreeNodeInternal(node.Children);
-                if (selectedChild != null)
-                {
-                    return selectedChild;
-                }
-            }
-
-            return null;
-        }
-
-        private void IdocItems_CurrentChanged(object sender, EventArgs eventArgs)
+        private void IdocItemsView_CurrentChanged(object sender, EventArgs eventArgs)
         {
             RefreshIdocTree();
+        }
+
+        private void IdocTreeNodesView_CurrentChanged(object sender, EventArgs eventArgs)
+        {
+            RaisePropertyChanged(obj => obj.IsReplaceOrCopyButtonEnabled);
         }
 
         #endregion

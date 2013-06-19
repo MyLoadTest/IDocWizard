@@ -43,8 +43,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             #endregion
 
             _owner = owner;
-
-            Reset();
         }
 
         #endregion

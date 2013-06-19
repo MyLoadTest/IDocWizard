@@ -14,6 +14,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
+        private static readonly string IsSelectedPropertyName =
+            Helper.GetPropertyName((IdocTreeNode obj) => obj.IsSelected);
+
         private readonly GeneratorControlViewModel _owner;
         private readonly List<ControlItem<RepositoryItem>> _idocItems;
         private readonly List<IdocTreeNode> _idocTreeNodes;
@@ -44,7 +47,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             _idocTreeNodes = new List<IdocTreeNode>();
             this.IdocTreeNodesView = CollectionViewSource.GetDefaultView(_idocTreeNodes);
-            this.IdocTreeNodesView.CurrentChanged += IdocTreeNodesView_CurrentChanged;
+            this.IdocTreeNodesView.CurrentChanged += this.IdocTreeNodesView_CurrentChanged;
         }
 
         #endregion
@@ -141,6 +144,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             RaisePropertyChanged<ParametersPageViewModel, T>(propertyGetterExpression);
         }
 
+        private void SubscribeToNode(IdocTreeNode node)
+        {
+            node.PropertyChanged += this.IdocTreeNode_PropertyChanged;
+        }
+
         private void RefreshIdocTree()
         {
             DoRefreshIdocTree();
@@ -173,6 +181,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             foreach (var segmentElement in segmentElements)
             {
                 var segmentTreeNode = new IdocTreeNode(null) { Name = segmentElement.Name.LocalName };
+                SubscribeToNode(segmentTreeNode);
                 _idocTreeNodes.Add(segmentTreeNode);
 
                 var fieldElements = segmentElement.Descendants();
@@ -184,6 +193,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                         Value = fieldElement.Value
                     };
 
+                    SubscribeToNode(fieldTreeNode);
                     segmentTreeNode.Children.Add(fieldTreeNode);
                 }
             }
@@ -192,6 +202,14 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private void IdocItemsView_CurrentChanged(object sender, EventArgs eventArgs)
         {
             RefreshIdocTree();
+        }
+
+        private void IdocTreeNode_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == IsSelectedPropertyName)
+            {
+                RaisePropertyChanged(obj => obj.IsReplaceOrCopyButtonEnabled);
+            }
         }
 
         private void IdocTreeNodesView_CurrentChanged(object sender, EventArgs eventArgs)

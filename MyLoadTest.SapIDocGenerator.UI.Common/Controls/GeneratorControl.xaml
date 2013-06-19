@@ -53,7 +53,7 @@
             </TabItem>
             <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="5">
+                    <Grid Margin="5" Height="{Binding ElementName=Tabs, Path=ActualHeight,Mode=OneWay}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -70,40 +70,43 @@
                                     Click="RefreshButton_Click"
                                     IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
                         </Grid>
-                        <ListView Name="RepositoryItemsListView" Grid.Row="1" MinHeight="100"
-                                HorizontalAlignment="Stretch"
-                                ItemsSource="{Binding Path=ImportPage.RepositoryItemsView}"
-                                IsSynchronizedWithCurrentItem="True">
-                            <ListView.Resources>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.Resources>
-                            <ListView.View>
-                                <GridView AllowsColumnReorder="False">
-                                    <GridViewColumn Header="IDoc Type" Width="300"
-                                            DisplayMemberBinding="{Binding Folder}">
-                                        <GridViewColumn.HeaderContainerStyle>
-                                            <Style TargetType="GridViewColumnHeader">
-                                                <Setter Property="HorizontalContentAlignment" Value="Left" />
-                                            </Style>
-                                        </GridViewColumn.HeaderContainerStyle>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Quantity" Width="100">
-                                        <GridViewColumn.HeaderContainerStyle>
-                                            <Style TargetType="GridViewColumnHeader">
-                                                <Setter Property="HorizontalContentAlignment" Value="Right" />
-                                            </Style>
-                                        </GridViewColumn.HeaderContainerStyle>
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Count}" TextAlignment="Right" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto">
+                            <ListView Name="RepositoryItemsListView" Grid.Row="1" MinHeight="100"
+                                    HorizontalAlignment="Stretch"
+                                    ItemsSource="{Binding Path=ImportPage.RepositoryItemsView}"
+                                    IsSynchronizedWithCurrentItem="True">
+                                <ListView.Resources>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.View>
+                                    <GridView AllowsColumnReorder="False">
+                                        <GridViewColumn Header="IDoc Type" Width="300"
+                                                DisplayMemberBinding="{Binding Folder}">
+                                            <GridViewColumn.HeaderContainerStyle>
+                                                <Style TargetType="GridViewColumnHeader">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                                </Style>
+                                            </GridViewColumn.HeaderContainerStyle>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Quantity" Width="100">
+                                            <GridViewColumn.HeaderContainerStyle>
+                                                <Style TargetType="GridViewColumnHeader">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Right" />
+                                                </Style>
+                                            </GridViewColumn.HeaderContainerStyle>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Count}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </ScrollViewer>
                         <StackPanel Grid.Row="2" Orientation="Horizontal">
                             <Button Content="{x:Static props:Resources.NewTypeButtonContent}" MinWidth="100"
                                     Margin="0,5,10,5" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
@@ -119,7 +122,8 @@
                     IsEnabled="{Binding ImportPage.IsParametersTabAvailable}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid Margin="5" VerticalAlignment="Stretch">
+                    <Grid Margin="5" VerticalAlignment="Stretch"
+                            Height="{Binding ElementName=Tabs, Path=ActualHeight,Mode=OneWay}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -128,27 +132,32 @@
                         <ComboBox Grid.Row="0" ItemsSource="{Binding ParametersPage.IdocItemsView}"
                                 IsSynchronizedWithCurrentItem="True" IsEditable="False"
                                 HorizontalAlignment="Stretch" />
-                        <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                ItemsSource="{Binding ParametersPage.IdocTreeNodesView}">
-                            <TreeView.ItemContainerStyle>
-                                <Style TargetType="TreeViewItem">
-                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                </Style>
-                            </TreeView.ItemContainerStyle>
-                            <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate ItemsSource="{Binding Children}"
-                                        DataType="controls:IdocTreeNode">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Name}" />
-                                        <TextBlock Text="=" Margin="5,0"
-                                                Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
-                                        <TextBlock Text="{Binding Value}"
-                                                Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
-                                    </StackPanel>
-                                </HierarchicalDataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto">
+                            <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding ParametersPage.IdocTreeNodesView}">
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="TreeViewItem">
+                                        <Setter Property="IsSelected"
+                                                d:DataContext="{d:DesignInstance Type=controls:IdocTreeNode}"
+                                                Value="{Binding IsSelected, Mode=TwoWay}" />
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}"
+                                            DataType="controls:IdocTreeNode">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" />
+                                            <TextBlock Text="=" Margin="5,0"
+                                                    Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                                            <TextBlock Text="{Binding Value}"
+                                                    Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                                        </StackPanel>
+                                    </HierarchicalDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
+                        </ScrollViewer>
                         <Button Grid.Row="2" Content="Replace/Copy to Clipboard" MinWidth="100" Margin="0,5,10,5"
                                 HorizontalAlignment="Left"
                                 IsEnabled="{Binding ParametersPage.IsReplaceOrCopyButtonEnabled}"

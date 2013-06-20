@@ -5,13 +5,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
         xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
-        xmlns:converters="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Converters" mc:Ignorable="d"
-        d:DesignHeight="300" d:DesignWidth="500" MinWidth="200">
+        xmlns:converters="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Converters" mc:Ignorable="d" d:DesignHeight="300"
+        d:DesignWidth="500" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <converters:BooleanToVisibilityConverter x:Key="TreeNodeValueVisibilityConverter" />
+        <converters:ComputedHeightConverter x:Key="ComputedHeightConverter" />
     </UserControl.Resources>
     <Grid>
         <TabControl Name="Tabs">
@@ -53,7 +54,21 @@
             </TabItem>
             <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="5" Height="{Binding ElementName=Tabs, Path=ActualHeight,Mode=OneWay}">
+                    <Grid Margin="5">
+                        <Grid.MaxHeight>
+                            <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
+                                <Binding ElementName="Tabs" Path="ActualHeight" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="ActualHeight" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="Padding" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="Margin" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="BorderThickness" />
+                                <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
+                            </MultiBinding>
+                        </Grid.MaxHeight>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -122,16 +137,28 @@
                     IsEnabled="{Binding ImportPage.IsParametersTabAvailable}">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid Margin="5" VerticalAlignment="Stretch"
-                            Height="{Binding ElementName=Tabs, Path=ActualHeight,Mode=OneWay}">
+                    <Grid Margin="5">
+                        <Grid.MaxHeight>
+                            <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
+                                <Binding ElementName="Tabs" Path="ActualHeight" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="ActualHeight" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="Padding" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="Margin" />
+                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                        Path="BorderThickness" />
+                                <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
+                            </MultiBinding>
+                        </Grid.MaxHeight>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <ComboBox Grid.Row="0" ItemsSource="{Binding ParametersPage.IdocItemsView}"
-                                IsSynchronizedWithCurrentItem="True" IsEditable="False"
-                                HorizontalAlignment="Stretch" />
+                                IsSynchronizedWithCurrentItem="True" IsEditable="False" HorizontalAlignment="Stretch" />
                         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Auto">
                             <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"

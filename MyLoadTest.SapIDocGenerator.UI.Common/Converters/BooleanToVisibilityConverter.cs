@@ -10,7 +10,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Converters
 {
     public sealed class BooleanToVisibilityConverter : IValueConverter
     {
-        #region Constructors and Destructors
+        #region Constructors
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BooleanToVisibilityConverter"/> class.

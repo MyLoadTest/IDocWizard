@@ -70,6 +70,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The  IDoc parameter has been copied to clipboard.
+        /// </summary>
+        public static string CopiedToClipboardPopupText {
+            get {
+                return ResourceManager.GetString("CopiedToClipboardPopupText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create.
         /// </summary>
         public static string CreateButtonTitle {
@@ -165,6 +174,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         public static string ParametersTabHeader {
             get {
                 return ResourceManager.GetString("ParametersTabHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The text has been replaced with the IDoc parameter.
+        /// </summary>
+        public static string ReplacedWithParameterPopupText {
+            get {
+                return ResourceManager.GetString("ReplacedWithParameterPopupText", resourceCulture);
             }
         }
         

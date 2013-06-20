@@ -49,7 +49,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
 
         private static void SetSetting(string name, string value)
         {
-            PropertyService.Set(GetActualSettingName(name), value);
+            PropertyService.Set(GetActualSettingName(name), value ?? string.Empty);
         }
 
         private static string GetSetting(string name, string defaultValue)

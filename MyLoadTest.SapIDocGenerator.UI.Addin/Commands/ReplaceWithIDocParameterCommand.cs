@@ -19,7 +19,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
             var wizardPad = WizardPad.ShowInWorkbench();
             if (wizardPad != null)
             {
-                wizardPad.InnerControl.ActivateTab(GeneratorControlTab.Parameters);
+                wizardPad.InnerControl.ActivateParameters();
             }
         }
 

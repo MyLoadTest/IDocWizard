@@ -12,6 +12,9 @@ namespace MyLoadTest.Configuration
         private static readonly string RepositoryPathKey = Helper.GetPropertyName(
             (SettingManager obj) => obj.RepositoryPath);
 
+        private static readonly string ParameterPageSelectedFolderKey = Helper.GetPropertyName(
+            (SettingManager obj) => obj.ParameterPageSelectedFolder);
+
         private static readonly SettingManager InstanceField = new SettingManager();
 
         private Func<string, string, string> _getSetting;
@@ -23,8 +26,8 @@ namespace MyLoadTest.Configuration
 
         private SettingManager()
         {
-            _getSetting = (name, defaultValue) => { throw new NotImplementedException(); };
-            _setSetting = (name, value) => { throw new NotImplementedException(); };
+            _getSetting = (name, defaultValue) => { throw new NotSupportedException(); };
+            _setSetting = (name, value) => { throw new NotSupportedException(); };
         }
 
         #endregion
@@ -53,11 +56,26 @@ namespace MyLoadTest.Configuration
             }
         }
 
+        public string ParameterPageSelectedFolder
+        {
+            get
+            {
+                return _getSetting(ParameterPageSelectedFolderKey, null);
+            }
+
+            set
+            {
+                _setSetting(ParameterPageSelectedFolderKey, value);
+            }
+        }
+
         #endregion
 
         #region Public Methods
 
-        public void SetAccessors(Func<string, string, string> getSetting, Action<string, string> setSetting)
+        public void SetAccessors(
+            Func<string, string, string> getSetting,
+            Action<string, string> setSetting)
         {
             #region Argument Check
 

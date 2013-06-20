@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Windows.Data;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using MyLoadTest.Configuration;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -20,6 +21,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private readonly GeneratorControlViewModel _owner;
         private readonly List<ControlItem<RepositoryItem>> _idocItems;
         private readonly List<IdocTreeNode> _idocTreeNodes;
+
+        private bool _wasSelectedFolderRestored;
 
         #endregion
 
@@ -81,7 +84,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         public override void Reset()
         {
-            // Nothing to do
+            RestoreSelectedFolder();
         }
 
         public void SetIdocItems(bool keepSelection, IEnumerable<RepositoryItem> items)
@@ -199,8 +202,38 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
+        private void SaveSelectedFolder()
+        {
+            if (!_wasSelectedFolderRestored)
+            {
+                return;
+            }
+
+            var selectedItem = this.IdocItemsView.CurrentItem as ControlItem<RepositoryItem>;
+
+            SettingManager.Instance.ParameterPageSelectedFolder = selectedItem == null || selectedItem.Value == null
+                ? null
+                : selectedItem.Value.Folder;
+        }
+
+        private void RestoreSelectedFolder()
+        {
+            _wasSelectedFolderRestored = true;
+
+            var selectedFolder = SettingManager.Instance.ParameterPageSelectedFolder;
+            if (selectedFolder.IsNullOrEmpty())
+            {
+                this.IdocItemsView.MoveCurrentTo(null);
+                return;
+            }
+
+            this.IdocItemsView.MoveCurrentTo(ControlItem.Create(new RepositoryItem { Folder = selectedFolder }));
+        }
+
         private void IdocItemsView_CurrentChanged(object sender, EventArgs eventArgs)
         {
+            SaveSelectedFolder();
+
             RefreshIdocTree();
         }
 

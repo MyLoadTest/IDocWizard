@@ -5,6 +5,10 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 using ICSharpCode.SharpDevelop.Editor;
 using ICSharpCode.SharpDevelop.Gui;
@@ -57,9 +61,153 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             this.Tabs.SelectedItem = tabItem;
         }
 
+        public void ActivateParameters()
+        {
+            ActivateTab(GeneratorControlTab.Parameters);
+
+            var controlToFocus = this.ViewModel.ParametersPage.IdocItemsView.CurrentItem == null
+                ? (Control)this.IdocItemsComboBox
+                : this.ParameterTreeView;
+
+            if (controlToFocus == null)
+            {
+                return;
+            }
+
+            var isVisibleChanged = new ValueHolder<DependencyPropertyChangedEventHandler>();
+
+            isVisibleChanged.Value =
+                (sender, args) =>
+                {
+                    if (!controlToFocus.IsVisible)
+                    {
+                        return;
+                    }
+
+                    var f = controlToFocus.Focus();
+                    System.Diagnostics.Trace.WriteLine(f);
+
+                    controlToFocus.IsVisibleChanged -= isVisibleChanged.Value.EnsureNotNull();
+                };
+
+            if (controlToFocus.IsVisible)
+            {
+                isVisibleChanged.Value(controlToFocus, new DependencyPropertyChangedEventArgs());
+            }
+            else
+            {
+                controlToFocus.IsVisibleChanged += isVisibleChanged.Value.EnsureNotNull();
+            }
+        }
+
         #endregion
 
         #region Private Methods
+
+        private static void ShowInfoPopup(string text)
+        {
+            #region Argument Check
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new ArgumentException(
+                    @"The value can be neither empty or whitespace-only string nor null.",
+                    "text");
+            }
+
+            #endregion
+
+            var popupTextBlock = new TextBlock
+            {
+                Text = text,
+                Background = SystemColors.HighlightBrush,
+                Foreground = SystemColors.HighlightTextBrush,
+                FontSize = 20,
+                Padding = new Thickness(5d)
+            };
+
+            var popupContent = new Grid
+            {
+                Background = SystemColors.ControlBrush,
+                Children =
+                {
+                    new Border
+                    {
+                        BorderThickness = new Thickness(2d),
+                        BorderBrush = SystemColors.ActiveBorderBrush,
+                        Child = popupTextBlock
+                    }
+                }
+            };
+
+            var popup = new Popup
+            {
+                IsOpen = false,
+                StaysOpen = false,
+                AllowsTransparency = true,
+                Placement = PlacementMode.Center,
+                PlacementTarget = WorkbenchSingleton.MainWindow.EnsureNotNull(),
+                PopupAnimation = PopupAnimation.None,
+                Focusable = true,
+                Opacity = 0d,
+                Child = popupContent
+            };
+
+            popup.MouseUp += (obj, args) => popup.IsOpen = false;
+
+            popup.PreviewKeyDown += (obj, args) =>
+            {
+                if (args.Key == Key.Escape)
+                {
+                    popup.IsOpen = false;
+                }
+            };
+
+            var fadeInAnimation = new DoubleAnimation(0d, 1d, new Duration(TimeSpan.FromSeconds(0.5d)));
+            Storyboard.SetTarget(fadeInAnimation, popupContent);
+            Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
+
+            var fadeOutAnimation = new DoubleAnimation(1d, 0d, new Duration(TimeSpan.FromSeconds(0.5d)))
+            {
+                BeginTime = TimeSpan.FromSeconds(1.5d)
+            };
+
+            Storyboard.SetTarget(fadeOutAnimation, popupContent);
+            Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
+
+            var storyboard = new Storyboard { Children = { fadeInAnimation, fadeOutAnimation } };
+            storyboard.Completed += (obj, args) => popup.IsOpen = false;
+
+            popup.IsOpen = true;
+            FocusManager.SetFocusedElement(popup, popupTextBlock);
+            popup.Focus();
+            popup.BeginStoryboard(storyboard);
+        }
+
+        private static bool TryReplaceWithParameter(string parameter)
+        {
+            var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
+            object activeViewContent = workbench.ActiveViewContent;
+            var textEditorProvider = activeViewContent as ITextEditorProvider;
+            if (textEditorProvider == null)
+            {
+                return true;
+            }
+
+            var textEditor = textEditorProvider.TextEditor;
+            if (textEditor == null)
+            {
+                return true;
+            }
+
+            if (!textEditor.SelectedText.IsNullOrEmpty())
+            {
+                textEditor.SelectedText = parameter;
+                return true;
+            }
+
+            return false;
+        }
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
@@ -233,20 +381,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return;
             }
 
-            var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
-            object activeViewContent = workbench.ActiveViewContent;
-            var textEditorProvider = activeViewContent as ITextEditorProvider;
-            if (textEditorProvider == null)
-            {
-                return;
-            }
-
-            var textEditor = textEditorProvider.TextEditor;
-            if (textEditor == null)
-            {
-                return;
-            }
-
             var segmentTreeNode = fieldTreeNode.Parent.EnsureNotNull();
 
             var parameter = string.Format(
@@ -255,14 +389,14 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 segmentTreeNode.Name,
                 fieldTreeNode.Name);
 
-            if (textEditor.SelectedText.IsNullOrEmpty())
+            if (TryReplaceWithParameter(parameter))
             {
-                Clipboard.SetText(parameter);
+                ShowInfoPopup(Properties.Resources.ReplacedWithParameterPopupText);
+                return;
             }
-            else
-            {
-                textEditor.SelectedText = parameter;
-            }
+
+            Clipboard.SetText(parameter);
+            ShowInfoPopup(Properties.Resources.CopiedToClipboardPopupText);
         }
 
         #endregion

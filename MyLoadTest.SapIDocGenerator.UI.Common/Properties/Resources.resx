@@ -167,4 +167,10 @@
   <data name="ImportButtonContent" xml:space="preserve">
     <value>Import...</value>
   </data>
+  <data name="CopiedToClipboardPopupText" xml:space="preserve">
+    <value>The  IDoc parameter has been copied to clipboard</value>
+  </data>
+  <data name="ReplacedWithParameterPopupText" xml:space="preserve">
+    <value>The text has been replaced with the IDoc parameter</value>
+  </data>
 </root>

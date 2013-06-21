@@ -45,6 +45,9 @@
     <Reference Include="HP.Utt.ProjectSystem">
       <HintPath>..\_References_\VuGen\HP.Utt.ProjectSystem.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <HintPath>..\_References_\SharpDevelop\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.Core">
       <HintPath>..\_References_\SharpDevelop\ICSharpCode.Core.dll</HintPath>
     </Reference>

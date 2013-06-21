@@ -10,6 +10,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.SharpDevelop.Editor;
 using ICSharpCode.SharpDevelop.Gui;
 using ICSharpCode.SharpDevelop.Project;
@@ -104,7 +108,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Private Methods
 
-        private static void ShowInfoPopup(string text)
+        private static void ShowInfoPopup(string text, UIElement popupElement, Point? popupPoint)
         {
             #region Argument Check
 
@@ -145,8 +149,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 IsOpen = false,
                 StaysOpen = false,
                 AllowsTransparency = true,
-                Placement = PlacementMode.Center,
-                PlacementTarget = WorkbenchSingleton.MainWindow.EnsureNotNull(),
+                Placement = popupElement != null && popupPoint.HasValue
+                    ? PlacementMode.Relative
+                    : PlacementMode.Center,
+                PlacementTarget = popupElement ?? WorkbenchSingleton.MainWindow.EnsureNotNull(),
+                HorizontalOffset = popupElement != null && popupPoint.HasValue ? popupPoint.Value.X : 0,
+                VerticalOffset = popupElement != null && popupPoint.HasValue ? popupPoint.Value.Y : 0,
                 PopupAnimation = PopupAnimation.None,
                 Focusable = true,
                 Opacity = 0d,
@@ -184,29 +192,50 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             popup.BeginStoryboard(storyboard);
         }
 
-        private static bool TryReplaceWithParameter(string parameter)
+        private static bool TryReplaceWithParameter(
+            string parameter,
+            out UIElement popupElement,
+            out Point? popupPoint)
         {
+            popupElement = null;
+            popupPoint = null;
+
             var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
             object activeViewContent = workbench.ActiveViewContent;
             var textEditorProvider = activeViewContent as ITextEditorProvider;
             if (textEditorProvider == null)
             {
-                return true;
+                return false;
             }
 
             var textEditor = textEditorProvider.TextEditor;
             if (textEditor == null)
             {
-                return true;
+                return false;
             }
 
-            if (!textEditor.SelectedText.IsNullOrEmpty())
+            var viewContent = activeViewContent as IViewContent;
+            if (viewContent != null)
             {
-                textEditor.SelectedText = parameter;
-                return true;
+                var textArea = viewContent.InitiallyFocusedControl as TextArea;
+                if (textArea != null && textArea.TextView != null)
+                {
+                    popupElement = textArea.TextView;
+
+                    var visualPosition = textArea.TextView.GetVisualPosition(
+                        new TextViewPosition(textArea.Caret.Line, textArea.Caret.Column),
+                        VisualYPosition.LineBottom);
+                    popupPoint = visualPosition - textArea.TextView.ScrollOffset;
+                }
             }
 
-            return false;
+            if (textEditor.SelectedText.IsNullOrEmpty())
+            {
+                return false;
+            }
+
+            textEditor.SelectedText = parameter;
+            return true;
         }
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
@@ -389,14 +418,16 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 segmentTreeNode.Name,
                 fieldTreeNode.Name);
 
-            if (TryReplaceWithParameter(parameter))
+            UIElement popupElement;
+            Point? popupPoint;
+            if (TryReplaceWithParameter(parameter, out popupElement, out popupPoint))
             {
-                ShowInfoPopup(Properties.Resources.ReplacedWithParameterPopupText);
+                ShowInfoPopup(Properties.Resources.ReplacedWithParameterPopupText, popupElement, popupPoint);
                 return;
             }
 
             Clipboard.SetText(parameter);
-            ShowInfoPopup(Properties.Resources.CopiedToClipboardPopupText);
+            ShowInfoPopup(Properties.Resources.CopiedToClipboardPopupText, this, null);
         }
 
         #endregion

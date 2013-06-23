@@ -92,7 +92,7 @@ namespace MyLoadTest
             Log.Error(FixText(text));
         }
 
-        public static void Error(string text, Exception exception)
+        public static void Error(Exception exception, string text)
         {
             Log.Error(FixText(text), exception);
         }
@@ -100,6 +100,11 @@ namespace MyLoadTest
         public static void ErrorFormat(string format, params object[] args)
         {
             Log.Error(FixText(string.Format(CultureInfo.InvariantCulture, format, args)));
+        }
+
+        public static void ErrorFormat(Exception exception, string format, params object[] args)
+        {
+            Log.Error(FixText(string.Format(CultureInfo.InvariantCulture, format, args)), exception);
         }
 
         public static void Write(LogLevel logLevel, string text)

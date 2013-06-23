@@ -368,7 +368,7 @@ namespace MyLoadTest
                 currentControl = currentControl.Parent as FrameworkElement;
             }
 
-            return result ?? Application.Current.MainWindow;
+            return result;
         }
 
         public static IWin32Window GetWin32Window(this Window window)
@@ -396,8 +396,12 @@ namespace MyLoadTest
             var logLevel = MessageBoxImageToLogLevelMap.GetValueOrDefault(icon, LogLevel.Info);
             Logger.Write(logLevel, message);
 
-            var actualWindow = window ?? Application.Current.MainWindow;
-            var result = MessageBox.Show(actualWindow, message, actualWindow.Title, button, icon);
+            var actualWindow = window ?? (Application.Current == null ? null : Application.Current.MainWindow);
+
+            var result = actualWindow == null
+                ? MessageBox.Show(message, "Message", button, icon)
+                : MessageBox.Show(actualWindow, message, actualWindow.Title, button, icon);
+
             Logger.WriteFormat(logLevel, "User answer: {0}", result);
             return result;
         }
@@ -408,16 +412,7 @@ namespace MyLoadTest
             MessageBoxButton button,
             MessageBoxImage icon)
         {
-            #region Argument Check
-
-            if (control == null)
-            {
-                throw new ArgumentNullException("control");
-            }
-
-            #endregion
-
-            var window = GetControlWindow(control);
+            var window = control == null ? null : GetControlWindow(control);
             return ShowMessageBox(window, message, button, icon);
         }
 
@@ -428,7 +423,7 @@ namespace MyLoadTest
 
         public static void ShowErrorBox(this Control control, Exception exception, string baseMessage)
         {
-            Logger.Error(baseMessage, exception);
+            Logger.Error(exception, baseMessage);
 
             var message = string.Format(
                 CultureInfo.InvariantCulture,

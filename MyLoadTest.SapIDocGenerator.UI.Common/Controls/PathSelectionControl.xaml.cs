@@ -20,7 +20,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public static readonly DependencyProperty ModeProperty =
             Helper.RegisterDependencyProperty(
                 (PathSelectionControl obj) => obj.Mode,
-                new PropertyMetadata(PathSelectionControlMode.FileSelection),
+                new FrameworkPropertyMetadata(PathSelectionControlMode.FileSelection),
                 value => value is PathSelectionControlMode && ((PathSelectionControlMode)value).IsDefined());
 
         public static readonly DependencyProperty SelectedPathProperty =
@@ -34,6 +34,13 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public static readonly DependencyProperty DialogTitleProperty =
             Helper.RegisterDependencyProperty((PathSelectionControl obj) => obj.DialogTitle);
 
+        public static readonly DependencyProperty IsClearButtonVisibleProperty =
+            Helper.RegisterDependencyProperty(
+                (PathSelectionControl obj) => obj.IsClearButtonVisible,
+                new FrameworkPropertyMetadata(DefaultIsClearButtonVisible, OnIsClearButtonVisibleChanged));
+
+        private const bool DefaultIsClearButtonVisible = false;
+
         #endregion
 
         #region Constructors
@@ -43,6 +50,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             InitializeComponent();
 
             UpdateSelectedPath();
+            UpdateClearButtonVisibility();
+            UpdateClearButtonEnabledState();
         }
 
         #endregion
@@ -81,11 +90,13 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         public string FileDialogFilter
         {
+            [DebuggerNonUserCode]
             get
             {
                 return (string)GetValue(FileDialogFilterProperty);
             }
 
+            [DebuggerNonUserCode]
             set
             {
                 SetValue(FileDialogFilterProperty, value);
@@ -94,14 +105,31 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         public string DialogTitle
         {
+            [DebuggerNonUserCode]
             get
             {
                 return (string)GetValue(DialogTitleProperty);
             }
 
+            [DebuggerNonUserCode]
             set
             {
                 SetValue(DialogTitleProperty, value);
+            }
+        }
+
+        public bool IsClearButtonVisible
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return (bool)GetValue(IsClearButtonVisibleProperty);
+            }
+
+            [DebuggerNonUserCode]
+            set
+            {
+                SetValue(IsClearButtonVisibleProperty, value);
             }
         }
 
@@ -113,13 +141,32 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs e)
         {
-            var self = (PathSelectionControl)dependencyObject;
-            self.FilePathTextBox.SetValue(TextBox.TextProperty, self.SelectedPath);
+            var self = (PathSelectionControl)dependencyObject.EnsureNotNull();
+            self.FilePathTextBox.Text = self.SelectedPath;
+            self.UpdateClearButtonEnabledState();
+        }
+
+        private static void OnIsClearButtonVisibleChanged(
+            DependencyObject dependencyObject,
+            DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
+        {
+            var self = (PathSelectionControl)dependencyObject.EnsureNotNull();
+            self.UpdateClearButtonVisibility();
         }
 
         private void UpdateSelectedPath()
         {
-            SetValue(SelectedPathProperty, this.FilePathTextBox.GetValue(TextBox.TextProperty));
+            this.SelectedPath = this.FilePathTextBox.Text;
+        }
+
+        private void UpdateClearButtonVisibility()
+        {
+            this.ClearButton.Visibility = this.IsClearButtonVisible ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void UpdateClearButtonEnabledState()
+        {
+            this.ClearButton.IsEnabled = !this.SelectedPath.IsNullOrEmpty();
         }
 
         private void SelectFile()
@@ -183,6 +230,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private void FilePathTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateSelectedPath();
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.SelectedPath = string.Empty;
         }
 
         #endregion

@@ -7,10 +7,15 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Name="FilePathTextBox" Margin="5" IsReadOnly="True"
+        <TextBox Grid.Column="0" Name="FilePathTextBox" Margin="0,5,0,5" IsReadOnly="True"
                 TextChanged="FilePathTextBox_TextChanged" />
-        <Button Grid.Column="1" Content="Browse..." Margin="5" Click="BrowseButton_Click" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+            <Button Name="BrowseButton" Content="Browse..." MinWidth="80" Margin="5,0,0,0"
+                    Click="BrowseButton_Click" />
+            <Button Name="ClearButton" Content="Clear" MinWidth="80" Margin="5,0,0,0" Click="ClearButton_Click" />
+        </StackPanel>
     </Grid>
 </UserControl>

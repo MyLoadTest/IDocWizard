@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Windows;
 using System.Windows.Data;
 using System.Xml.Linq;
 using MyLoadTest.Configuration;
@@ -15,6 +16,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     public sealed class ImportPageViewModel : ViewModelBase
     {
         #region Constants and Fields
+
+        private static readonly string[] EmptyDirectoryArray = new string[0];
 
         private readonly GeneratorControlViewModel _owner;
         private readonly List<RepositoryItem> _repositoryItems;
@@ -117,20 +120,31 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             var oldSelectedItem = keepSelection ? this.RepositoryItemsView.CurrentItem : null;
 
             _repositoryItems.Clear();
-
-            if (this.RepositoryPath.IsNullOrWhiteSpace())
-            {
-                return;
-            }
-
             try
             {
-                var directories = Directory.GetDirectories(this.RepositoryPath, "*", SearchOption.TopDirectoryOnly);
+                var directories = this.RepositoryPath.IsNullOrWhiteSpace()
+                    ? EmptyDirectoryArray
+                    : Directory.GetDirectories(this.RepositoryPath, "*", SearchOption.TopDirectoryOnly);
                 foreach (var directory in directories)
                 {
-                    var definitionFilePath = Directory
-                        .GetFiles(directory, Constants.DefinitionFileMask, SearchOption.TopDirectoryOnly)
-                        .FirstOrDefault();
+                    string definitionFilePath;
+                    try
+                    {
+                        definitionFilePath = Directory
+                            .GetFiles(directory, Constants.DefinitionFileMask, SearchOption.TopDirectoryOnly)
+                            .FirstOrDefault();
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Logger.ErrorFormat(
+                            ex,
+                            "Error reading repository \"{0}\" at \"{1}\".",
+                            this.RepositoryPath,
+                            directory);
+
+                        continue;
+                    }
+
                     if (definitionFilePath.IsNullOrWhiteSpace())
                     {
                         continue;
@@ -163,7 +177,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     ex,
                     string.Format(
                         CultureInfo.InvariantCulture,
-                        "Error reading repository '{0}'.",
+                        "Error reading repository \"{0}\"",
                         this.RepositoryPath));
             }
 

@@ -108,96 +108,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Private Methods
 
-        private static void ShowInfoPopup(string text, UIElement popupElement, Point? popupPoint)
-        {
-            #region Argument Check
-
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                throw new ArgumentException(
-                    @"The value can be neither empty or whitespace-only string nor null.",
-                    "text");
-            }
-
-            #endregion
-
-            var popupTextBlock = new TextBlock
-            {
-                Text = text,
-                Background = SystemColors.HighlightBrush,
-                Foreground = SystemColors.HighlightTextBrush,
-                FontSize = 20,
-                Padding = new Thickness(5d)
-            };
-
-            var popupContent = new Grid
-            {
-                Background = SystemColors.ControlBrush,
-                Children =
-                {
-                    new Border
-                    {
-                        BorderThickness = new Thickness(2d),
-                        BorderBrush = SystemColors.ActiveBorderBrush,
-                        Child = popupTextBlock
-                    }
-                }
-            };
-
-            var popup = new Popup
-            {
-                IsOpen = false,
-                StaysOpen = false,
-                AllowsTransparency = true,
-                Placement = popupElement != null && popupPoint.HasValue
-                    ? PlacementMode.Relative
-                    : PlacementMode.Center,
-                PlacementTarget = popupElement ?? WorkbenchSingleton.MainWindow.EnsureNotNull(),
-                HorizontalOffset = popupElement != null && popupPoint.HasValue ? popupPoint.Value.X : 0,
-                VerticalOffset = popupElement != null && popupPoint.HasValue ? popupPoint.Value.Y : 0,
-                PopupAnimation = PopupAnimation.None,
-                Focusable = true,
-                Opacity = 0d,
-                Child = popupContent
-            };
-
-            popup.MouseUp += (obj, args) => popup.IsOpen = false;
-
-            popup.PreviewKeyDown += (obj, args) =>
-            {
-                if (args.Key == Key.Escape)
-                {
-                    popup.IsOpen = false;
-                }
-            };
-
-            var fadeInAnimation = new DoubleAnimation(0d, 1d, new Duration(TimeSpan.FromSeconds(0.5d)));
-            Storyboard.SetTarget(fadeInAnimation, popupContent);
-            Storyboard.SetTargetProperty(fadeInAnimation, new PropertyPath(OpacityProperty));
-
-            var fadeOutAnimation = new DoubleAnimation(1d, 0d, new Duration(TimeSpan.FromSeconds(0.5d)))
-            {
-                BeginTime = TimeSpan.FromSeconds(1.5d)
-            };
-
-            Storyboard.SetTarget(fadeOutAnimation, popupContent);
-            Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(OpacityProperty));
-
-            var storyboard = new Storyboard { Children = { fadeInAnimation, fadeOutAnimation } };
-            storyboard.Completed += (obj, args) => popup.IsOpen = false;
-
-            popup.IsOpen = true;
-            FocusManager.SetFocusedElement(popup, popupTextBlock);
-            popup.Focus();
-            popup.BeginStoryboard(storyboard);
-        }
-
         private static bool TryReplaceWithParameter(
             string parameter,
             out UIElement popupElement,
             out Point? popupPoint)
         {
-            popupElement = null;
+            popupElement = WorkbenchSingleton.MainWindow.EnsureNotNull();
             popupPoint = null;
 
             var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
@@ -210,6 +126,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             var textEditor = textEditorProvider.TextEditor;
             if (textEditor == null)
+            {
+                return false;
+            }
+
+            if (textEditor.SelectedText.IsNullOrEmpty())
             {
                 return false;
             }
@@ -227,11 +148,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                         VisualYPosition.LineBottom);
                     popupPoint = visualPosition - textArea.TextView.ScrollOffset;
                 }
-            }
-
-            if (textEditor.SelectedText.IsNullOrEmpty())
-            {
-                return false;
             }
 
             textEditor.SelectedText = parameter;
@@ -422,12 +338,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             Point? popupPoint;
             if (TryReplaceWithParameter(parameter, out popupElement, out popupPoint))
             {
-                ShowInfoPopup(Properties.Resources.ReplacedWithParameterPopupText, popupElement, popupPoint);
+                UIHelper.ShowInfoPopup(popupElement, Properties.Resources.ReplacedWithParameterPopupText, popupPoint);
                 return;
             }
 
             Clipboard.SetText(parameter);
-            ShowInfoPopup(Properties.Resources.CopiedToClipboardPopupText, this, null);
+            UIHelper.ShowInfoPopup(this, Properties.Resources.CopiedToClipboardPopupText);
         }
 
         #endregion

@@ -34,6 +34,19 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
 
         #endregion
 
+        #region Private Properties
+
+        private static Window WorkbenchMainWindow
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return WorkbenchSingleton.MainWindow.EnsureNotNull();
+            }
+        }
+
+        #endregion
+
         #region Private Methods
 
         private static void InitializeSettingManager()
@@ -60,25 +73,25 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
 
         private void WorkbenchSingleton_WorkbenchCreated(object sender, EventArgs e)
         {
-            WorkbenchSingleton.Workbench.MainWindow.IsVisibleChanged += this.MainWindow_IsVisibleChanged;
-            WorkbenchSingleton.Workbench.MainWindow.Activated += this.MainWindow_Activated;
+            WorkbenchMainWindow.IsVisibleChanged += this.MainWindow_IsVisibleChanged;
+            WorkbenchMainWindow.Activated += this.MainWindow_Activated;
         }
 
         private void MainWindow_Activated(object sender, EventArgs eventArgs)
         {
-            WorkbenchSingleton.Workbench.MainWindow.Activated -= this.MainWindow_Activated;
+            WorkbenchMainWindow.Activated -= this.MainWindow_Activated;
 
             WizardPad.ShowInWorkbench();
         }
 
         private void MainWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (!WorkbenchSingleton.Workbench.MainWindow.IsVisible)
+            if (!WorkbenchMainWindow.IsVisible)
             {
                 return;
             }
 
-            WorkbenchSingleton.Workbench.MainWindow.IsVisibleChanged -= this.MainWindow_IsVisibleChanged;
+            WorkbenchMainWindow.IsVisibleChanged -= this.MainWindow_IsVisibleChanged;
 
             WizardPad.ShowInWorkbench();
         }

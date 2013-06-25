@@ -81,7 +81,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Pads
 
         public static PadDescriptor FindPadDescriptor()
         {
-            return WorkbenchSingleton.Workbench.GetPad(typeof(WizardPad));
+            return WorkbenchSingleton.Workbench.EnsureNotNull().GetPad(typeof(WizardPad));
         }
 
         public static WizardPad FindPad()
@@ -132,7 +132,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Pads
 
         private static void DoActivate(PadDescriptor padDescriptor)
         {
-            var workbenchLayout = WorkbenchSingleton.Workbench.WorkbenchLayout;
+            var workbenchLayout = WorkbenchSingleton.Workbench.EnsureNotNull().WorkbenchLayout;
             workbenchLayout.ShowPad(padDescriptor);
             workbenchLayout.ActivatePad(padDescriptor);
 

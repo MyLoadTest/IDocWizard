@@ -5,13 +5,8 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.SharpDevelop.Editor;
@@ -81,7 +76,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             var isVisibleChanged = new ValueHolder<DependencyPropertyChangedEventHandler>();
 
             isVisibleChanged.Value =
-                (sender, args) =>
+                (sender, e) =>
                 {
                     if (!controlToFocus.IsVisible)
                     {
@@ -143,6 +138,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 textArea = viewContent.InitiallyFocusedControl as TextArea;
                 if (textArea != null && textArea.TextView != null)
                 {
+                    textArea.Caret.BringCaretToView();
+
                     popupElement = textArea.TextView;
 
                     var visualPosition = textArea.TextView.GetVisualPosition(

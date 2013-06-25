@@ -135,12 +135,16 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return false;
             }
 
+            TextArea textArea = null;
+
             var viewContent = activeViewContent as IViewContent;
             if (viewContent != null)
             {
-                var textArea = viewContent.InitiallyFocusedControl as TextArea;
+                textArea = viewContent.InitiallyFocusedControl as TextArea;
                 if (textArea != null && textArea.TextView != null)
                 {
+                    textArea.Caret.BringCaretToView();
+
                     popupElement = textArea.TextView;
 
                     var visualPosition = textArea.TextView.GetVisualPosition(
@@ -151,6 +155,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
 
             textEditor.SelectedText = parameter;
+
+            if (textArea != null)
+            {
+                textArea.Caret.BringCaretToView();
+            }
+
             return true;
         }
 

@@ -65,21 +65,12 @@ namespace MyLoadTest.SapIDocGenerator.UI
                 HorizontalOffset = popupPoint.HasValue ? popupPoint.Value.X : 0,
                 VerticalOffset = popupPoint.HasValue ? popupPoint.Value.Y : 0,
                 PopupAnimation = PopupAnimation.None,
-                Focusable = true,
+                Focusable = false,
                 Opacity = 0d,
                 Child = popupContent
             };
 
-            popup.MouseUp += (obj, args) => popup.IsOpen = false;
-
-            popup.PreviewKeyDown +=
-                (obj, args) =>
-                {
-                    if (args.Key == Key.Escape)
-                    {
-                        popup.IsOpen = false;
-                    }
-                };
+            popup.MouseUp += (sender, e) => popup.IsOpen = false;
 
             var fadeInAnimation = new DoubleAnimation(0d, 1d, new Duration(TimeSpan.FromSeconds(0.5d)));
             Storyboard.SetTarget(fadeInAnimation, popupContent);
@@ -94,12 +85,11 @@ namespace MyLoadTest.SapIDocGenerator.UI
             Storyboard.SetTargetProperty(fadeOutAnimation, new PropertyPath(UIElement.OpacityProperty));
 
             var storyboard = new Storyboard { Children = { fadeInAnimation, fadeOutAnimation } };
-            storyboard.Completed += (obj, args) => popup.IsOpen = false;
+            storyboard.Completed += (sender, args) => popup.IsOpen = false;
+
+            popup.Opened += (sender, e) => popup.BeginStoryboard(storyboard);
 
             popup.IsOpen = true;
-            popup.Focus();
-            FocusManager.SetFocusedElement(popup, popupTextBlock);
-            popup.BeginStoryboard(storyboard);
         }
 
         #endregion

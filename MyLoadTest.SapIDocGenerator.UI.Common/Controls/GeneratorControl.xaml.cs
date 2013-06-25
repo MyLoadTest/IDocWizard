@@ -143,8 +143,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 textArea = viewContent.InitiallyFocusedControl as TextArea;
                 if (textArea != null && textArea.TextView != null)
                 {
-                    textArea.Caret.BringCaretToView();
-
                     popupElement = textArea.TextView;
 
                     var visualPosition = textArea.TextView.GetVisualPosition(

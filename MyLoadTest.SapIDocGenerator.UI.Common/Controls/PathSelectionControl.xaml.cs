@@ -223,7 +223,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     break;
 
                 default:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException();
             }
         }
 

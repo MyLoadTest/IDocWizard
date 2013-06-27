@@ -6,11 +6,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Rendering;
-using ICSharpCode.SharpDevelop.Editor;
-using ICSharpCode.SharpDevelop.Gui;
 using ICSharpCode.SharpDevelop.Project;
 using Microsoft.Win32;
 
@@ -21,7 +16,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         #region Constants and Fields
 
         private const string MainActionName = "Action";
-        private const string IdocParameterFormat = "{{IDoc:{0}:{1}}}";
 
         #endregion
 
@@ -63,101 +57,12 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public void ActivateParameters()
         {
             ActivateTab(GeneratorControlTab.Parameters);
-
-            var controlToFocus = this.ViewModel.ParametersPage.IdocItemsView.CurrentItem == null
-                ? (Control)this.IdocItemsComboBox
-                : this.ParameterTreeView;
-
-            if (controlToFocus == null)
-            {
-                return;
-            }
-
-            var isVisibleChanged = new ValueHolder<DependencyPropertyChangedEventHandler>();
-
-            isVisibleChanged.Value =
-                (sender, e) =>
-                {
-                    if (!controlToFocus.IsVisible)
-                    {
-                        return;
-                    }
-
-                    var f = controlToFocus.Focus();
-                    System.Diagnostics.Trace.WriteLine(f);
-
-                    controlToFocus.IsVisibleChanged -= isVisibleChanged.Value.EnsureNotNull();
-                };
-
-            if (controlToFocus.IsVisible)
-            {
-                isVisibleChanged.Value(controlToFocus, new DependencyPropertyChangedEventArgs());
-            }
-            else
-            {
-                controlToFocus.IsVisibleChanged += isVisibleChanged.Value.EnsureNotNull();
-            }
+            this.ParametersPage.ActivateControl();
         }
 
         #endregion
 
         #region Private Methods
-
-        private static bool TryReplaceWithParameter(
-            string parameter,
-            out UIElement popupElement,
-            out Point? popupPoint)
-        {
-            popupElement = WorkbenchSingleton.MainWindow.EnsureNotNull();
-            popupPoint = null;
-
-            var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
-            object activeViewContent = workbench.ActiveViewContent;
-            var textEditorProvider = activeViewContent as ITextEditorProvider;
-            if (textEditorProvider == null)
-            {
-                return false;
-            }
-
-            var textEditor = textEditorProvider.TextEditor;
-            if (textEditor == null)
-            {
-                return false;
-            }
-
-            if (textEditor.SelectedText.IsNullOrEmpty())
-            {
-                return false;
-            }
-
-            TextArea textArea = null;
-
-            var viewContent = activeViewContent as IViewContent;
-            if (viewContent != null)
-            {
-                textArea = viewContent.InitiallyFocusedControl as TextArea;
-                if (textArea != null && textArea.TextView != null)
-                {
-                    textArea.Caret.BringCaretToView();
-
-                    popupElement = textArea.TextView;
-
-                    var visualPosition = textArea.TextView.GetVisualPosition(
-                        new TextViewPosition(textArea.Caret.Line, textArea.Caret.Column),
-                        VisualYPosition.LineBottom);
-                    popupPoint = visualPosition - textArea.TextView.ScrollOffset;
-                }
-            }
-
-            textEditor.SelectedText = parameter;
-
-            if (textArea != null)
-            {
-                textArea.Caret.BringCaretToView();
-            }
-
-            return true;
-        }
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
@@ -321,34 +226,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             this.ViewModel.ImportPage.RefreshRepositoryItems();
-        }
-
-        private void ReplaceOrCopyButton_Click(object sender, RoutedEventArgs e)
-        {
-            var fieldTreeNode = this.ViewModel.ParametersPage.GetSelectedIdocTreeNode();
-            if (fieldTreeNode == null || fieldTreeNode.Parent == null)
-            {
-                return;
-            }
-
-            var segmentTreeNode = fieldTreeNode.Parent.EnsureNotNull();
-
-            var parameter = string.Format(
-                CultureInfo.InvariantCulture,
-                IdocParameterFormat,
-                segmentTreeNode.Name,
-                fieldTreeNode.Name);
-
-            UIElement popupElement;
-            Point? popupPoint;
-            if (TryReplaceWithParameter(parameter, out popupElement, out popupPoint))
-            {
-                UIHelper.ShowInfoPopup(popupElement, Properties.Resources.ReplacedWithParameterPopupText, popupPoint);
-                return;
-            }
-
-            Clipboard.SetText(parameter);
-            UIHelper.ShowInfoPopup(this, Properties.Resources.CopiedToClipboardPopupText);
         }
 
         #endregion

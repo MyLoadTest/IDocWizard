@@ -25,10 +25,10 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
         /// </summary>
         public override void Run()
         {
-            ////if (DoTest())
-            ////{
-            ////    return;
-            ////}
+            if (ShowParametersPopup())
+            {
+                return;
+            }
 
             var wizardPad = WizardPad.ShowInWorkbench();
             if (wizardPad != null)
@@ -39,7 +39,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
 
         #endregion
 
-        private static bool DoShowTestPopup(TextArea textArea, Point? popupPoint = null)
+        #region Private Methods
+
+        private static bool DoShowParametersPopup(TextArea textArea, Point popupPoint)
         {
             #region Argument Check
 
@@ -56,13 +58,22 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 return false;
             }
 
-            var popupTextBlock = new TextBox
+            var wizardPad = WizardPad.FindPad();
+            if (wizardPad == null)
             {
-                Text = text,
-                Background = SystemColors.HighlightBrush,
-                Foreground = SystemColors.HighlightTextBrush,
-                FontSize = 20,
-                Padding = new Thickness(5d)
+                return false;
+            }
+
+            const int Height = 400;
+            var parametersPage = new ParametersPageControl
+            {
+                Height = Height,
+                MainGridMaxHeight = Height - 20,
+                ViewModel =
+                {
+                    ImportPage = { RepositoryPath = wizardPad.InnerControl.ViewModel.ImportPage.RepositoryPath },
+                    ParametersPage = { IsReplaceMode = true }
+                }
             };
 
             var popupContent = new Grid
@@ -74,7 +85,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                     {
                         BorderThickness = new Thickness(2d),
                         BorderBrush = SystemColors.ActiveBorderBrush,
-                        Child = popupTextBlock
+                        Child = parametersPage
                     }
                 }
             };
@@ -84,19 +95,17 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 IsOpen = false,
                 StaysOpen = false,
                 AllowsTransparency = true,
-                Placement = popupPoint.HasValue ? PlacementMode.Relative : PlacementMode.Center,
+                Placement = PlacementMode.Relative,
                 PlacementTarget = textArea,
-                HorizontalOffset = popupPoint.HasValue ? popupPoint.Value.X : 0,
-                VerticalOffset = popupPoint.HasValue ? popupPoint.Value.Y : 0,
+                HorizontalOffset = popupPoint.X,
+                VerticalOffset = popupPoint.Y,
                 PopupAnimation = PopupAnimation.None,
-                Focusable = true,
+                Focusable = false,
                 Opacity = 0d,
                 Child = popupContent
             };
 
             popup.Closed += (sender, e) => textArea.Focus();
-
-            popup.MouseUp += (sender, e) => popup.IsOpen = false;
 
             popup.PreviewKeyDown +=
                 (sender, e) =>
@@ -106,20 +115,18 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                         case Key.Escape:
                             popup.IsOpen = false;
                             break;
-
-                        case Key.Enter:
-                            textArea.Selection.ReplaceSelectionWithText(textArea, popupTextBlock.Text);
-                            popup.IsOpen = false;
-                            break;
                     }
                 };
 
-            popup.IsOpen = true;
+            parametersPage.ActionExecuted += (sender, e) => popup.IsOpen = false;
 
+            //// TODO [vmaklai] Preselect TreeView item if its value is equal to selected text
+
+            popup.IsOpen = true;
             return true;
         }
 
-        private static bool DoTest()
+        private static bool ShowParametersPopup()
         {
             var workbench = WorkbenchSingleton.Workbench.EnsureNotNull();
             object activeViewContent = workbench.ActiveViewContent;
@@ -159,7 +166,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 VisualYPosition.LineBottom);
             var popupPoint = visualPosition - textArea.TextView.ScrollOffset;
 
-            return DoShowTestPopup(textArea, popupPoint);
+            return DoShowParametersPopup(textArea, popupPoint);
         }
+
+        #endregion
     }
 }

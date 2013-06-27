@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="MyLoadTest.SapIDocGenerator.UI.Controls.ParametersPageControl"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
+        xmlns:converters="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Converters"
+        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignWidth="500"
+        d:DesignHeight="300">
+    <UserControl.Resources>
+        <Thickness x:Key="DefaultMargin" Left="0" Top="2" Right="0" Bottom="2" />
+        <Thickness x:Key="TabGridMargin" Left="10" Top="5" Right="10" Bottom="5" />
+        <converters:BooleanToVisibilityConverter x:Key="TreeNodeValueVisibilityConverter" />
+        <converters:BooleanToVisibilityConverter x:Key="ParametersTabPanelVisibilityConverter" TrueValue="Collapsed"
+                FalseValue="Visible" />
+        <converters:BooleanToStringConverter x:Key="CopyReplaceButtonTitleConverter"
+                TrueValue="{x:Static props:Resources.CopyReplaceButtonReplaceModeTitle}"
+                FalseValue="{x:Static props:Resources.CopyReplaceButtonCopyModeTitle}" />
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
+    </UserControl.DataContext>
+    <Grid>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid Name="MainGrid" Margin="{StaticResource TabGridMargin}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.RowSpan="3" Panel.ZIndex="9999" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Opacity="0.5" Background="Silver"
+                        Visibility="{Binding ImportPage.IsParametersTabAvailable,Converter={StaticResource ParametersTabPanelVisibilityConverter}}">
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                            Text="Repository path is not selected" />
+                </Grid>
+
+                <ComboBox Grid.Row="0" Margin="{StaticResource DefaultMargin}" Name="IdocItemsComboBox"
+                        ItemsSource="{Binding ParametersPage.IdocItemsView}" IsSynchronizedWithCurrentItem="True"
+                        IsEditable="False" HorizontalAlignment="Stretch" Focusable="True" />
+
+                <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
+                        Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" ItemsSource="{Binding ParametersPage.IdocTreeNodesView}"
+                        Focusable="False" ScrollViewer.CanContentScroll="True"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsSelected"
+                                    d:DataContext="{d:DesignInstance Type=controls:IdocTreeNode}"
+                                    Value="{Binding IsSelected, Mode=TwoWay}" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="controls:IdocTreeNode">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text="=" Margin="5,0"
+                                        Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                                <TextBlock Text="{Binding Value}"
+                                        Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+
+                <Button Grid.Row="2"
+                        Content="{Binding ParametersPage.IsReplaceMode,Converter={StaticResource CopyReplaceButtonTitleConverter}}"
+                        MinWidth="100" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Left"
+                        IsEnabled="{Binding ParametersPage.IsReplaceOrCopyButtonEnabled}"
+                        Click="ReplaceOrCopyButton_Click" />
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

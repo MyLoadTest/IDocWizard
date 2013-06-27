@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,6 +24,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         private readonly List<IdocTreeNode> _idocTreeNodes;
 
         private bool _wasSelectedFolderRestored;
+        private bool _isReplaceMode;
 
         #endregion
 
@@ -78,6 +80,26 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
+        public bool IsReplaceMode
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _isReplaceMode;
+            }
+
+            set
+            {
+                if (_isReplaceMode == value)
+                {
+                    return;
+                }
+
+                _isReplaceMode = value;
+                RaisePropertyChanged(obj => obj.IsReplaceMode);
+            }
+        }
+
         #endregion
 
         #region Public Methods
@@ -111,6 +133,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
 
             RaisePropertyChanged(obj => obj.IdocItemsView);
+        }
+
+        public RepositoryItem[] GetIdocItems()
+        {
+            return _idocItems.Select(obj => obj.Value).ToArray();
         }
 
         public IdocTreeNode GetSelectedIdocTreeNode()

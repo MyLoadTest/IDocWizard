@@ -79,6 +79,24 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copy to Clipboard.
+        /// </summary>
+        public static string CopyReplaceButtonCopyModeTitle {
+            get {
+                return ResourceManager.GetString("CopyReplaceButtonCopyModeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace.
+        /// </summary>
+        public static string CopyReplaceButtonReplaceModeTitle {
+            get {
+                return ResourceManager.GetString("CopyReplaceButtonReplaceModeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create.
         /// </summary>
         public static string CreateButtonTitle {

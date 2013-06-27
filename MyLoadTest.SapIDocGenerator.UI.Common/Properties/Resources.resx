@@ -173,4 +173,10 @@
   <data name="ReplacedWithParameterPopupText" xml:space="preserve">
     <value>The text has been replaced with the IDoc parameter</value>
   </data>
+  <data name="CopyReplaceButtonCopyModeTitle" xml:space="preserve">
+    <value>Copy to Clipboard</value>
+  </data>
+  <data name="CopyReplaceButtonReplaceModeTitle" xml:space="preserve">
+    <value>Replace</value>
+  </data>
 </root>

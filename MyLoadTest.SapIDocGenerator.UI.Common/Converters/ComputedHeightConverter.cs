@@ -55,7 +55,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Converters
                 result += index == 0 ? castValue : -castValue;
             }
 
-            return result;
+            return result > 0 ? result : 0d;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

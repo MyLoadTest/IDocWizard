@@ -44,7 +44,7 @@
                 <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
                         Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" ItemsSource="{Binding ParametersPage.IdocTreeNodesView}"
-                        Focusable="False" ScrollViewer.CanContentScroll="True"
+                        Focusable="True" ScrollViewer.CanContentScroll="True"
                         ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="TreeViewItem">

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Rendering;
@@ -31,6 +32,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             InitializeComponent();
 
+            this.Loaded += this.Control_Loaded;
             this.MainGridMaxHeight = this.MainGrid.MaxHeight;
         }
 
@@ -179,6 +181,47 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             return true;
         }
 
+        private void FocusSelectedNode()
+        {
+            var selectedNode = this.ViewModel.ParametersPage.GetSelectedIdocTreeNode();
+            if (selectedNode == null)
+            {
+                return;
+            }
+
+            var stack = new Stack<IdocTreeNode>();
+            var currentNode = selectedNode;
+            while (currentNode != null)
+            {
+                stack.Push(currentNode);
+
+                currentNode = currentNode.Parent;
+            }
+
+            var itemsControl = (ItemsControl)this.ParameterTreeView;
+            while (stack.Count > 0)
+            {
+                var node = stack.Pop();
+
+                var tvi = (TreeViewItem)itemsControl.ItemContainerGenerator.ContainerFromItem(node);
+                if (tvi == null)
+                {
+                    break;
+                }
+
+                if (stack.Count == 0)
+                {
+                    FocusManager.SetFocusedElement(this, this.ParameterTreeView);
+                    tvi.Focus();
+                    break;
+                }
+
+                tvi.IsExpanded = true;
+                tvi.UpdateLayout();  // Forcing to generate child items
+                itemsControl = tvi;
+            }
+        }
+
         private void ReplaceOrCopyButton_Click(object sender, RoutedEventArgs e)
         {
             //// Move this method's logic to the View Model
@@ -216,6 +259,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             Clipboard.SetText(parameter);
             UIHelper.ShowInfoPopup(this, Properties.Resources.CopiedToClipboardPopupText);
             RaiseActionExecuted(false);
+        }
+
+        private void Control_Loaded(object sender, RoutedEventArgs routedEventArgs)
+        {
+            FocusSelectedNode();
         }
 
         #endregion

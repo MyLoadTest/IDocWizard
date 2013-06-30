@@ -53,7 +53,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
             #endregion
 
             var text = textArea.Selection.GetText(textArea.Document);
-            if (text.IsNullOrWhiteSpace())
+            if (text.IsNullOrEmpty())
             {
                 return false;
             }
@@ -67,6 +67,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
             const int Height = 400;
             var parametersPage = new ParametersPageControl
             {
+                Width = 600,
                 Height = Height,
                 MainGridMaxHeight = Height - 20,
                 ViewModel =
@@ -75,6 +76,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                     ParametersPage = { IsReplaceMode = true }
                 }
             };
+
+            var initiallySelectedNode = parametersPage.ViewModel.ParametersPage.FindValueNode(text);
+            parametersPage.ViewModel.ParametersPage.SetSelectedIdocTreeNode(initiallySelectedNode);
 
             var popupContent = new Grid
             {
@@ -104,6 +108,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 Opacity = 0d,
                 Child = popupContent
             };
+
+            if (initiallySelectedNode != null)
+            {
+                FocusManager.SetFocusedElement(popup, parametersPage);
+            }
 
             popup.Closed += (sender, e) => textArea.Focus();
 

@@ -145,6 +145,30 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             return GetSelectedIdocTreeNodeInternal(_idocTreeNodes);
         }
 
+        public bool SetSelectedIdocTreeNode(IdocTreeNode selectedNode)
+        {
+            return SetSelectedIdocTreeNodeInternal(_idocTreeNodes, selectedNode);
+        }
+
+        public IdocTreeNode FindValueNode(string value)
+        {
+            if (value.IsNullOrEmpty())
+            {
+                return null;
+            }
+
+            foreach (var node in _idocTreeNodes)
+            {
+                var found = node.Children.FirstOrDefault(obj => obj.Value == value);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region Private Methods
@@ -166,6 +190,36 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
 
             return null;
+        }
+
+        private static bool SetSelectedIdocTreeNodeInternal(
+            ICollection<IdocTreeNode> idocTreeNodes,
+            IdocTreeNode selectedNode)
+        {
+            #region Argument Check
+
+            if (idocTreeNodes == null)
+            {
+                throw new ArgumentNullException("idocTreeNodes");
+            }
+
+            #endregion
+
+            if (idocTreeNodes.Count == 0)
+            {
+                return false;
+            }
+
+            var result = false;
+            foreach (var idocTreeNode in idocTreeNodes)
+            {
+                idocTreeNode.IsSelected = idocTreeNode == selectedNode;
+                result |= idocTreeNode.IsSelected;
+
+                result |= SetSelectedIdocTreeNodeInternal(idocTreeNode.Children, selectedNode);
+            }
+
+            return result;
         }
 
         private void RaisePropertyChanged<T>(

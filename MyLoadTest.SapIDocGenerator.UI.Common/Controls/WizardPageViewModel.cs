@@ -128,6 +128,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             var scriptFilePath = script.FileName;
 
+            //// TODO [vmaklai] Open and modify file in editor rather than directly on disk
+
             CopyIdocFiles(scriptFilePath);
             CheckAndUpdateScriptFile(scriptFilePath);
             UpdateActionFile(actionItem);

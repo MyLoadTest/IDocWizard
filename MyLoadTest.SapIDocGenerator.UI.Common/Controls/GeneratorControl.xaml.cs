@@ -24,6 +24,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         public GeneratorControl()
         {
             InitializeComponent();
+
+            this.ParametersPage.ViewModel = this.ViewModel;  // Synchronizing model instance
         }
 
         #endregion

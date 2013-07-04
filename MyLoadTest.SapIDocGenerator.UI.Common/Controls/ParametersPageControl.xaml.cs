@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -33,6 +35,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             InitializeComponent();
 
             this.Loaded += this.Control_Loaded;
+            ChangeViewModelEventSubscription(true);
             this.MainGridMaxHeight = this.MainGrid.MaxHeight;
         }
 
@@ -46,6 +49,31 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Public Properties
 
+        public GeneratorControlViewModel ViewModel
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return this.InternalViewModel.EnsureNotNull();
+            }
+
+            set
+            {
+                #region Argument Check
+
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                #endregion
+
+                ChangeViewModelEventSubscription(false);
+                this.InternalViewModel = value;
+                ChangeViewModelEventSubscription(true);
+            }
+        }
+
         public double MainGridMaxHeight
         {
             get
@@ -56,6 +84,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             set
             {
                 SetValue(MainGridMaxHeightProperty, value);
+            }
+        }
+
+        public TreeView ParameterTreeViewReference
+        {
+            [DebuggerNonUserCode]
+            get
+            {
+                return this.ParameterTreeView;
             }
         }
 
@@ -85,7 +122,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     }
 
                     var f = controlToFocus.Focus();
-                    System.Diagnostics.Trace.WriteLine(f);
+                    Trace.WriteLine(f);
 
                     controlToFocus.IsVisibleChanged -= isVisibleChanged.Value.EnsureNotNull();
                 };
@@ -98,6 +135,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             {
                 controlToFocus.IsVisibleChanged += isVisibleChanged.Value.EnsureNotNull();
             }
+        }
+
+        public void PerformAction()
+        {
+            DoAction();
         }
 
         #endregion
@@ -181,6 +223,23 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             return true;
         }
 
+        private void ChangeViewModelEventSubscription(bool subscribe)
+        {
+            if (this.InternalViewModel == null)
+            {
+                return;
+            }
+
+            if (subscribe)
+            {
+                this.InternalViewModel.ParametersPage.PropertyChanged += this.ParametersPage_PropertyChanged;
+            }
+            else
+            {
+                this.InternalViewModel.ParametersPage.PropertyChanged -= this.ParametersPage_PropertyChanged;
+            }
+        }
+
         private void FocusSelectedNode()
         {
             var selectedNode = this.ViewModel.ParametersPage.GetSelectedIdocTreeNode();
@@ -222,7 +281,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        private void ReplaceOrCopyButton_Click(object sender, RoutedEventArgs e)
+        private void DoAction()
         {
             //// Move this method's logic to the View Model
 
@@ -261,9 +320,22 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             RaiseActionExecuted(false);
         }
 
-        private void Control_Loaded(object sender, RoutedEventArgs routedEventArgs)
+        private void Control_Loaded(object sender, RoutedEventArgs e)
         {
             FocusSelectedNode();
+        }
+
+        private void ReplaceOrCopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            DoAction();
+        }
+
+        private void ParametersPage_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == ParametersPageViewModel.IdocTreeNodesViewPropertyName)
+            {
+                FocusSelectedNode();
+            }
         }
 
         #endregion

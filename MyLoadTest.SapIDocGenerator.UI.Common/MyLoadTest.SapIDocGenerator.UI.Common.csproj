@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="ControlItem.cs" />
     <Compile Include="ControlItem.Helper.cs" />
+    <Compile Include="Controls\GeneratorControlSubViewModel.cs" />
     <Compile Include="Controls\KeyboardFriendlyPopup.cs" />
     <Compile Include="Controls\GeneratorControlTab.cs" />
     <Compile Include="Controls\IdocTreeNode.cs" />

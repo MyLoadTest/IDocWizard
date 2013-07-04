@@ -23,7 +23,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Public Methods
 
-        public abstract void Reset();
+        public abstract void Reset(bool restoreSettings);
 
         #endregion
 

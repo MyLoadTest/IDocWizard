@@ -72,13 +72,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 MainGridMaxHeight = Height - 20,
                 ViewModel =
                 {
-                    ImportPage = { RepositoryPath = wizardPad.InnerControl.ViewModel.ImportPage.RepositoryPath },
-                    ParametersPage = { IsReplaceMode = true }
+                    ParametersPage = { IsReplaceMode = true, AutoFocusedValue = text }
                 }
             };
 
-            var initiallySelectedNode = parametersPage.ViewModel.ParametersPage.FindValueNode(text);
-            parametersPage.ViewModel.ParametersPage.SetSelectedIdocTreeNode(initiallySelectedNode);
+            // Must be set after the control is created and initialized
+            parametersPage.ViewModel.ImportPage.RepositoryPath =
+                wizardPad.InnerControl.ViewModel.ImportPage.RepositoryPath;
+            parametersPage.ViewModel.ParametersPage.SetSelectedIdocItem(
+                wizardPad.InnerControl.ViewModel.ParametersPage.GetSelectedIdocItem());
 
             var popupContent = new Grid
             {
@@ -109,10 +111,16 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 Child = popupContent
             };
 
-            if (initiallySelectedNode != null)
-            {
-                FocusManager.SetFocusedElement(popup, parametersPage);
-            }
+            popup.PreviewMouseLeftButtonDown +=
+                (sender, e) =>
+                {
+                    if (e.ClickCount == 2)
+                    {
+                        parametersPage.PerformAction();
+                    }
+                };
+
+            FocusManager.SetFocusedElement(popup, parametersPage.ParameterTreeViewReference);
 
             popup.Closed += (sender, e) => textArea.Focus();
 
@@ -124,12 +132,14 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                         case Key.Escape:
                             popup.IsOpen = false;
                             break;
+
+                        case Key.Enter:
+                            parametersPage.PerformAction();
+                            break;
                     }
                 };
 
             parametersPage.ActionExecuted += (sender, e) => popup.IsOpen = false;
-
-            //// TODO [vmaklai] Preselect TreeView item if its value is equal to selected text
 
             popup.IsOpen = true;
             return true;

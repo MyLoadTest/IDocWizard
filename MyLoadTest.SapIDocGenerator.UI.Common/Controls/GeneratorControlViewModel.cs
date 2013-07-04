@@ -18,7 +18,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             this.WizardPage = new WizardPageViewModel(this);
             this.ParametersPage = new ParametersPageViewModel(this);
 
-            Reset();
+            Reset(false);
         }
 
         #endregion
@@ -47,11 +47,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Public Methods
 
-        public override void Reset()
+        public override void Reset(bool restoreSettings)
         {
-            this.WizardPage.Reset();
-            this.ImportPage.Reset();
-            this.ParametersPage.Reset();
+            this.WizardPage.Reset(restoreSettings);
+            this.ImportPage.Reset(restoreSettings);
+            this.ParametersPage.Reset(restoreSettings);
         }
 
         #endregion

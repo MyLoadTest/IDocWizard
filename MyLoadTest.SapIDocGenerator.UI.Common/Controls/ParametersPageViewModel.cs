@@ -12,19 +12,22 @@ using MyLoadTest.Configuration;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public sealed class ParametersPageViewModel : ViewModelBase
+    public sealed class ParametersPageViewModel : GeneratorControlSubViewModel
     {
         #region Constants and Fields
+
+        public static readonly string IdocTreeNodesViewPropertyName =
+            Helper.GetPropertyName((ParametersPageViewModel obj) => obj.IdocTreeNodesView);
 
         private static readonly string IsSelectedPropertyName =
             Helper.GetPropertyName((IdocTreeNode obj) => obj.IsSelected);
 
-        private readonly GeneratorControlViewModel _owner;
         private readonly List<ControlItem<RepositoryItem>> _idocItems;
         private readonly List<IdocTreeNode> _idocTreeNodes;
 
         private bool _wasSelectedFolderRestored;
         private bool _isReplaceMode;
+        private string _autoFocusedValue;
 
         #endregion
 
@@ -34,18 +37,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         ///     Initializes a new instance of the <see cref="ParametersPageViewModel"/> class.
         /// </summary>
         public ParametersPageViewModel(GeneratorControlViewModel owner)
+            : base(owner)
         {
-            #region Argument Check
-
-            if (owner == null)
-            {
-                throw new ArgumentNullException("owner");
-            }
-
-            #endregion
-
-            _owner = owner;
-
             _idocItems = new List<ControlItem<RepositoryItem>>();
             this.IdocItemsView = CollectionViewSource.GetDefaultView(_idocItems);
             this.IdocItemsView.CurrentChanged += this.IdocItemsView_CurrentChanged;
@@ -100,12 +93,37 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
+        public string AutoFocusedValue
+        {
+            [DebuggerStepThrough]
+            get
+            {
+                return _autoFocusedValue;
+            }
+
+            set
+            {
+                if (_autoFocusedValue == value)
+                {
+                    return;
+                }
+
+                _autoFocusedValue = value;
+                RaisePropertyChanged(obj => obj.AutoFocusedValue);
+            }
+        }
+
         #endregion
 
         #region Public Methods
 
-        public override void Reset()
+        public override void Reset(bool restoreSettings)
         {
+            if (!restoreSettings)
+            {
+                return;
+            }
+
             RestoreSelectedFolder();
         }
 
@@ -140,33 +158,27 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             return _idocItems.Select(obj => obj.Value).ToArray();
         }
 
+        public RepositoryItem GetSelectedIdocItem()
+        {
+            var selectedItem = this.IdocItemsView.CurrentItem as ControlItem<RepositoryItem>;
+            return selectedItem == null ? null : selectedItem.Value;
+        }
+
+        public void SetSelectedIdocItem(RepositoryItem item)
+        {
+            if (item == null)
+            {
+                this.IdocItemsView.MoveCurrentTo(null);
+                return;
+            }
+
+            var selectedItem = ControlItem.Create(item);
+            this.IdocItemsView.MoveCurrentTo(selectedItem);
+        }
+
         public IdocTreeNode GetSelectedIdocTreeNode()
         {
             return GetSelectedIdocTreeNodeInternal(_idocTreeNodes);
-        }
-
-        public bool SetSelectedIdocTreeNode(IdocTreeNode selectedNode)
-        {
-            return SetSelectedIdocTreeNodeInternal(_idocTreeNodes, selectedNode);
-        }
-
-        public IdocTreeNode FindValueNode(string value)
-        {
-            if (value.IsNullOrEmpty())
-            {
-                return null;
-            }
-
-            foreach (var node in _idocTreeNodes)
-            {
-                var found = node.Children.FirstOrDefault(obj => obj.Value == value);
-                if (found != null)
-                {
-                    return found;
-                }
-            }
-
-            return null;
         }
 
         #endregion
@@ -190,36 +202,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
 
             return null;
-        }
-
-        private static bool SetSelectedIdocTreeNodeInternal(
-            ICollection<IdocTreeNode> idocTreeNodes,
-            IdocTreeNode selectedNode)
-        {
-            #region Argument Check
-
-            if (idocTreeNodes == null)
-            {
-                throw new ArgumentNullException("idocTreeNodes");
-            }
-
-            #endregion
-
-            if (idocTreeNodes.Count == 0)
-            {
-                return false;
-            }
-
-            var result = false;
-            foreach (var idocTreeNode in idocTreeNodes)
-            {
-                idocTreeNode.IsSelected = idocTreeNode == selectedNode;
-                result |= idocTreeNode.IsSelected;
-
-                result |= SetSelectedIdocTreeNodeInternal(idocTreeNode.Children, selectedNode);
-            }
-
-            return result;
         }
 
         private void RaisePropertyChanged<T>(
@@ -255,11 +237,14 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
 
             var xmlIdocFilePath = selectedRepositoryItem.Value.XmlIdocFiles.First();
+
             XDocument document;
             using (var stream = File.OpenRead(xmlIdocFilePath))
             {
                 document = XDocument.Load(stream);
             }
+
+            var isAlreadyAutoFocused = false;
 
             var segmentElements = document.XPathSelectElements("//*[@SEGMENT='1']");
             foreach (var segmentElement in segmentElements)
@@ -274,8 +259,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                     var fieldTreeNode = new IdocTreeNode(segmentTreeNode)
                     {
                         Name = fieldElement.Name.LocalName,
-                        Value = fieldElement.Value
+                        Value = fieldElement.Value,
+                        IsSelected = !isAlreadyAutoFocused && !this.AutoFocusedValue.IsNullOrEmpty()
+                            && fieldElement.Value == this.AutoFocusedValue
                     };
+
+                    if (fieldTreeNode.IsSelected)
+                    {
+                        isAlreadyAutoFocused = true;
+                    }
 
                     SubscribeToNode(fieldTreeNode);
                     segmentTreeNode.Children.Add(fieldTreeNode);

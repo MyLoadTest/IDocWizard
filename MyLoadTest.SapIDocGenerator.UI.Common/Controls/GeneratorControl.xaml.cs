@@ -25,6 +25,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         {
             InitializeComponent();
 
+            this.Loaded += this.OnLoaded;
+
             this.ParametersPage.ViewModel = this.ViewModel;  // Synchronizing model instance
         }
 
@@ -65,6 +67,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         #endregion
 
         #region Private Methods
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.Reset(true);
+        }
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
@@ -133,7 +140,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Reset();
+            this.ViewModel.WizardPage.Reset(false);
         }
 
         private void NewTypeButton_Click(object sender, RoutedEventArgs e)

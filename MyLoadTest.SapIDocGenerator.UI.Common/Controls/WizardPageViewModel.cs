@@ -9,7 +9,7 @@ using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public sealed class WizardPageViewModel : ViewModelBase
+    public sealed class WizardPageViewModel : GeneratorControlSubViewModel
     {
         #region Constants and Fields
 
@@ -20,7 +20,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private static readonly string[] DllFiles = new[] { DllName, "idoc.pdb" };
 
-        private readonly GeneratorControlViewModel _owner;
         private string _definitionFilePath;
         private string _exampleFilePath;
 
@@ -32,17 +31,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         ///     Initializes a new instance of the <see cref="WizardPageViewModel"/> class.
         /// </summary>
         public WizardPageViewModel(GeneratorControlViewModel owner)
+            : base(owner)
         {
-            #region Argument Check
-
-            if (owner == null)
-            {
-                throw new ArgumentNullException("owner");
-            }
-
-            #endregion
-
-            _owner = owner;
+            // Nothing to do
         }
 
         #endregion
@@ -104,7 +95,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Public Methods
 
-        public override void Reset()
+        public override void Reset(bool restoreSettings)
         {
             this.DefinitionFilePath = string.Empty;
             this.ExampleFilePath = string.Empty;

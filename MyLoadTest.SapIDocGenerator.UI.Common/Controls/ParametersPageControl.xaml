@@ -18,7 +18,7 @@
                 FalseValue="{x:Static props:Resources.CopyReplaceButtonCopyModeTitle}" />
     </UserControl.Resources>
     <UserControl.DataContext>
-        <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
+        <controls:GeneratorControlViewModel x:Name="InternalViewModel" />
     </UserControl.DataContext>
     <Grid>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
@@ -44,7 +44,7 @@
                 <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
                         Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" ItemsSource="{Binding ParametersPage.IdocTreeNodesView}"
-                        Focusable="True" ScrollViewer.CanContentScroll="True"
+                        Focusable="True" BorderThickness="2" ScrollViewer.CanContentScroll="True"
                         ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="TreeViewItem">

@@ -6,20 +6,18 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Windows;
 using System.Windows.Data;
 using System.Xml.Linq;
 using MyLoadTest.Configuration;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public sealed class ImportPageViewModel : ViewModelBase
+    public sealed class ImportPageViewModel : GeneratorControlSubViewModel
     {
         #region Constants and Fields
 
         private static readonly string[] EmptyDirectoryArray = new string[0];
 
-        private readonly GeneratorControlViewModel _owner;
         private readonly List<RepositoryItem> _repositoryItems;
         private string _repositoryPath;
 
@@ -31,18 +29,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         ///     Initializes a new instance of the <see cref="ImportPageViewModel"/> class.
         /// </summary>
         public ImportPageViewModel(GeneratorControlViewModel owner)
+            : base(owner)
         {
-            #region Argument Check
-
-            if (owner == null)
-            {
-                throw new ArgumentNullException("owner");
-            }
-
-            #endregion
-
-            _owner = owner;
-
             _repositoryItems = new List<RepositoryItem>();
 
             this.RepositoryItemsView = CollectionViewSource.GetDefaultView(_repositoryItems);
@@ -110,8 +98,13 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Public Methods
 
-        public override void Reset()
+        public override void Reset(bool restoreSettings)
         {
+            if (!restoreSettings)
+            {
+                return;
+            }
+
             SetRepositoryPathInternal(SettingManager.Instance.RepositoryPath ?? string.Empty, false);
         }
 
@@ -188,7 +181,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 this.RepositoryItemsView.MoveCurrentTo(oldSelectedItem);
             }
 
-            _owner.ParametersPage.SetIdocItems(keepSelection, _repositoryItems);
+            this.Owner.ParametersPage.SetIdocItems(keepSelection, _repositoryItems);
         }
 
         public void CreateNewType(string filePath)

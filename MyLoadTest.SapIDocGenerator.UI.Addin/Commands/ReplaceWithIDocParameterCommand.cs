@@ -64,6 +64,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
                 return false;
             }
 
+            //// TODO [vmaklai] Think up a good idea of popup sizing
+
             const int Height = 400;
             var parametersPage = new ParametersPageControl
             {

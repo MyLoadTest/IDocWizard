@@ -146,6 +146,8 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- TODO [vmaklai] Think up a good idea of content sizing -->
+
             <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}">
                 <controls:ParametersPageControl x:Name="ParametersPage" DataContext="{Binding}">
                     <controls:ParametersPageControl.MainGridMaxHeight>

@@ -19,10 +19,10 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
-        public static readonly DependencyProperty MainGridMaxHeightProperty =
+        public static readonly DependencyProperty ContentMaxHeightProperty =
             Helper.RegisterDependencyProperty(
-                (ParametersPageControl obj) => obj.MainGridMaxHeight,
-                new FrameworkPropertyMetadata(OnMainGridMaxHeightChanged));
+                (ParametersPageControl obj) => obj.ContentMaxHeight,
+                new FrameworkPropertyMetadata(OnContentMaxHeightPropertyChanged));
 
         private const string IdocParameterFormat = "{{IDoc:{0}:{1}}}";
 
@@ -36,7 +36,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             this.Loaded += this.Control_Loaded;
             ChangeViewModelEventSubscription(true);
-            this.MainGridMaxHeight = this.MainGrid.MaxHeight;
+
+            this.ContentMaxHeight = this.MainGrid.MaxHeight;
         }
 
         #endregion
@@ -74,16 +75,16 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        public double MainGridMaxHeight
+        public double ContentMaxHeight
         {
             get
             {
-                return (double)GetValue(MainGridMaxHeightProperty);
+                return (double)GetValue(ContentMaxHeightProperty);
             }
 
             set
             {
-                SetValue(MainGridMaxHeightProperty, value);
+                SetValue(ContentMaxHeightProperty, value);
             }
         }
 
@@ -159,12 +160,27 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Private Methods
 
-        private static void OnMainGridMaxHeightChanged(
+        private static void OnContentMaxHeightPropertyChanged(
             DependencyObject dependencyObject,
             DependencyPropertyChangedEventArgs e)
         {
             var obj = (ParametersPageControl)dependencyObject.EnsureNotNull();
-            obj.MainGrid.MaxHeight = (double)e.NewValue;
+
+            var newValue = (double)e.NewValue;
+
+            if (double.IsInfinity(newValue))
+            {
+                obj.MainGrid.ClearValue(MaxHeightProperty);
+                obj.MainGrid.ClearValue(HeightProperty);
+            }
+            else
+            {
+                const double MagicNumber = 20d;  // TODO [vmaklai] Bad idea: fix it
+                var fixedValue = double.IsNaN(newValue) ? newValue : Math.Max(0d, newValue - MagicNumber);
+
+                obj.MainGrid.MaxHeight = fixedValue;
+                obj.MainGrid.Height = fixedValue;
+            }
         }
 
         private static bool TryReplaceWithParameter(

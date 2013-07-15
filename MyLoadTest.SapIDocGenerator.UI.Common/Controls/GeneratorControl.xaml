@@ -13,7 +13,6 @@
     <UserControl.Resources>
         <Thickness x:Key="DefaultMargin" Left="0" Top="2" Right="0" Bottom="2" />
         <Thickness x:Key="TabGridMargin" Left="10" Top="5" Right="10" Bottom="5" />
-        <converters:BooleanToVisibilityConverter x:Key="TreeNodeValueVisibilityConverter" />
         <converters:ComputedHeightConverter x:Key="ComputedHeightConverter" />
     </UserControl.Resources>
     <Grid>
@@ -150,7 +149,7 @@
 
             <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}">
                 <controls:ParametersPageControl x:Name="ParametersPage" DataContext="{Binding}">
-                    <controls:ParametersPageControl.MainGridMaxHeight>
+                    <controls:ParametersPageControl.ContentMaxHeight>
                         <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
                             <Binding ElementName="Tabs" Path="ActualHeight" />
                             <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
@@ -162,8 +161,9 @@
                             <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
                                     Path="BorderThickness" />
                             <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
+                            <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Padding" />
                         </MultiBinding>
-                    </controls:ParametersPageControl.MainGridMaxHeight>
+                    </controls:ParametersPageControl.ContentMaxHeight>
                 </controls:ParametersPageControl>
             </TabItem>
         </TabControl>

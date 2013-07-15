@@ -71,7 +71,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
             {
                 Width = 600,
                 Height = Height,
-                MainGridMaxHeight = Height - 20,
+                ContentMaxHeight = Height,
                 ViewModel =
                 {
                     ParametersPage = { IsReplaceMode = true, AutoFocusedValue = text }

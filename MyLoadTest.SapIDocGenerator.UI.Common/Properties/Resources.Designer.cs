@@ -205,6 +205,15 @@ namespace MyLoadTest.SapIDocGenerator.UI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Repository path is not selected.
+        /// </summary>
+        public static string RepositoryPathNoSelected {
+            get {
+                return ResourceManager.GetString("RepositoryPathNoSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to INSTRUCTIONS
         ///1. Export the IDoc definition as a C header file and save it to your computer
         ///2. Import the IDoc definition file.

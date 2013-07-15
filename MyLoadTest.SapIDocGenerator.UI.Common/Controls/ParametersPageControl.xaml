@@ -9,7 +9,7 @@
         d:DesignHeight="300">
     <UserControl.Resources>
         <Thickness x:Key="DefaultMargin" Left="0" Top="2" Right="0" Bottom="2" />
-        <Thickness x:Key="TabGridMargin" Left="10" Top="5" Right="10" Bottom="5" />
+        <Thickness x:Key="MainGridMargin" Left="10" Top="5" Right="10" Bottom="5" />
         <converters:BooleanToVisibilityConverter x:Key="TreeNodeValueVisibilityConverter" />
         <converters:BooleanToVisibilityConverter x:Key="ParametersTabPanelVisibilityConverter" TrueValue="Collapsed"
                 FalseValue="Visible" />
@@ -23,7 +23,7 @@
     <Grid>
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid Name="MainGrid" Margin="{StaticResource TabGridMargin}">
+            <Grid Name="MainGrid" Margin="{StaticResource MainGridMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -34,7 +34,7 @@
                         Opacity="0.5" Background="Silver"
                         Visibility="{Binding ImportPage.IsParametersTabAvailable,Converter={StaticResource ParametersTabPanelVisibilityConverter}}">
                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                            Text="Repository path is not selected" />
+                            Text="{x:Static props:Resources.RepositoryPathNoSelected}" />
                 </Grid>
 
                 <ComboBox Grid.Row="0" Margin="{StaticResource DefaultMargin}" Name="IdocItemsComboBox"

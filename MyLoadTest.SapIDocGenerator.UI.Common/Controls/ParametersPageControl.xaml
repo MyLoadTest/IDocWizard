@@ -21,57 +21,52 @@
         <controls:GeneratorControlViewModel x:Name="InternalViewModel" />
     </UserControl.DataContext>
     <Grid>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid Name="MainGrid" Margin="{StaticResource MainGridMargin}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+        <Grid Name="MainGrid" Margin="{StaticResource MainGridMargin}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-                <Grid Grid.RowSpan="3" Panel.ZIndex="9999" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        Opacity="0.5" Background="Silver"
-                        Visibility="{Binding ImportPage.IsParametersTabAvailable,Converter={StaticResource ParametersTabPanelVisibilityConverter}}">
-                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                            Text="{x:Static props:Resources.RepositoryPathNoSelected}" />
-                </Grid>
-
-                <ComboBox Grid.Row="0" Margin="{StaticResource DefaultMargin}" Name="IdocItemsComboBox"
-                        ItemsSource="{Binding ParametersPage.IdocItemsView}" IsSynchronizedWithCurrentItem="True"
-                        IsEditable="False" HorizontalAlignment="Stretch" Focusable="True" />
-
-                <TreeView Grid.Row="1" Name="ParameterTreeView" MinHeight="100"
-                        Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch" ItemsSource="{Binding ParametersPage.IdocTreeNodesView}"
-                        Focusable="True" BorderThickness="2" ScrollViewer.CanContentScroll="True"
-                        ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="TreeViewItem">
-                            <Setter Property="IsSelected"
-                                    d:DataContext="{d:DesignInstance Type=controls:IdocTreeNode}"
-                                    Value="{Binding IsSelected, Mode=TwoWay}" />
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="controls:IdocTreeNode">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" />
-                                <TextBlock Text="=" Margin="5,0"
-                                        Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
-                                <TextBlock Text="{Binding Value}"
-                                        Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
-                            </StackPanel>
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-
-                <Button Grid.Row="2"
-                        Content="{Binding ParametersPage.IsReplaceMode,Converter={StaticResource CopyReplaceButtonTitleConverter}}"
-                        MinWidth="100" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Left"
-                        IsEnabled="{Binding ParametersPage.IsReplaceOrCopyButtonEnabled}"
-                        Click="ReplaceOrCopyButton_Click" />
+            <Grid Grid.RowSpan="3" Panel.ZIndex="9999" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Opacity="0.5" Background="Silver"
+                    Visibility="{Binding ImportPage.IsParametersTabAvailable,Converter={StaticResource ParametersTabPanelVisibilityConverter}}">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Text="{x:Static props:Resources.RepositoryPathNoSelected}" />
             </Grid>
-        </ScrollViewer>
+
+            <ComboBox Grid.Row="0" Margin="{StaticResource DefaultMargin}" Name="IdocItemsComboBox"
+                    ItemsSource="{Binding ParametersPage.IdocItemsView}" IsSynchronizedWithCurrentItem="True"
+                    IsEditable="False" HorizontalAlignment="Stretch" Focusable="True" />
+
+            <TreeView Grid.Row="1" Name="ParameterTreeView" Margin="{StaticResource DefaultMargin}"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    ItemsSource="{Binding ParametersPage.IdocTreeNodesView}" Focusable="True" BorderThickness="2"
+                    ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="IsSelected" d:DataContext="{d:DesignInstance Type=controls:IdocTreeNode}"
+                                Value="{Binding IsSelected, Mode=TwoWay}" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}" DataType="controls:IdocTreeNode">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="=" Margin="5,0"
+                                    Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                            <TextBlock Text="{Binding Value}"
+                                    Visibility="{Binding HasValue,Converter={StaticResource TreeNodeValueVisibilityConverter}}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+
+            <Button Grid.Row="2"
+                    Content="{Binding ParametersPage.IsReplaceMode,Converter={StaticResource CopyReplaceButtonTitleConverter}}"
+                    MinWidth="100" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Left"
+                    IsEnabled="{Binding ParametersPage.IsReplaceOrCopyButtonEnabled}"
+                    Click="ReplaceOrCopyButton_Click" />
+        </Grid>
     </Grid>
 </UserControl>

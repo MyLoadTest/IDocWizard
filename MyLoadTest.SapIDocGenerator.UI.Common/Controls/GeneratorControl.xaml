@@ -61,88 +61,87 @@
             </TabItem>
 
             <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="{StaticResource TabGridMargin}">
-                        <Grid.MaxHeight>
-                            <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
-                                <Binding ElementName="Tabs" Path="ActualHeight" />
-                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                        Path="ActualHeight" />
-                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                        Path="Padding" />
-                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                        Path="Margin" />
-                                <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                        Path="BorderThickness" />
-                                <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
-                            </MultiBinding>
-                        </Grid.MaxHeight>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                <Grid Margin="{StaticResource TabGridMargin}">
+                    <!--<Grid.MaxHeight>
+                        <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
+                            <Binding ElementName="Tabs" Path="ActualHeight" />
+                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                     Path="ActualHeight" />
+                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                     Path="Padding" />
+                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                     Path="Margin" />
+                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
+                                     Path="BorderThickness" />
+                            <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
+                        </MultiBinding>
+                    </Grid.MaxHeight>-->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <controls:PathSelectionControl Grid.Column="0" Margin="{StaticResource DefaultMargin}"
-                                    Mode="DirectorySelection"
-                                    SelectedPath="{Binding ImportPage.RepositoryPath,Mode=TwoWay}"
-                                    IsClearButtonVisible="True" />
-                            <Button Grid.Column="1" Content="Refresh" MinWidth="100" Margin="10,2,0,2"
-                                    Click="RefreshButton_Click"
-                                    IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
-                        </Grid>
-
-                        <ListView Grid.Row="1" Name="RepositoryItemsListView" MinHeight="100"
-                                Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch"
-                                ItemsSource="{Binding Path=ImportPage.RepositoryItemsView}"
-                                IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="True"
-                                ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <ListView.Resources>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.Resources>
-                            <ListView.View>
-                                <GridView AllowsColumnReorder="False">
-                                    <GridViewColumn Header="IDoc Type" Width="300"
-                                            DisplayMemberBinding="{Binding Folder}">
-                                        <GridViewColumn.HeaderContainerStyle>
-                                            <Style TargetType="GridViewColumnHeader">
-                                                <Setter Property="HorizontalContentAlignment" Value="Left" />
-                                            </Style>
-                                        </GridViewColumn.HeaderContainerStyle>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Quantity" Width="100">
-                                        <GridViewColumn.HeaderContainerStyle>
-                                            <Style TargetType="GridViewColumnHeader">
-                                                <Setter Property="HorizontalContentAlignment" Value="Right" />
-                                            </Style>
-                                        </GridViewColumn.HeaderContainerStyle>
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Count}" TextAlignment="Right" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-
-                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="{StaticResource DefaultMargin}">
-                            <Button Content="{x:Static props:Resources.NewTypeButtonContent}" MinWidth="100"
-                                    Margin="0" IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
-                                    Click="NewTypeButton_Click" />
-                            <Button Content="{x:Static props:Resources.ImportButtonContent}" MinWidth="100"
-                                    Margin="10,0,0,0" IsEnabled="{Binding ImportPage.ShouldImportButtonBeEnabled}"
-                                    Click="ImportButton_Click" />
-                        </StackPanel>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <controls:PathSelectionControl Grid.Column="0" Margin="{StaticResource DefaultMargin}"
+                                Mode="DirectorySelection"
+                                SelectedPath="{Binding ImportPage.RepositoryPath,Mode=TwoWay}"
+                                IsClearButtonVisible="True" />
+                        <Button Grid.Column="1" Content="Refresh" MinWidth="100" Margin="10,2,0,2"
+                                Click="RefreshButton_Click"
+                                IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
                     </Grid>
-                </ScrollViewer>
+
+                    <ListView Grid.Row="1" Name="RepositoryItemsListView" Margin="{StaticResource DefaultMargin}"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding Path=ImportPage.RepositoryItemsView}"
+                            IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="True"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.Resources>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.Resources>
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="False">
+                                <GridViewColumn Header="IDoc Type" Width="300"
+                                        DisplayMemberBinding="{Binding Folder}">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Quantity" Width="100">
+                                    <GridViewColumn.HeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <Setter Property="HorizontalContentAlignment" Value="Right" />
+                                        </Style>
+                                    </GridViewColumn.HeaderContainerStyle>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Count}" TextAlignment="Right" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="{StaticResource DefaultMargin}">
+                        <Button Content="{x:Static props:Resources.NewTypeButtonContent}" MinWidth="100" Margin="0"
+                                IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}"
+                                Click="NewTypeButton_Click" />
+                        <Button Content="{x:Static props:Resources.ImportButtonContent}" MinWidth="100"
+                                Margin="10,0,0,0" IsEnabled="{Binding ImportPage.ShouldImportButtonBeEnabled}"
+                                Click="ImportButton_Click" />
+                    </StackPanel>
+                </Grid>
+
             </TabItem>
 
             <!-- TODO [vmaklai] Think up a good idea of content sizing -->

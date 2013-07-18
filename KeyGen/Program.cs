@@ -1,6 +1,7 @@
-﻿namespace MyLoadTest.IDoc
+﻿using MyLoadTest.IDoc.KeyGen;
+
+namespace MyLoadTest.IDoc
 {
-    using NDesk.Options;
     using SoftActivate.Licensing;
     using System;
     using System.Collections.Generic;

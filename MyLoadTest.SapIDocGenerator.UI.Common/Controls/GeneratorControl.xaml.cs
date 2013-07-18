@@ -34,25 +34,25 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Public Methods
 
-        public void ActivateTab(GeneratorControlTab tab)
+        public void ActivateTab(GeneratorControlTabName tabName)
         {
             TabItem tabItem;
-            switch (tab)
+            switch (tabName)
             {
-                case GeneratorControlTab.Wizard:
+                case GeneratorControlTabName.Wizard:
                     tabItem = this.WizardTab;
                     break;
 
-                case GeneratorControlTab.Import:
+                case GeneratorControlTabName.Import:
                     tabItem = this.ImportTab;
                     break;
 
-                case GeneratorControlTab.Parameters:
+                case GeneratorControlTabName.Parameters:
                     tabItem = this.ParametersTab;
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("tab", tab, null);
+                    throw new ArgumentOutOfRangeException("tabName", tabName, null);
             }
 
             this.Tabs.SelectedItem = tabItem;
@@ -60,7 +60,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         public void ActivateParameters()
         {
-            ActivateTab(GeneratorControlTab.Parameters);
+            ActivateTab(GeneratorControlTabName.Parameters);
             this.ParametersPage.ActivateControl();
         }
 

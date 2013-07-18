@@ -1,6 +1,6 @@
 ﻿namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
-    public enum GeneratorControlTab
+    public enum GeneratorControlTabName
     {
         Wizard,
         Import,

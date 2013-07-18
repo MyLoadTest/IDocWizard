@@ -75,7 +75,7 @@
     <Compile Include="ControlItem.Helper.cs" />
     <Compile Include="Controls\GeneratorControlSubViewModel.cs" />
     <Compile Include="Controls\KeyboardFriendlyPopup.cs" />
-    <Compile Include="Controls\GeneratorControlTab.cs" />
+    <Compile Include="Controls\GeneratorControlTabName.cs" />
     <Compile Include="Controls\IdocTreeNode.cs" />
     <Compile Include="Controls\ParametersPageControl.xaml.cs">
       <DependentUpon>ParametersPageControl.xaml</DependentUpon>

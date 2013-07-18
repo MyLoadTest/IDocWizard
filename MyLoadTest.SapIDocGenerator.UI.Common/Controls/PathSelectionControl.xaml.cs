@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
-using TextBox = System.Windows.Controls.TextBox;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {

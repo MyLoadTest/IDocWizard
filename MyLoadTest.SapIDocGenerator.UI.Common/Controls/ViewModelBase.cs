@@ -9,18 +9,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        #region Constructors
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelBase"/> class.
-        /// </summary>
-        protected ViewModelBase()
-        {
-            // Nothing to do
-        }
-
-        #endregion
-
         #region Public Methods
 
         public abstract void Reset(bool restoreSettings);

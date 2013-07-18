@@ -19,11 +19,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
-        public static readonly DependencyProperty ContentMaxHeightProperty =
-            Helper.RegisterDependencyProperty(
-                (ParametersPageControl obj) => obj.ContentMaxHeight,
-                new FrameworkPropertyMetadata(OnContentMaxHeightPropertyChanged));
-
         private const string IdocParameterFormat = "{{IDoc:{0}:{1}}}";
 
         #endregion
@@ -36,8 +31,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             this.Loaded += this.Control_Loaded;
             ChangeViewModelEventSubscription(true);
-
-            this.ContentMaxHeight = this.MainGrid.MaxHeight;
         }
 
         #endregion
@@ -72,19 +65,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 ChangeViewModelEventSubscription(false);
                 this.InternalViewModel = value;
                 ChangeViewModelEventSubscription(true);
-            }
-        }
-
-        public double ContentMaxHeight
-        {
-            get
-            {
-                return (double)GetValue(ContentMaxHeightProperty);
-            }
-
-            set
-            {
-                SetValue(ContentMaxHeightProperty, value);
             }
         }
 
@@ -159,29 +139,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
         #endregion
 
         #region Private Methods
-
-        private static void OnContentMaxHeightPropertyChanged(
-            DependencyObject dependencyObject,
-            DependencyPropertyChangedEventArgs e)
-        {
-            var obj = (ParametersPageControl)dependencyObject.EnsureNotNull();
-
-            var newValue = (double)e.NewValue;
-
-            if (double.IsInfinity(newValue))
-            {
-                obj.MainGrid.ClearValue(MaxHeightProperty);
-                obj.MainGrid.ClearValue(HeightProperty);
-            }
-            else
-            {
-                const double MagicNumber = 20d;  // TODO [vmaklai] Bad idea: fix it
-                var fixedValue = double.IsNaN(newValue) ? newValue : Math.Max(0d, newValue - MagicNumber);
-
-                obj.MainGrid.MaxHeight = fixedValue;
-                obj.MainGrid.Height = fixedValue;
-            }
-        }
 
         private static bool TryReplaceWithParameter(
             string parameter,
@@ -299,7 +256,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private void DoAction()
         {
-            //// Move this method's logic to the View Model
+            //// TODO [vmaklai] Move this method's logic to the View Model
 
             var fieldTreeNode = this.ViewModel.ParametersPage.GetSelectedIdocTreeNode();
             if (fieldTreeNode == null || fieldTreeNode.Parent == null)

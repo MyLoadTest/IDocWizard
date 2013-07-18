@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Windows;
 using System.Windows.Data;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Converters
 {
+    //// DO NOT remove DebugConverter - it can be used for debugging the bindings
+
     public sealed class DebugConverter : IValueConverter, IMultiValueConverter
     {
         #region IValueConverter Members

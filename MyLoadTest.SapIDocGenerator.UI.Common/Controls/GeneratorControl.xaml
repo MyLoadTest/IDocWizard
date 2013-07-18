@@ -4,20 +4,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
-        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
-        xmlns:converters="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Converters" mc:Ignorable="d"
-        d:DesignHeight="300" d:DesignWidth="500" MinWidth="200">
+        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignHeight="300"
+        d:DesignWidth="500" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <Thickness x:Key="DefaultMargin" Left="0" Top="2" Right="0" Bottom="2" />
         <Thickness x:Key="TabGridMargin" Left="10" Top="5" Right="10" Bottom="5" />
-        <converters:ComputedHeightConverter x:Key="ComputedHeightConverter" />
     </UserControl.Resources>
     <Grid>
-        <TabControl Name="Tabs">
-            <TabItem Name="WizardTab" Header="{x:Static props:Resources.WizardTabHeader}">
+        <TabControl Name="Tabs" x:FieldModifier="private">
+            <TabItem Name="WizardTab" Header="{x:Static props:Resources.WizardTabHeader}" x:FieldModifier="private">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <Grid Margin="{StaticResource TabGridMargin}">
                         <Grid.RowDefinitions>
@@ -60,22 +58,8 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}">
+            <TabItem Name="ImportTab" Header="{x:Static props:Resources.ImportTabHeader}" x:FieldModifier="private">
                 <Grid Margin="{StaticResource TabGridMargin}">
-                    <!--<Grid.MaxHeight>
-                        <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
-                            <Binding ElementName="Tabs" Path="ActualHeight" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                     Path="ActualHeight" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                     Path="Padding" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                     Path="Margin" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                     Path="BorderThickness" />
-                            <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
-                        </MultiBinding>
-                    </Grid.MaxHeight>-->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -100,7 +84,7 @@
                             HorizontalAlignment="Stretch"
                             ItemsSource="{Binding Path=ImportPage.RepositoryItemsView}"
                             IsSynchronizedWithCurrentItem="True" ScrollViewer.CanContentScroll="True"
-                            ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            ScrollViewer.VerticalScrollBarVisibility="Auto" x:FieldModifier="private">
                         <ListView.Resources>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -141,29 +125,11 @@
                                 Click="ImportButton_Click" />
                     </StackPanel>
                 </Grid>
-
             </TabItem>
 
-            <!-- TODO [vmaklai] Think up a good idea of content sizing -->
-
-            <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}">
-                <controls:ParametersPageControl x:Name="ParametersPage" DataContext="{Binding}">
-                    <controls:ParametersPageControl.ContentMaxHeight>
-                        <MultiBinding Converter="{StaticResource ComputedHeightConverter}" Mode="OneWay">
-                            <Binding ElementName="Tabs" Path="ActualHeight" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                    Path="ActualHeight" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                    Path="Padding" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                    Path="Margin" />
-                            <Binding RelativeSource="{RelativeSource AncestorType=TabItem,Mode=FindAncestor}"
-                                    Path="BorderThickness" />
-                            <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Margin" />
-                            <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Padding" />
-                        </MultiBinding>
-                    </controls:ParametersPageControl.ContentMaxHeight>
-                </controls:ParametersPageControl>
+            <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}"
+                     x:FieldModifier="private">
+                <controls:ParametersPageControl x:Name="ParametersPage" DataContext="{Binding}" />
             </TabItem>
         </TabControl>
     </Grid>

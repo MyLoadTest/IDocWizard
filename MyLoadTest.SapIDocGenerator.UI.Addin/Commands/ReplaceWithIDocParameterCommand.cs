@@ -66,12 +66,10 @@ namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
 
             //// TODO [vmaklai] Think up a good idea of popup sizing
 
-            const int Height = 400;
             var parametersPage = new ParametersPageControl
             {
                 Width = 600,
-                Height = Height,
-                ContentMaxHeight = Height,
+                Height = 400,
                 ViewModel =
                 {
                     ParametersPage = { IsReplaceMode = true, AutoFocusedValue = text }

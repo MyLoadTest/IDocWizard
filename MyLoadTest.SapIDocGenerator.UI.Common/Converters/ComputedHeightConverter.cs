@@ -8,6 +8,8 @@ using System.Windows.Data;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Converters
 {
+    //// TODO [vmaklai] Remove ComputedHeightConverter - not used anymore
+
     public sealed class ComputedHeightConverter : IMultiValueConverter
     {
         #region IMultiValueConverter Members

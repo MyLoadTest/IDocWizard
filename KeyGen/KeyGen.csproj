@@ -9,9 +9,10 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MyLoadTest.IDoc.KeyGen</RootNamespace>
-    <AssemblyName>keygen</AssemblyName>
+    <AssemblyName>MyLoadTest.IDoc.KeyGen</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -47,17 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OptionAction.cs" />
-    <Compile Include="OptionContext.cs" />
-    <Compile Include="Option.cs" />
-    <Compile Include="OptionException.cs" />
-    <Compile Include="OptionSet.cs" />
-    <Compile Include="OptionValueCollection.cs" />
-    <Compile Include="OptionValueType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="private.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -66,6 +61,12 @@
     <Content Include="Licensing.Net.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyLoadTest.Common\MyLoadTest.Common.csproj">
+      <Project>{B4177FDF-1347-4E46-BC52-8E1559173CEE}</Project>
+      <Name>MyLoadTest.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

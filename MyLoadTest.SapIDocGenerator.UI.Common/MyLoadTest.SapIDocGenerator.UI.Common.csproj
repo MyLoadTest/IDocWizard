@@ -95,7 +95,6 @@
     </Compile>
     <Compile Include="Controls\GeneratorControlViewModel.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
-    <Compile Include="Converters\ComputedHeightConverter.cs" />
     <Compile Include="Converters\BooleanToStringConverter.cs" />
     <Compile Include="Converters\BooleanToValueConverter.cs" />
     <Compile Include="Converters\DebugConverter.cs" />

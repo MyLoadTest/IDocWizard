@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
+using ICSharpCode.SharpDevelop;
+using ICSharpCode.SharpDevelop.Gui;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -119,8 +122,6 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             var scriptFilePath = script.FileName;
 
-            //// TODO [vmaklai] Open and modify file in editor rather than directly on disk
-
             CopyIdocFiles(scriptFilePath);
             CheckAndUpdateScriptFile(scriptFilePath);
             UpdateActionFile(actionItem);
@@ -160,8 +161,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        private void RaisePropertyChanged<T>(
-            Expression<Func<WizardPageViewModel, T>> propertyGetterExpression)
+        private void RaisePropertyChanged<T>(Expression<Func<WizardPageViewModel, T>> propertyGetterExpression)
         {
             RaisePropertyChanged<WizardPageViewModel, T>(propertyGetterExpression);
         }
@@ -190,12 +190,40 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private void UpdateActionFile(IActionScriptItem actionItem)
         {
-            Logger.InfoFormat("Updating action file '{0}'", actionItem.FullFileName);
+            var filePath = actionItem.FullFileName;
+            Logger.InfoFormat("Updating action file '{0}'", filePath);
 
             var definition = SapIDocDefinition.LoadHeader(this.DefinitionFilePath);
             var idocText = File.ReadAllText(this.ExampleFilePath);
             var doc = new SapIDoc(definition, idocText);
             var actionContents = doc.GetVuGenActionContents();
+
+            //// TODO [vmaklai] Open and modify file in editor rather than directly on disk
+
+            #region In-editor Load
+
+            //// In-editor Load approach does not work:
+            ////    VuGen throws ObjectDisposedException with the message:
+            ////        Cannot access a disposed object.
+            ////        Object name: 'the instance has been already disposed and cannot be used'.
+
+            ////var actionContentsData = Encoding.Default.GetBytes(actionContents);
+            ////using (var actionContentsStream = new MemoryStream(actionContentsData, false))
+            ////{
+            ////    var viewContent = FileService.OpenFile(filePath, true);
+            ////    if (viewContent == null)
+            ////    {
+            ////        throw new InvalidOperationException(
+            ////            string.Format(
+            ////                CultureInfo.InvariantCulture,
+            ////                "Unable to open file \"{0}\".",
+            ////                filePath));
+            ////    }
+
+            ////    viewContent.Load(viewContent.PrimaryFile, actionContentsStream);
+            ////}
+
+            #endregion
 
             File.WriteAllText(actionItem.FullFileName, actionContents, Encoding.Default);
         }

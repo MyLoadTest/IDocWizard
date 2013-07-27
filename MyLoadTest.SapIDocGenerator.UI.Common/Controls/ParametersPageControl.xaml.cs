@@ -256,7 +256,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         private void DoAction()
         {
-            //// TODO [vmaklai] Move this method's logic to the View Model
+            //// TODO [vmaklai] Move this method's logic to the View Model (if possible)
 
             var fieldTreeNode = this.ViewModel.ParametersPage.GetSelectedIdocTreeNode();
             if (fieldTreeNode == null || fieldTreeNode.Parent == null)

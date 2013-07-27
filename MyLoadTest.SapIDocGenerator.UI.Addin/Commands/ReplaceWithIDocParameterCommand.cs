@@ -16,7 +16,9 @@ using MyLoadTest.SapIDocGenerator.UI.Controls;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Addin.Commands
 {
+// ReSharper disable UnusedMember.Global - this command is registered within .addin file
     public sealed class ReplaceWithIDocParameterCommand : AbstractMenuCommand
+// ReSharper restore UnusedMember.Global
     {
         #region Public Methods
 

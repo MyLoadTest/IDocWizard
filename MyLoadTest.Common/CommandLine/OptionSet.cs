@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MyLoadTest.IDoc.KeyGen
+namespace MyLoadTest.CommandLine
 {
     public class OptionSet : KeyedCollection<string, Option>
     {
@@ -323,7 +323,12 @@ namespace MyLoadTest.IDoc.KeyGen
             return false;
         }
 
-        protected bool GetOptionParts(string argument, out string flag, out string name, out string sep, out string value)
+        protected static bool GetOptionParts(
+            string argument,
+            out string flag,
+            out string name,
+            out string sep,
+            out string value)
         {
             if (argument == null)
                 throw new ArgumentNullException("argument");

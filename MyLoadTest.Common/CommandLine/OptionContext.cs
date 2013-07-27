@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace MyLoadTest.IDoc.KeyGen
+namespace MyLoadTest.CommandLine
 {
     public class OptionContext
     {

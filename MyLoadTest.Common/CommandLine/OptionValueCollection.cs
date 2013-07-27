@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyLoadTest.IDoc.KeyGen
+namespace MyLoadTest.CommandLine
 {
     public class OptionValueCollection : IList, IList<string>
     {
@@ -13,6 +13,8 @@ namespace MyLoadTest.IDoc.KeyGen
         private readonly OptionContext _optionContext;
 
         #endregion
+
+        #region Constructors
 
         internal OptionValueCollection(OptionContext optionContext)
         {
@@ -27,6 +29,8 @@ namespace MyLoadTest.IDoc.KeyGen
 
             _optionContext = optionContext;
         }
+
+        #endregion
 
         #region Public Methods
 

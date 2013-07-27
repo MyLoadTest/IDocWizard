@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -57,6 +56,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MyLoadTest.Common\MyLoadTest.Common.csproj">
+      <Project>{B4177FDF-1347-4E46-BC52-8E1559173CEE}</Project>
+      <Name>MyLoadTest.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyLoadTest.SapIDocGenerator\MyLoadTest.SapIDocGenerator.csproj">
       <Project>{3FC9243A-EE34-4C2D-ADB5-28D98B3B6FB9}</Project>
       <Name>MyLoadTest.SapIDocGenerator</Name>

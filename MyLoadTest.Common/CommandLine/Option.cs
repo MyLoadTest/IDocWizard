@@ -1,6 +1,4 @@
-﻿// Options.cs
-//
-// Authors:
+﻿// Authors:
 //  Jonathan Pryor <jpryor@novell.com>
 //
 // Copyright (C) 2008 Novell (http://www.novell.com)
@@ -125,7 +123,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace MyLoadTest.IDoc.KeyGen
+namespace MyLoadTest.CommandLine
 {
     public abstract class Option
     {

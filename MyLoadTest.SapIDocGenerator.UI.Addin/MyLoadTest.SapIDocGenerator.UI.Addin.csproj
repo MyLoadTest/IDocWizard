@@ -144,6 +144,7 @@ if /i "%25PRG_FILES%25" equ "" set PRG_FILES=%25ProgramFiles%25
 if /i "%25ADDIN_TARGET_PATH%25" equ "" (
     ::set ADDIN_TARGET_PATH=D:\Work\SharpDevelop.Src\4.1.0.8000_Release\AddIns\$(ProjectName)
     set ADDIN_TARGET_PATH=!VUGEN_PATH!\AddIns\MyLoadTest\$(ProjectName)
+    set ADDIN_TARGET_PATH=!PRG_FILES!\HP\LoadRunner\AddIns\MyLoadTest\$(ProjectName)
 )
 
 echo *** ADDIN_TARGET_PATH = "%25ADDIN_TARGET_PATH%25"

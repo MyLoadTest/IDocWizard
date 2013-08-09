@@ -422,3 +422,15 @@ IDOCREPLAYDLL_API void idoc_free_memory()
 {
     g_allocatedStrings.clear();
 }
+
+/// Saves a string (containing an IDoc) to the file system.
+/// @param the file name (including path) to save the IDoc to.
+/// @param the string containing the IDoc.
+/// @return true if the file was saved successfully.
+IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idoc_string)
+{
+	// any errors should print an error using lr_error_message() and return FALSE;
+	// lr_eval_string() should be called on idoc_string, as it may contain LoadRunner {parameters}.
+
+	return TRUE;
+}

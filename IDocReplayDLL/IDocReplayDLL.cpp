@@ -463,6 +463,18 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
     return TRUE;
 }
 
+/// @brief Creates an IDoc file based on an XML template that contains XPath expressions and saves
+///     it to a {parameter}
+/// @param the name of the LoadRuner {parameter} to save the IDoc to
+/// @param a string containing the IDoc's XML template. This may contain XPath expressions
+/// @return true if the IDoc was created successfully
+/// @todo I haven't quite figured out how this should work, but it may be needed to handle the
+///     situation where the output IDoc has a variable number of segments.
+IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCSTR idocXml)
+{
+	return TRUE;
+}
+
 /// @brief Frees the memory used by ??
 IDOCREPLAYDLL_API void idoc_free_memory()
 {

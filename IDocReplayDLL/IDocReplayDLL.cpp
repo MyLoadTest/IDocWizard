@@ -34,10 +34,10 @@ static const regex g_parameterNameRegex("^[a-zA-Z_][a-zA-Z_0-9]*$");
 namespace
 {
     /// @brief Determines if "parameter substitution" logging is enabled
-	/// @details Runtime Settings > General > Log: Is the "parameter substitution" checkbox ticked?
-	///     Note that logging levels may be changed at runtime.
-	/// @return true if the "parameter substitution" checkbox is ticked.
-	/// @example
+    /// @details Runtime Settings > General > Log: Is the "parameter substitution" checkbox ticked?
+    ///     Note that logging levels may be changed at runtime.
+    /// @return true if the "parameter substitution" checkbox is ticked.
+    /// @example
     ///     if (is_param_log_enabled()) { lr_output_message("my message about params"); }
     bool is_param_log_enabled()
     {
@@ -46,9 +46,9 @@ namespace
     }
 
     /// @brief Determines if "advanced trace" logging is enabled
-	/// @details Runtime Settings > General > Log: Is the "advanced trace" checkbox ticked?
-	///     Note that logging levels may be changed at runtime.
-	/// @return true if the "advanced trace" checkbox is ticked.
+    /// @details Runtime Settings > General > Log: Is the "advanced trace" checkbox ticked?
+    ///     Note that logging levels may be changed at runtime.
+    /// @return true if the "advanced trace" checkbox is ticked.
     /// @example
     ///     if (is_trace_log_enabled()) { lr_output_message("my message about trace"); }
     bool is_trace_log_enabled()
@@ -57,10 +57,10 @@ namespace
         return (log_options & LR_MSG_CLASS_FULL_TRACE) != 0;
     }
 
-	/// @brief Determines if the current license is valid
-	/// @details Before any functions in idoc.dll are called, a license key must be set using the
-	///     idoc_set_license function.
-	/// @return true if the current license key is valid
+    /// @brief Determines if the current license is valid
+    /// @details Before any functions in idoc.dll are called, a license key must be set using the
+    ///     idoc_set_license function.
+    /// @return true if the current license key is valid
     bool ensure_valid_license()
     {
         if (!g_licenseValid)
@@ -472,7 +472,7 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
 ///     situation where the output IDoc has a variable number of segments.
 IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCSTR idocXml)
 {
-	return TRUE;
+    return TRUE;
 }
 
 /// @brief Frees the memory used by ??
@@ -487,8 +487,8 @@ IDOCREPLAYDLL_API void idoc_free_memory()
 /// @return true if the file was saved successfully.
 IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idoc_string)
 {
-	// any errors should print an error using lr_error_message() and return FALSE;
-	// lr_eval_string() should be called on idoc_string, as it may contain LoadRunner {parameters}.
+    // any errors should print an error using lr_error_message() and return FALSE;
+    // lr_eval_string() should be called on idoc_string, as it may contain LoadRunner {parameters}.
 
-	return TRUE;
+    return TRUE;
 }

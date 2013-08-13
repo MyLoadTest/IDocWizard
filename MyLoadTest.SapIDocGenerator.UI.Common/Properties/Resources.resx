@@ -179,7 +179,7 @@
   <data name="CopyReplaceButtonReplaceModeTitle" xml:space="preserve">
     <value>Replace</value>
   </data>
-  <data name="RepositoryPathNoSelected" xml:space="preserve">
+  <data name="RepositoryPathNotSelected" xml:space="preserve">
     <value>Repository path is not selected</value>
   </data>
 </root>

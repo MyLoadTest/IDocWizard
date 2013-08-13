@@ -4,14 +4,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:props="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Properties"
-        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls" mc:Ignorable="d" d:DesignHeight="300"
-        d:DesignWidth="500" MinWidth="200">
+        xmlns:controls="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Controls"
+        xmlns:converters="clr-namespace:MyLoadTest.SapIDocGenerator.UI.Converters" mc:Ignorable="d"
+        d:DesignHeight="300" d:DesignWidth="500" MinWidth="200">
     <UserControl.DataContext>
         <controls:GeneratorControlViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </UserControl.DataContext>
     <UserControl.Resources>
         <Thickness x:Key="DefaultMargin" Left="0" Top="2" Right="0" Bottom="2" />
         <Thickness x:Key="TabGridMargin" Left="10" Top="5" Right="10" Bottom="5" />
+        <converters:BooleanToVisibilityConverter x:Key="ImportTabPanelVisibilityConverter" TrueValue="Collapsed"
+                FalseValue="Visible" />
     </UserControl.Resources>
     <Grid>
         <TabControl Name="Tabs" x:FieldModifier="private">
@@ -68,16 +71,28 @@
 
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <controls:PathSelectionControl Grid.Column="0" Margin="{StaticResource DefaultMargin}"
-                                Mode="DirectorySelection"
+                        <Label Grid.Column="0" Content="Repository path:" Margin="0,2,5,2"
+                                Target="{Binding ElementName=RepositoryPathControl}" />
+                        <controls:PathSelectionControl Grid.Column="1" x:Name="RepositoryPathControl"
+                                Margin="{StaticResource DefaultMargin}" Mode="DirectorySelection"
                                 SelectedPath="{Binding ImportPage.RepositoryPath,Mode=TwoWay}"
                                 IsClearButtonVisible="True" />
-                        <Button Grid.Column="1" Content="Refresh" MinWidth="100" Margin="10,2,0,2"
+                        <Button Grid.Column="2" Content="Refresh" MinWidth="100" Margin="10,2,0,2"
                                 Click="RefreshButton_Click"
                                 IsEnabled="{Binding ImportPage.IsRepositoryPathSelected}" />
+                    </Grid>
+
+                    <!-- TODO [vmaklai] Create control for semi-transparent panel with text -->
+                    
+                    <Grid Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="9999" HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" Opacity="0.5" Background="Silver"
+                            Visibility="{Binding ImportPage.IsRepositoryPathSelected,Converter={StaticResource ImportTabPanelVisibilityConverter}}">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Text="{x:Static props:Resources.RepositoryPathNotSelected}" />
                     </Grid>
 
                     <ListView Grid.Row="1" Name="RepositoryItemsListView" Margin="{StaticResource DefaultMargin}"
@@ -128,7 +143,7 @@
             </TabItem>
 
             <TabItem Name="ParametersTab" Header="{x:Static props:Resources.ParametersTabHeader}"
-                     x:FieldModifier="private">
+                    x:FieldModifier="private">
                 <controls:ParametersPageControl x:Name="ParametersPage" DataContext="{Binding}" />
             </TabItem>
         </TabControl>

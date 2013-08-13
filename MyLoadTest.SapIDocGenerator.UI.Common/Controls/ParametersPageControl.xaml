@@ -32,7 +32,7 @@
                     Opacity="0.5" Background="Silver"
                     Visibility="{Binding ImportPage.IsParametersTabAvailable,Converter={StaticResource ParametersTabPanelVisibilityConverter}}">
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                        Text="{x:Static props:Resources.RepositoryPathNoSelected}" />
+                        Text="{x:Static props:Resources.RepositoryPathNotSelected}" />
             </Grid>
 
             <ComboBox Grid.Row="0" Margin="{StaticResource DefaultMargin}" Name="IdocItemsComboBox"

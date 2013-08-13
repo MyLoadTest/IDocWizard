@@ -20,4 +20,8 @@ IDOCREPLAYDLL_API LPCSTR idoc_create_direct(const LPCSTR idocXml);
 
 IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idocXml);
 
+IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCSTR idocXml);
+
 IDOCREPLAYDLL_API void idoc_free_memory();
+
+IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idocString);

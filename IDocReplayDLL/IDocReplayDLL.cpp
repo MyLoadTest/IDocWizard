@@ -312,7 +312,7 @@ IDOCREPLAYDLL_API int idoc_count_element(const LPCSTR elementName)
 {
     if (elementName == NULL)
     {
-        lr_error_message("[%s]: Element name cannot be NULL.", __FUNCTION__);
+        lr_error_message("[%s] Element name cannot be NULL.", __FUNCTION__);
         return 0;
     }
 
@@ -323,7 +323,7 @@ IDOCREPLAYDLL_API int idoc_count_element(const LPCSTR elementName)
 
     if (g_idocParamInputFilePath.empty())
     {
-        lr_error_message("[%s]: Input file is not selected. (Call idoc_select_input_file first.)", __FUNCTION__);
+        lr_error_message("[%s] Input file is not selected. (Call idoc_select_input_file first.)", __FUNCTION__);
         return 0;
     }
 
@@ -338,7 +338,7 @@ IDOCREPLAYDLL_API LPCSTR idoc_create_direct(const LPCSTR idocXml)
 {
     if (idocXml == NULL)
     {
-        lr_error_message("[%s]: IDoc XML cannot be NULL.", __FUNCTION__);
+        lr_error_message("[%s] IDoc XML cannot be NULL.", __FUNCTION__);
         return FALSE;
     }
 
@@ -355,14 +355,14 @@ IDOCREPLAYDLL_API LPCSTR idoc_create_direct(const LPCSTR idocXml)
     doc.load(idocXmlFinal);
     if (doc.empty())
     {
-        lr_error_message("[%s]: The specified IDoc XML document is empty.", __FUNCTION__);
+        lr_error_message("[%s] The specified IDoc XML document is empty.", __FUNCTION__);
         return NULL;
     }
 
     const xpath_node_set segmentNodeSet = doc.root().select_nodes("//IDOC/*[@SEGMENT='1']");
     if (segmentNodeSet.empty())
     {
-        lr_error_message("[%s]: The specified IDoc XML is not a valid IDoc.", __FUNCTION__);
+        lr_error_message("[%s] The specified IDoc XML is not a valid IDoc.", __FUNCTION__);
         return NULL;
     }
 
@@ -377,7 +377,7 @@ IDOCREPLAYDLL_API LPCSTR idoc_create_direct(const LPCSTR idocXml)
         if (fieldNodeSet.empty())
         {
             lr_error_message(
-                "[%s]: The specified IDoc XML contains segment '%s' without fields.",
+                "[%s] The specified IDoc XML contains segment '%s' without fields.",
                 __FUNCTION__,
                 segmentNode.name());
             return NULL;
@@ -405,7 +405,7 @@ IDOCREPLAYDLL_API LPCSTR idoc_create_direct(const LPCSTR idocXml)
             if (fieldText.length() > length)
             {
                 lr_error_message(
-                    "[%s]: The specified IDoc XML contains field '%s:%s' which actual length (%u) is greater"
+                    "[%s] The specified IDoc XML contains field '%s:%s' which actual length (%u) is greater"
                         " than declared (%u).",
                     __FUNCTION__,
                     segmentNode.name(),
@@ -441,7 +441,7 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
 {
     if (parameterName == NULL)
     {
-        lr_error_message("[%s]: Parameter name cannot be NULL.", __FUNCTION__);
+        lr_error_message("[%s] Parameter name cannot be NULL.", __FUNCTION__);
         return FALSE;
     }
 
@@ -449,7 +449,7 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
     const bool parameterValid = regex_match(parameterName, dummyMatch, g_parameterNameRegex);
     if (!parameterValid)
     {
-        lr_error_message("[%s]: Parameter name is invalid.", __FUNCTION__);
+        lr_error_message("[%s] Parameter name is invalid.", __FUNCTION__);
         return FALSE;
     }
 
@@ -467,7 +467,7 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
 ///     it to a {parameter}
 /// @param the name of the LoadRuner {parameter} to save the IDoc to
 /// @param a string containing the IDoc's XML template. This may contain XPath expressions
-/// @return true if the IDoc was created successfully
+/// @return TRUE if the IDoc was created successfully; otherwise, FALSE.
 /// @todo I haven't quite figured out how this should work, but it may be needed to handle the
 ///     situation where the output IDoc has a variable number of segments.
 IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCSTR idocXml)
@@ -475,7 +475,7 @@ IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCST
     return TRUE;
 }
 
-/// @brief Frees the memory used by ??
+/// @brief Frees the memory used by the library
 IDOCREPLAYDLL_API void idoc_free_memory()
 {
     g_allocatedStrings.clear();
@@ -484,9 +484,21 @@ IDOCREPLAYDLL_API void idoc_free_memory()
 /// @brief Saves a string (containing an IDoc) to the file system.
 /// @param the file name (including path) to save the IDoc to.
 /// @param the string containing the IDoc.
-/// @return true if the file was saved successfully.
-IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idoc_string)
+/// @return TRUE if the file was saved successfully; otherwise, FALSE.
+IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idocString)
 {
+    if (filePath == NULL)
+    {
+        lr_error_message("[%s] File path cannot be NULL.", __FUNCTION__);
+        return FALSE;
+    }
+
+    if (idocString == NULL)
+    {
+        lr_error_message("[%s] IDoc string cannot be NULL.", __FUNCTION__);
+        return FALSE;
+    }
+
     // any errors should print an error using lr_error_message() and return FALSE;
     // lr_eval_string() should be called on idoc_string, as it may contain LoadRunner {parameters}.
 

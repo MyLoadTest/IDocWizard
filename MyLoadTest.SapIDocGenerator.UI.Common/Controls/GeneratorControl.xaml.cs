@@ -15,7 +15,8 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
     {
         #region Constants and Fields
 
-        private const string MainActionName = "Action";
+        private const string InitActionName = "vuser_init";
+        private const string EndActionName = "vuser_end";
 
         #endregion
 
@@ -68,6 +69,23 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
         #region Private Methods
 
+        private IActionScriptItem FindScriptAction(IVuGenScript script, string actionName)
+        {
+            var result = script.GetActionByName(actionName);
+            if (result != null)
+            {
+                return result;
+            }
+
+            this.ShowErrorBox(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "VuGen script action '{0}' is not found.",
+                    actionName));
+
+            return null;
+        }
+
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             this.ViewModel.Reset(true);
@@ -95,29 +113,44 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 return;
             }
 
-            var actionItem = script.GetActionByName(MainActionName);
-            if (actionItem == null)
+            var mainActionItem = script.FindDefaultAction();
+            if (mainActionItem == null)
             {
-                this.ShowErrorBox(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "VuGen script action '{0}' is not found.",
-                        MainActionName));
                 return;
             }
 
+            var initActionItem = FindScriptAction(script, InitActionName);
+            if (initActionItem == null)
+            {
+                return;
+            }
+
+            var endActionItem = FindScriptAction(script, EndActionName);
+            if (endActionItem == null)
+            {
+                return;
+            }
+
+            var actionFilePaths = new[] { initActionItem, mainActionItem, endActionItem }
+                .Select(item => item.FullFileName)
+                .Join("'," + Environment.NewLine + "'");
+
             var confirmMessage = string.Format(
                 CultureInfo.InvariantCulture,
-                "The file '{0}' WILL be overwritten with the generated contents.{2}{2}"
-                    + "The file '{1}' MAY also be updated.{2}{2}{2}"
+                "The following files WILL be overwritten with the generated contents:{0}"
+                    + "'{1}'.{0}{0}"
+                    + "The following file MAY also be updated (and reopened to reflect the changes):{0}"
+                    + "'{2}'.{0}{0}"
                     + "Do you want to continue?",
-                actionItem.FullFileName,
-                script.FileName,
-                Environment.NewLine);
+                Environment.NewLine,
+                actionFilePaths,
+                script.FileName);
+
             var messageBoxResult = this.ShowMessageBox(
                 confirmMessage,
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
+
             if (messageBoxResult != MessageBoxResult.Yes)
             {
                 return;
@@ -125,7 +158,7 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             try
             {
-                this.ViewModel.WizardPage.GenerateAction(script, actionItem);
+                this.ViewModel.WizardPage.GenerateAction(script, initActionItem, mainActionItem, endActionItem);
             }
             catch (Exception ex)
             {

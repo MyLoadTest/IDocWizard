@@ -358,6 +358,20 @@ namespace MyLoadTest
             return Enum.IsDefined(value.GetType(), value);
         }
 
+        public static string Join(this IEnumerable<string> values, string separator)
+        {
+            #region Argument Check
+
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            #endregion
+
+            return string.Join(separator, values);
+        }
+
         public static Window GetControlWindow(this Control control)
         {
             Window result = null;

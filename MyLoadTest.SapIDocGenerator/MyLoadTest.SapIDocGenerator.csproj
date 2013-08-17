@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GeneratedActions.cs" />
     <Compile Include="SapIDocField.cs" />
     <Compile Include="SapIDoc.cs" />
     <Compile Include="SapIDocDefinition.cs" />

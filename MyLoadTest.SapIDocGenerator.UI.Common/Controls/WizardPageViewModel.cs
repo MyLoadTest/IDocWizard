@@ -6,9 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using HP.LR.Vugen.BackEnd.Project.ProjectSystem.ScriptItems;
 using HP.LR.VuGen.ServiceCore.Data.ProjectSystem;
+using HP.Utt.ProjectSystem;
 using ICSharpCode.SharpDevelop;
 using ICSharpCode.SharpDevelop.Gui;
+using ICSharpCode.SharpDevelop.Project;
 
 namespace MyLoadTest.SapIDocGenerator.UI.Controls
 {
@@ -104,7 +107,11 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             this.ExampleFilePath = string.Empty;
         }
 
-        public void GenerateAction(IVuGenScript script, IActionScriptItem actionItem)
+        public void GenerateAction(
+            IVuGenScript script,
+            IActionScriptItem initActionItem,
+            IActionScriptItem mainActionItem,
+            IActionScriptItem endActionItem)
         {
             #region Argument Check
 
@@ -113,9 +120,19 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
                 throw new ArgumentNullException("script");
             }
 
-            if (actionItem == null)
+            if (initActionItem == null)
             {
-                throw new ArgumentNullException("actionItem");
+                throw new ArgumentNullException("initActionItem");
+            }
+
+            if (mainActionItem == null)
+            {
+                throw new ArgumentNullException("mainActionItem");
+            }
+
+            if (endActionItem == null)
+            {
+                throw new ArgumentNullException("endActionItem");
             }
 
             #endregion
@@ -123,42 +140,68 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             var scriptFilePath = script.FileName;
 
             CopyIdocFiles(scriptFilePath);
-            CheckAndUpdateScriptFile(scriptFilePath);
-            UpdateActionFile(actionItem);
+            CheckAndUpdateScriptFile(script);
+            UpdateActionFiles(initActionItem, mainActionItem, endActionItem);
         }
 
         #endregion
 
         #region Private Methods
 
-        private static void CheckAndUpdateScriptFile(string scriptFilePath)
+        private static void CheckAndUpdateScriptFile(IVuGenScript script)
         {
-            Logger.InfoFormat("Checking script file '{0}'", scriptFilePath);
-            using (var scriptStream = File.Open(scriptFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+            Logger.InfoFormat("Checking the script '{0}'...", script.FileName);
+
+            var extraFiles = script.GetExtraFiles();
+            var isDllReferenced = extraFiles
+                .Any(item => string.Equals(item.FileName, DllName, StringComparison.OrdinalIgnoreCase));
+
+            if (isDllReferenced)
             {
-                var scriptIni = new IniFile();
-                scriptIni.Load(scriptStream);
-
-                var section = scriptIni[DllSectionName];
-                if (section.Contains(DllName) && section[DllName] == string.Empty)
-                {
-                    Logger.InfoFormat("No need to update script file '{0}'", scriptFilePath);
-                    return;
-                }
-
-                section[DllName] = string.Empty;
-
-                var backupScriptFilePath = scriptFilePath + BackupExtension;
-                Logger.InfoFormat(
-                    "Creating backup file '{0}' of script file '{1}'",
-                    backupScriptFilePath,
-                    scriptFilePath);
-                File.Copy(scriptFilePath, backupScriptFilePath, true);
-
-                Logger.InfoFormat("Updating script file '{0}'", scriptFilePath);
-                scriptStream.SetLength(0);
-                scriptIni.Save(scriptStream);
+                Logger.InfoFormat("The library '{0}' is referenced; no update is needed.", DllName);
+                return;
             }
+
+            Logger.InfoFormat("The library '{0}' is NOT referenced; updating and reopening the script.", DllName);
+
+            var dllFilePath = Path.Combine(Path.GetDirectoryName(script.FileName).EnsureNotNull(), DllName);
+            var extraFileScriptItem = script.GenerateManuallyExtraFileScriptItem(dllFilePath);
+            script.AddExtraFile(extraFileScriptItem);
+            script.Save(true);
+
+            #region Work-around: VuGen UI does not reflect the changes unless the project is reloaded
+
+            ProjectService.CloseSolution();
+            ProjectService.LoadSolutionOrProject(script.FileName);
+
+            #endregion
+
+            ////Logger.InfoFormat("Checking script file '{0}'", scriptFilePath);
+            ////using (var scriptStream = File.Open(scriptFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
+            ////{
+            ////    var scriptIni = new IniFile();
+            ////    scriptIni.Load(scriptStream);
+
+            ////    var section = scriptIni[DllSectionName];
+            ////    if (section.Contains(DllName) && section[DllName] == string.Empty)
+            ////    {
+            ////        Logger.InfoFormat("No need to update script file '{0}'", scriptFilePath);
+            ////        return;
+            ////    }
+
+            ////    section[DllName] = string.Empty;
+
+            ////    var backupScriptFilePath = scriptFilePath + BackupExtension;
+            ////    Logger.InfoFormat(
+            ////        "Creating backup file '{0}' of script file '{1}'",
+            ////        backupScriptFilePath,
+            ////        scriptFilePath);
+            ////    File.Copy(scriptFilePath, backupScriptFilePath, true);
+
+            ////    Logger.InfoFormat("Updating script file '{0}'", scriptFilePath);
+            ////    scriptStream.SetLength(0);
+            ////    scriptIni.Save(scriptStream);
+            ////}
         }
 
         private void RaisePropertyChanged<T>(Expression<Func<WizardPageViewModel, T>> propertyGetterExpression)
@@ -188,17 +231,22 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             }
         }
 
-        private void UpdateActionFile(IActionScriptItem actionItem)
+        private void UpdateActionFiles(
+            IActionScriptItem initActionItem,
+            IActionScriptItem mainActionItem,
+            IActionScriptItem endActionItem)
         {
-            var filePath = actionItem.FullFileName;
-            Logger.InfoFormat("Updating action file '{0}'", filePath);
+            Logger.InfoFormat(
+                "Updating action files '{0}' and '{1}'.",
+                mainActionItem.FullFileName,
+                initActionItem.FullFileName);
 
             var definition = SapIDocDefinition.LoadHeader(this.DefinitionFilePath);
             var idocText = File.ReadAllText(this.ExampleFilePath);
             var doc = new SapIDoc(definition, idocText);
-            var actionContents = doc.GetVuGenActionContents();
+            var generatedActions = doc.GetVuGenActionContents().EnsureNotNull();
 
-            //// TODO [vmaklai] Open and modify file in editor rather than directly on disk
+            //// TODO [vmaklai] Open and modify files in editor rather than directly on disk
 
             #region In-editor Load
 
@@ -207,17 +255,19 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
             ////        Cannot access a disposed object.
             ////        Object name: 'the instance has been already disposed and cannot be used'.
 
-            ////var actionContentsData = Encoding.Default.GetBytes(actionContents);
+            //////(!)var initActionContentsData = Encoding.Default.GetBytes(generatedActions.InitActionContents);
+            ////var actionContentsData = Encoding.Default.GetBytes(generatedActions.MainActionContents);
+            //////(!)var endActionContentsData = Encoding.Default.GetBytes(generatedActions.EndActionContents);
             ////using (var actionContentsStream = new MemoryStream(actionContentsData, false))
             ////{
-            ////    var viewContent = FileService.OpenFile(filePath, true);
+            ////    var viewContent = FileService.OpenFile(mainActionItem.FullFileName, true);
             ////    if (viewContent == null)
             ////    {
             ////        throw new InvalidOperationException(
             ////            string.Format(
             ////                CultureInfo.InvariantCulture,
             ////                "Unable to open file \"{0}\".",
-            ////                filePath));
+            ////                mainActionItem.FullFileName));
             ////    }
 
             ////    viewContent.Load(viewContent.PrimaryFile, actionContentsStream);
@@ -225,7 +275,9 @@ namespace MyLoadTest.SapIDocGenerator.UI.Controls
 
             #endregion
 
-            File.WriteAllText(actionItem.FullFileName, actionContents, Encoding.Default);
+            File.WriteAllText(initActionItem.FullFileName, generatedActions.InitActionContents, Encoding.Default);
+            File.WriteAllText(mainActionItem.FullFileName, generatedActions.MainActionContents, Encoding.Default);
+            File.WriteAllText(endActionItem.FullFileName, generatedActions.EndActionContents, Encoding.Default);
         }
 
         #endregion

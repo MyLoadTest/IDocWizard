@@ -124,7 +124,8 @@ namespace MyLoadTest.SapIDocGeneratorTest
             ////}
 
             // Output Action.c file
-            Console.WriteLine("Action.c: {0}", idoc.GetVuGenActionContents());
+            var generatedActions = idoc.GetVuGenActionContents();
+            Console.WriteLine("Action.c: {0}", generatedActions.MainActionContents);
 
             // Save IDoc for input parameter
             Console.WriteLine("IDoc XML to save for Parameter input: {0}", idoc.GetXml());
@@ -134,7 +135,7 @@ namespace MyLoadTest.SapIDocGeneratorTest
             Console.WriteLine("Creating XML IDoc output file: {0}", _xmlFile);
             File.WriteAllText(_xmlFile, idoc.GetXml().ToString());
             Console.WriteLine("Creating VuGen output file: {0}", SourceFile);
-            File.WriteAllText(SourceFile, idoc.GetVuGenActionContents());
+            File.WriteAllText(SourceFile, generatedActions.MainActionContents);
             ////Console.WriteLine(idoc.GetXml().ToString());
             ////Console.WriteLine(idoc.GetVuGenActionContents());
 

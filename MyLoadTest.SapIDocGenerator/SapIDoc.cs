@@ -184,8 +184,8 @@ namespace MyLoadTest.SapIDocGenerator
         /// &quot;            &lt;DIRECT length=\&quot;1\&quot;&gt;1&lt;/DIRECT&gt;&quot;         // Direction [1 = Outbound, 2 = Inbound]
         ///
         /// </summary>
-        /// <returns>Text that is ready to be used by a function in VuGen.</returns>
-        public string GetVuGenActionContents()
+        /// <returns>Texts that are ready to be used by functions in VuGen.</returns>
+        public GeneratedActions GetVuGenActionContents()
         {
             Logger.Debug("Building VuGen output...");
 
@@ -193,31 +193,37 @@ namespace MyLoadTest.SapIDocGenerator
 
             //// Start building the IDoc string
             idoc.AppendFormat(
-                "    // Create an IDoc file from XML input. Note that values can be parameterized.\n" +
-                    "    idoc_create(\"IDocParam\",\n" +
-                    "        \"<{0}>\"\n" +
-                    "        \"    <IDOC BEGIN=\\\"1\\\">\"\n",
+                "    // Create an IDoc file from XML input. Note that values can be parameterized.{0}"
+                    + "    idoc_create({0}"
+                    + "        \"IDocParam\",{0}"
+                    + "        \"<{1}>\"{0}"
+                    + "        \"    <IDOC BEGIN=\\\"1\\\">\"{0}",
+                Environment.NewLine,
                 this.Type);
 
             // Add the IDoc Control Record fields
             var segmentName = ControlRecord["TABNAM"];
             var segmentDescription = Definition.ControlRecord.Description;
             idoc.AppendFormat(
-                "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n", segmentName, segmentDescription);
+                "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}{2}",
+                segmentName,
+                segmentDescription,
+                Environment.NewLine);
             foreach (var field in ControlRecord)
             {
                 var fieldDescription = Definition.ControlRecord[field.Key].Description;
                 var fieldLength = Definition.ControlRecord[field.Key].Length;
                 idoc.AppendFormat(
-                    "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
+                    "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}{5}",
                     field.Key,
                     fieldLength.ToString(CultureInfo.InvariantCulture),
                     field.Value,
                     field.Key,
-                    fieldDescription);
+                    fieldDescription,
+                    Environment.NewLine);
             }
 
-            idoc.AppendFormat("        \"        </{0}>\"\n", segmentName);
+            idoc.AppendFormat("        \"        </{0}>\"{1}", segmentName, Environment.NewLine);
 
             // Add each IDoc segment (in order)
             foreach (var segment in Segments)
@@ -225,9 +231,10 @@ namespace MyLoadTest.SapIDocGenerator
                 segmentName = segment["SEGNAM"];
                 segmentDescription = Definition.Segments[segmentName].Description;
                 idoc.AppendFormat(
-                    "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}\n",
+                    "        \"        <{0} SEGMENT=\\\"1\\\">\" // {1}{2}",
                     segmentName,
-                    segmentDescription);
+                    segmentDescription,
+                    Environment.NewLine);
                 foreach (var field in segment)
                 {
                     // The field Description could be in either the Data Segment definition or the Segment definition.
@@ -246,61 +253,105 @@ namespace MyLoadTest.SapIDocGenerator
                     }
 
                     idoc.AppendFormat(
-                        "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}\n",
+                        "        \"            <{0} length=\\\"{1}\\\">{2}</{3}>\" // {4}{5}",
                         field.Key,
                         fieldLength.ToString(CultureInfo.InvariantCulture),
                         field.Value,
                         field.Key,
-                        fieldDescription);
+                        fieldDescription,
+                        Environment.NewLine);
                 }
 
-                idoc.AppendFormat("        \"        </{0}>\"\n", segmentName);
+                idoc.AppendFormat("        \"        </{0}>\"{1}", segmentName, Environment.NewLine);
             }
 
             // Add the last part of the IDoc string
             idoc.AppendFormat(
-                "        \"    </IDOC>\"\n" +
-                    "        \"</{0}>\");\n",
+                "        \"    </IDOC>\"{0}"
+                    + "        \"</{1}>\");",
+                Environment.NewLine,
                 this.Type);
 
-            // TODO: The license should be added from a file or from a registry key, so that it is not hard-coded for all users.
-            const string License = "    // The license key must be set before idoc_create() can be called.\n" +
-                "    idoc_set_license(\n" +
-                "        \"<license>\"\n" +
-                "        \"    <name>Joe User</name>\"\n" +
-                "        \"    <company>BigCo</company>\"\n" +
-                "        \"    <email>joe.user@example.com</email>\"\n" +
-                "        \"    <key>ANUAA-ADHHB-BS7VU-MVH45-9ZG3B-U3PUQ</key>\"\n" +
-                "        \"    <expires>2013-10-01</expires>\"\n" +
-                "        \"</license>\");\n";
-
             // TODO: put error message code here in case DLL is not found.
-            const string Dll = "    // The IDoc DLL must be loaded before any idoc_ functions are called.\n" +
-                "    int rc = lr_load_dll(\"idoc.dll\");\n" +
-                "    if (rc != 0) {\n" +
-                "        lr_error_message(\"Problem loading idoc.dll\");\n" +
-                "        lr_abort();\n" +
-                "    }\n";
+            var loadLibrarySnippet = string.Format(
+                CultureInfo.InvariantCulture,
+                "    // The IDoc DLL must be loaded before any idoc_ functions are called.{0}"
+                    + "    int rc = lr_load_dll(\"idoc.dll\");{0}"
+                    + "    if (rc != 0){0}"
+                    + "    {{{0}"
+                    + "        lr_error_message(\"Problem loading idoc.dll\");{0}"
+                    + "        lr_abort();{0}"
+                    + "    }}",
+                Environment.NewLine);
+
+            // TODO: The license should be added from a file or from a registry key, so that it is not hard-coded for all users.
+            var licenseSnippet = string.Format(
+                CultureInfo.InvariantCulture,
+                "    // The license key must be set before idoc_create() can be called.{0}"
+                    + "    idoc_set_license({0}"
+                    + "        \"<license>\"{0}"
+                    + "        \"    <name>Joe User</name>\"{0}"
+                    + "        \"    <company>BigCo</company>\"{0}"
+                    + "        \"    <email>joe.user@example.com</email>\"{0}"
+                    + "        \"    <key>ANUAA-ADHHB-BS7VU-MVH45-9ZG3B-U3PUQ</key>\"{0}"
+                    + "        \"    <expires>2013-10-01</expires>\"{0}"
+                    + "        \"</license>\");{0}",
+                Environment.NewLine);
+
+            var freeMemorySnippet = string.Format(
+                CultureInfo.InvariantCulture,
+                "    idoc_free_memory();{0}",
+                Environment.NewLine);
+
+            // This is the vuser_init.c file
+            // Note special escaping for curly braces due to string.Format replacement parameters.
+            var initAction = string.Format(
+                CultureInfo.InvariantCulture,
+                "vuser_init(){0}"
+                    + "{{{0}"
+                    + "{1}{0}"
+                    + "{0}"
+                    + "{2}{0}"
+                    + "    return 0;{0}"
+                    + "}}",
+                Environment.NewLine,
+                loadLibrarySnippet,
+                licenseSnippet);
 
             // This is the Action.c file
             // Note special escaping for curly braces due to string.Format replacement parameters.
-            var action = string.Format(
-                "Action()\n" +
-                    "{{\n" +
-                    "{0}" +
-                    "\n" +
-                    "{1}" +
-                    "\n" +
-                    "{2}" +
-                    "\n" +
-                    "    return 0;\n" +
-                    "}}",
-                Dll,
-                License,
+            var mainAction = string.Format(
+                "Action(){0}"
+                    + "{{{0}"
+                    + "{1}{0}"
+                    + "{0}"
+                    + "    return 0;{0}"
+                    + "}}",
+                Environment.NewLine,
                 idoc);
 
-            Logger.DebugFormat("VuGen output:{0}{1}", Environment.NewLine, action);
-            return action;
+            // This is the vuser_end.c file
+            // Note special escaping for curly braces due to string.Format replacement parameters.
+            var endAction = string.Format(
+                CultureInfo.InvariantCulture,
+                "vuser_end(){0}"
+                    + "{{{0}"
+                    + "{1}"
+                    + "{0}"
+                    + "    return 0;{0}"
+                    + "}}",
+                Environment.NewLine,
+                freeMemorySnippet);
+
+            Logger.DebugFormat(
+                "VuGen output:{0}{1}{0}{2}{0}{3}",
+                Environment.NewLine,
+                initAction,
+                mainAction,
+                endAction);
+
+            var result = new GeneratedActions(mainAction, initAction, endAction);
+            return result;
         }
 
         #endregion

@@ -8,6 +8,8 @@
 #define IDOCREPLAYDLL_API extern "C" __declspec(dllimport)
 #endif
 
+IDOCREPLAYDLL_API void idoc_free_memory();
+
 IDOCREPLAYDLL_API BOOL idoc_set_license(const LPCSTR licenseXml);
 
 IDOCREPLAYDLL_API BOOL idoc_select_input_file(const LPCSTR filePath);
@@ -22,6 +24,4 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
 
 IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCSTR idocXml);
 
-IDOCREPLAYDLL_API void idoc_free_memory();
-
-IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idocString);
+IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR stringValue);

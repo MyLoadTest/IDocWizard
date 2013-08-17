@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <regex>
@@ -41,7 +42,7 @@ namespace
     ///     if (is_param_log_enabled()) { lr_output_message("my message about params"); }
     bool is_param_log_enabled()
     {
-        unsigned int log_options = lr_get_debug_message();
+        const unsigned int log_options = lr_get_debug_message();
         return (log_options & LR_MSG_CLASS_PARAMETERS) != 0;
     }
 
@@ -53,7 +54,7 @@ namespace
     ///     if (is_trace_log_enabled()) { lr_output_message("my message about trace"); }
     bool is_trace_log_enabled()
     {
-        unsigned int log_options = lr_get_debug_message();
+        const unsigned int log_options = lr_get_debug_message();
         return (log_options & LR_MSG_CLASS_FULL_TRACE) != 0;
     }
 
@@ -111,8 +112,14 @@ namespace
     }
 }
 
-/// @brief Sets the license key to use for idoc.dll 
-/// @details The idoc_create function will not work unless the license key has been set and is 
+/// @brief Frees the memory used by the library
+IDOCREPLAYDLL_API void idoc_free_memory()
+{
+    g_allocatedStrings.clear();
+}
+
+/// @brief Sets the license key to use for idoc.dll
+/// @details The idoc_create function will not work unless the license key has been set and is
 ///     valid. If the license key is invalid, an error message will be written to the Replay log.
 /// @param a string containing a license in XML format
 /// @example
@@ -179,7 +186,7 @@ IDOCREPLAYDLL_API BOOL idoc_set_license(const LPCSTR licenseXml)
 }
 
 /// @brief Select the input file from the Repository
-/// @param the file name (including path) of the IDoc to use as input for any IDoc parameters 
+/// @param the file name (including path) of the IDoc to use as input for any IDoc parameters
 /// @return true if the file exists and was selected successfully
 IDOCREPLAYDLL_API BOOL idoc_select_input_file(const LPCSTR filePath)
 {
@@ -216,7 +223,7 @@ IDOCREPLAYDLL_API BOOL idoc_select_input_file(const LPCSTR filePath)
     return TRUE;
 }
 
-/// @brief Replaces any IDoc parameters with a the specified value from the input IDoc. IDoc 
+/// @brief Replaces any IDoc parameters with a the specified value from the input IDoc. IDoc
 ///     parameters should be in the format {IDoc:SegmentName:FieldName}
 ///     Note you must specify the input IDoc to use by first calling idoc_select_input_file
 /// @param a new string with the IDoc parameters replaced with their values
@@ -472,35 +479,54 @@ IDOCREPLAYDLL_API BOOL idoc_create(const LPCSTR parameterName, const LPCSTR idoc
 ///     situation where the output IDoc has a variable number of segments.
 IDOCREPLAYDLL_API BOOL idoc_create_xpath(const LPCSTR parameterName, const LPCSTR idocXml)
 {
+    if (parameterName == NULL)
+    {
+        lr_error_message("[%s] Parameter name cannot be NULL.", __FUNCTION__);
+        return FALSE;
+    }
+
+    if (idocXml == NULL)
+    {
+        lr_error_message("[%s] IDoc XML cannot be NULL.", __FUNCTION__);
+        return FALSE;
+    }
+
     return TRUE;
 }
 
-/// @brief Frees the memory used by the library
-IDOCREPLAYDLL_API void idoc_free_memory()
-{
-    g_allocatedStrings.clear();
-}
-
 /// @brief Saves a string (containing an IDoc) to the file system.
-/// @param the file name (including path) to save the IDoc to.
-/// @param the string containing the IDoc.
+/// @param The file name (including path) to save the string to (may contain VuGen parameters).
+/// @param The string to write to the file (may contain VuGen parameters).
 /// @return TRUE if the file was saved successfully; otherwise, FALSE.
-IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR idocString)
+IDOCREPLAYDLL_API BOOL idoc_save(LPCSTR filePath, LPCSTR stringValue)
 {
     if (filePath == NULL)
     {
-        lr_error_message("[%s] File path cannot be NULL.", __FUNCTION__);
+        lr_error_message("[%s] The file path cannot be NULL.", __FUNCTION__);
         return FALSE;
     }
 
-    if (idocString == NULL)
+    if (stringValue == NULL)
     {
-        lr_error_message("[%s] IDoc string cannot be NULL.", __FUNCTION__);
+        lr_error_message("[%s] The string value cannot be NULL.", __FUNCTION__);
         return FALSE;
     }
 
-    // any errors should print an error using lr_error_message() and return FALSE;
-    // lr_eval_string() should be called on idoc_string, as it may contain LoadRunner {parameters}.
+    const char* evaluatedFilePath = lr_eval_string(filePath);
+    const string actualFilePath(evaluatedFilePath == NULL ? filePath : evaluatedFilePath);
+
+    const char* evaluatedStringValue = lr_eval_string(stringValue);
+    const string actualStringValue(evaluatedStringValue == NULL ? stringValue : evaluatedStringValue);
+
+    ofstream fileStream(actualFilePath.c_str());
+    if (fileStream.bad())
+    {
+        lr_error_message("[%s] Unable to open file '%s' for writing.", __FUNCTION__, actualFilePath.c_str());
+        return FALSE;
+    }
+
+    fileStream.write(actualStringValue.c_str(), actualStringValue.length());
+    fileStream.close();
 
     return TRUE;
 }

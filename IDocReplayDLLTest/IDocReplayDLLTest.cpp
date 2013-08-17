@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 
 #include "..\IDocReplayDLL\IDocReplayDLL.h"
+#include "..\IDocReplayDLL\Utils.h"
 #include <iostream>
 #include <fstream>
 #include <streambuf>
@@ -22,7 +23,7 @@ namespace
 
         fileText.erase();
 
-        const ifstream fileStream(filePath);
+        ifstream fileStream(filePath);
         if (fileStream.bad())
         {
             return false;
@@ -31,12 +32,15 @@ namespace
         istreambuf_iterator<char> it(fileStream.rdbuf());
         fileText.assign(it, istreambuf_iterator<char>());
 
+        fileStream.close();
+
         return true;
     }
 }
 
 static const char* g_testInputFilePath = "IDocInput.xml";
 static const char* g_testOutputFilePath = "IDocOutput.txt";
+static const char* g_testSaveMethodFilePath = "TestSave.txt";
 
 int _tmain()
 {
@@ -55,14 +59,14 @@ int _tmain()
 
     if (!setLicenseResult)
     {
-        wcout << L"*** Error setting license." << endl;
+        wcout << L"*** Error setting the license." << endl;
         return 1;
     }
 
     const bool selectInputFileResult = !!idoc_select_input_file(g_testInputFilePath);
     if (!selectInputFileResult)
     {
-        wcout << L"*** Error setting input file." << endl;
+        wcout << L"*** Error setting the input file." << endl;
         return 2;
     }
 
@@ -92,12 +96,12 @@ int _tmain()
     string idocInputFileText, idocOutputFileText;
     if (!ReadFileText(g_testInputFilePath, idocInputFileText))
     {
-        wcout << L"*** Failed to read test file '" << g_testInputFilePath << "'." << endl;
+        wcout << L"*** Failed to read the test file '" << g_testInputFilePath << "'." << endl;
         return -1;
     }
     if (!ReadFileText(g_testOutputFilePath, idocOutputFileText))
     {
-        wcout << L"*** Failed to read test file '" << g_testOutputFilePath << "'." << endl;
+        wcout << L"*** Failed to read the test file '" << g_testOutputFilePath << "'." << endl;
         return -1;
     }
 
@@ -106,6 +110,33 @@ int _tmain()
     {
         wcout << L"*** idoc_create_direct() test has failed." << endl;
         return 6;
+    }
+
+    if (!Utils::DeleteFile(g_testSaveMethodFilePath))
+    {
+        wcout << L"*** Unable to delete the test output file '" << g_testSaveMethodFilePath << "'." << endl;
+        return -1;
+    }
+
+    const string testStringValue("1-{Test}-2");
+    const bool saveResult = !!idoc_save(g_testSaveMethodFilePath, testStringValue.c_str());
+    if (!saveResult)
+    {
+        wcout << L"*** idoc_save() test has failed." << endl;
+        return 7;
+    }
+
+    string actualStringValue;
+    if (!ReadFileText(g_testSaveMethodFilePath, actualStringValue))
+    {
+        wcout << L"*** Failed to read the test output file '" << g_testSaveMethodFilePath << "'." << endl;
+        return -1;
+    }
+
+    if (actualStringValue.compare(testStringValue.c_str()) != 0)
+    {
+        wcout << L"*** idoc_save() test has failed." << endl;
+        return 7;
     }
 
     wcout << L"* Test passed." << endl << endl;

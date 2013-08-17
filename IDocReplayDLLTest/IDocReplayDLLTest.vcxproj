@@ -62,8 +62,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /f /g /h /r /y "$(ProjectDir)\IDocInput.xml" "$(TargetDir)\"
-xcopy /f /g /h /r /y "$(ProjectDir)\IDocOutput.txt" "$(TargetDir)\"</Command>
+      <Command>setlocal
+
+xcopy /f /g /h /r /y "$(ProjectDir)\IDocInput.xml" "$(TargetDir)\" || exit 1
+xcopy /f /g /h /r /y "$(ProjectDir)\IDocOutput.txt" "$(TargetDir)\" || exit 2</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,8 +85,10 @@ xcopy /f /g /h /r /y "$(ProjectDir)\IDocOutput.txt" "$(TargetDir)\"</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /f /g /h /r /y "$(ProjectDir)\IDocInput.xml" "$(TargetDir)\"
-xcopy /f /g /h /r /y "$(ProjectDir)\IDocOutput.txt" "$(TargetDir)\"</Command>
+      <Command>setlocal
+
+xcopy /f /g /h /r /y "$(ProjectDir)\IDocInput.xml" "$(TargetDir)\" || exit 1
+xcopy /f /g /h /r /y "$(ProjectDir)\IDocOutput.txt" "$(TargetDir)\" || exit 2</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

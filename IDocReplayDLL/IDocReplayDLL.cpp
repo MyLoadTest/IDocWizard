@@ -220,6 +220,10 @@ IDOCREPLAYDLL_API BOOL idoc_select_input_file(const LPCSTR filePath)
     }
 
     g_idocParamInputFilePath = filePath;
+	if (is_trace_log_enabled())
+    {
+        lr_output_message("Selected IDoc input file: %s", filePath);
+    }
     return TRUE;
 }
 
